@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/portfolioListFragment">
+
+    <fragment
+        android:id="@+id/portfolioNewFragment"
+        android:name="ie.wit.showcase2.ui.portfolioNew.PortfolioNewFragment"
+        android:label="New Portfolio"
+        tools:layout="@layout/fragment_portfolio_new">
+        <action
+            android:id="@+id/action_portfolioNewFragment_to_portfolioListFragment"
+            app:destination="@id/portfolioListFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/portfolioListFragment"
+        android:name="ie.wit.showcase2.ui.portfolioList.PortfolioListFragment"
+        android:label="Portfolio List"
+        tools:layout="@layout/fragment_portfolio_list">
+        <action
+            android:id="@+id/action_portfolioListFragment_to_portfolioNewFragment"
+            app:destination="@id/portfolioNewFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_portfolioListFragment_to_portfolioDetailFragment"
+            app:destination="@id/portfolioDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="ie.wit.showcase2.ui.about.AboutFragment"
+        android:label="@string/action_about"
+        tools:layout="@layout/fragment_about" />
+    <fragment
+        android:id="@+id/portfolioDetailFragment"
+        android:name="ie.wit.showcase2.ui.portfolioDetail.PortfolioDetailFragment"
+        android:label="Portfolio Detail"
+        tools:layout="@layout/fragment_portfolio_detail">
+        <action
+            android:id="@+id/action_portfolioDetailFragment_to_portfolioListFragment"
+            app:destination="@id/portfolioListFragment" />
+        <argument
+            android:name="portfolioid"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_portfolioDetailFragment_to_projectListFragment"
+            app:destination="@id/projectListFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/projectListFragment"
+        android:name="ie.wit.showcase2.ui.projectList.projectListFragment"
+        android:label="fragment_project_list"
+        tools:layout="@layout/fragment_project_list" >
+        <argument
+            android:name="portfolioid"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_projectListFragment_to_portfolioDetailFragment"
+            app:destination="@id/portfolioDetailFragment" />
+        <action
+            android:id="@+id/action_projectListFragment_to_projectNewFragment"
+            app:destination="@id/projectNewFragment" />
+        <action
+            android:id="@+id/action_projectListFragment_to_projectDetailFragment"
+            app:destination="@id/projectDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/projectNewFragment"
+        android:name="ie.wit.showcase2.ui.projectNew.projectNewFragment"
+        android:label="fragment_project_new"
+        tools:layout="@layout/fragment_project_new" >
+        <action
+            android:id="@+id/action_projectNewFragment_to_projectListFragment"
+            app:destination="@id/projectListFragment" />
+        <argument
+            android:name="portfolioid"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/projectDetailFragment"
+        android:name="ie.wit.showcase2.ui.projectDetail.projectDetailFragment"
+        android:label="fragment_project_detail"
+        tools:layout="@layout/fragment_project_detail" >
+        <action
+            android:id="@+id/action_projectDetailFragment_to_projectListFragment"
+            app:destination="@id/projectListFragment" />
+        <argument
+            android:name="projectid"
+            app:argType="long" />
+        <argument
+            android:name="portfolioid"
+            app:argType="long" />
+    </fragment>
+</navigation>

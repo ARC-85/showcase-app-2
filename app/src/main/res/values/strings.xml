@@ -1,0 +1,140 @@
+<resources>
+    <string name="app_name">Showcase</string>
+    <string name="donateTitle">Welcome Homer</string>
+    <string name="donateSubtitle">Please Give Generously</string>
+    <string name="donateButton">Donate</string>
+    <string name="paypal">PayPal</string>
+    <string name="direct">Direct</string>
+    <string name="amount">Amount</string>
+    <string name="total">Total so Far</string>
+    <string name="totalSoFar">$ %1$d</string>
+    <string name="reportTitle">Donations Report</string>
+    <string name="defaultAmount">00</string>
+    <string name="defaultMethod">N/A</string>
+    <string name="enter_amount">Enter Amount</string>
+    <string name="action_donate">Donate</string>
+    <string name="action_report">Report</string>
+
+    <string name="action_share">Share</string>
+    <string name="action_send">Send</string>
+    <string name="group_communicate">Communicate</string>
+
+
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="action_about">About Us</string>
+    <string name="aboutus_title">Homer for President !!</string>
+    <string name="aboutus_message">Hi, I\'m Homer\n\nPlease vote for me.\n\n Please Please Please Please!!</string>
+
+    <string name="donationsNotFound">No Donations Yet…\nGo Make a Donation!</string>
+    <string name="donationError">Error : Couldn\'t Make a Donation…</string>
+    <string name="donationDetails">Donation Details</string>
+
+    <string name="amt">Amount :</string>
+    <string name="payment">Payment :</string>
+    <string name="message">Message :</string>
+    <string name="upvotes">UpVotes :</string>
+
+    <string name="messageLoading">Please Wait while the Donations are Loading...</string>
+
+    <!-- START Firebase Resources-->
+
+    <string name="label_emailpassword">Email/Password Authentication</string>
+    <string name="desc_emailpassword">Use an email and password to authenticate with Firebase.</string>
+    <string name="sign_in">Sign In</string>
+    <string name="create_account">Create Account</string>
+    <string name="send_link">Send Link</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="loading">Loading…</string>
+    <string name="signed_in">Signed In</string>
+    <string name="signed_out">Signed Out</string>
+    <string name="token_null">Token: null</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="desc_firebase_lockup">Firebase logo and name</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="firebase_status_fmt">Firebase User: %s</string>
+    <string name="firebase_user_management">Firebase User Management</string>
+    <string name="emailpassword_status_fmt">Email User: %1$s (verified: %2$b)</string>
+    <string name="emailpassword_title_text">Please Login Below</string>
+
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+
+
+
+    <string name="button_addPortfolio">Add Portfolio</string>
+    <string name="hint_portfolioTitle">Portfolio Title</string>
+    <string name="hint_portfolioDescription">Description </string>
+    <string name="menu_addPortfolio">Add Portfolio</string>
+    <string name="menu_cancelPortfolio">Back</string>
+    <string name="enter_portfolio_title"> Please enter a Portfolio Title </string>
+    <string name="save_portfolio"> Save Portfolio </string>
+    <string name="button_addImage"> Add Image </string>
+    <string name="select_portfolio_image">Select portfolio image</string>
+    <string name="button_changeImage">Change Image</string>
+    <string name="hint_projectTitle">Project Title</string>
+    <string name="hint_projectDescription">Project Description </string>
+    <string name="button_addProject">Add Project</string>
+    <string name="menu_addProject">Add Project</string>
+    <string name="menu_cancelProject">Cancel Project</string>
+    <string name="enter_project_title"> Please enter a Project Title </string>
+    <string name="save_project"> Save Project</string>
+    <string name="select_project_image">Select project image</string>
+    <string name="button_location">Set Location</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="hint_projectLatitude">Project Latitude</string>
+    <string name="hint_projectLongitude">Project Longitude</string>
+    <string name="designed_by">Designed By Andrew Cameron</string>
+    <string name="splash_image">Splash Image</string>
+    <string name="new_project">Add New Project</string>
+    <string name="menu_portfolio_delete">Portfolio Delete</string>
+    <string name="edit_portfolio_details">Edit Portfolio Details</string>
+    <string name="enter_portfolio_details">Enter Portfolio Details</string>
+    <string name="portfolio_title_label">Portfolio Title</string>
+    <string name="portfolio_description_label">Portfolio Description</string>
+    <string name="new_portfolio_label">New Portfolio</string>
+    <string name="portfolios_label">Portfolios</string>
+    <string name="menu_project_delete">Project Delete</string>
+    <string name="title_activity_project_maps">ProjectMapsActivity</string>
+    <string name="project_image_placeholder">Project Image</string>
+    <string name="project_title_placeholder">Project Title</string>
+    <string name="project_description_placeholder">Project Description</string>
+    <string name="menu_viewProjects">View Projects</string>
+    <string name="portfolio_projectList">Projects for Portfolio:</string>
+    <string name="title_activity_project_list">ProjectListActivity</string>
+    <string name="button_goToProjects">Go To Projects</string>
+    <string name="title_portfolioName">Portfolio</string>
+    <string name="selected_item">Selected item:</string>
+    <string-array name="menu_portfolioTypes">
+        <item>New Build</item>
+        <item>Renovation</item>
+        <item>Interiors</item>
+        <item>Landscaping</item>
+        <item>Commercial</item>
+    </string-array>
+    <string name="portfolio_type_label">Portfolio Type</string>
+    <string name="btn_filter">Filter Portfolio Types</string>
+    <string name="project_budget_label">Project Budget</string>
+    <string name="project_title_label">Project Title</string>
+    <string name="project_description_label">Project Description</string>
+    <string name="project_location_label">Project Location</string>
+    <string name="project_images_label">Project Images</string>
+    <string name="project_completion_label">Project Completion Date</string>
+    <string name="btn_budget_filter">Filter Project Budgets</string>
+    <string name="portfolio_filter_label">Filter Portfolio Types</string>
+    <string name="new_project_label">New Project</string>
+    <string name="portfolio_image_label">Portfolio Image</string>
+    <string name="project_save">Project Save</string>
+    <string name="portfolio_save">Portfolio Save</string>
+    <string name="project_portfolio_placeholder">Portfolio Title</string>
+    <string name="portfoliosNotFound">No Portfolios Entered Yet…\nEnter a New Portfolio!</string>
+    <string name="portfolioMessageLoading">Please wait while the portfolios are loading...</string>
+    <string name="nav_header_title">Showcase</string>
+    <string name="nav_header_subtitle">Promote Your Projects!</string>
+    <string name="action_portfolio_list">Portfolio List</string>
+    <string name="projectsNotFound">No Projects Entered For This Portfolio Yet…\nEnter a New Project!</string>
+    <string name="action_project_list">Project List</string>
+</resources>
