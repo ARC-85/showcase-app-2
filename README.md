@@ -1,7 +1,7 @@
 # Showcase : Organise and manage your construction and landscaping portfolio
 ![](https://res.cloudinary.com/whodunya/image/upload/v1646082553/showcase/310-1-3D_View_1_ersrii.jpg)
 
-## Overview of Showcase
+## Overview 
 
 Showcase is a mobile app that allows vendors in the construction and landscaping industy to *showcase* their work.
 
