@@ -25,6 +25,7 @@ import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentPortfolioNewBinding
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
+import ie.wit.showcase2.ui.portfolioList.PortfolioListFragmentDirections
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
@@ -69,6 +70,13 @@ class PortfolioDetailFragment : Fragment() {
             findNavController().navigateUp()
         }*/
 
+        fragBinding.btnGoToProjects.setOnClickListener {
+            val action = PortfolioDetailFragmentDirections.actionPortfolioDetailFragmentToProjectListFragment(
+                args.portfolioid
+            )
+            findNavController().navigate(action)
+        }
+
         var portfolio = detailViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
             args.portfolioid)
 
@@ -88,7 +96,7 @@ class PortfolioDetailFragment : Fragment() {
         spinner.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>,
-                                        view: View, position: Int, id: Long) {
+                                        view: View?, position: Int, id: Long) {
                 portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
                 // The toast message was taken out because it was annoying, but can be reinstated if wanted
                 /*Toast.makeText(this@PortfolioActivity,

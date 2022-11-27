@@ -137,4 +137,6 @@
     <string name="action_portfolio_list">Portfolio List</string>
     <string name="projectsNotFound">No Projects Entered For This Portfolio Yet…\nEnter a New Project!</string>
     <string name="action_project_list">Project List</string>
+    <string name="action_new_portfolio">New Portfolio</string>
+    <string name="action_new_project">New Project</string>
 </resources>
