@@ -97,7 +97,8 @@ object PortfolioManager : PortfolioStore {
 
     // Function to find specific portfolios based on passed portfolio type
     override fun findSpecificPortfolios(portfolioType: String): MutableList<PortfolioModel> {
-        var list = portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
+        var list =
+            portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
         return list.toMutableList() // Return mutable list and log
         println("this is list: $list")
         logAll()
@@ -106,9 +107,11 @@ object PortfolioManager : PortfolioStore {
 
     // Function to find projects that come from portfolios of specific type, using data on passed type
     override fun findSpecificTypeProjects(portfolioType: String): MutableList<NewProject> {
-        var list = portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
+        var list =
+            portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
         println("this is list: $list")
-        var portfolioTypeProjectsOverall: MutableList<NewProject> = arrayListOf() // Create a mutable list for following
+        var portfolioTypeProjectsOverall: MutableList<NewProject> =
+            arrayListOf() // Create a mutable list for following
         if (list.isNotEmpty()) { // If there are at least some portfolios (i.e. selection wasn't made on empty list)
             list.forEach { // For each portfolio in the list, make a list of the portfolio's projects. If there is a previous list of projects from other portfolios, add the current portfolio projects to that list
                 println("project item: " + it.projects?.toMutableList())
@@ -129,14 +132,16 @@ object PortfolioManager : PortfolioStore {
     // Function for creating a new project using passed data for project and portfolio
     override fun createProject(project: NewProject, portfolio: PortfolioModel) {
         project.projectId = generateRandomId()
-        var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id } // Finding matching portfolio
+        var foundPortfolio: PortfolioModel? =
+            portfolios.find { p -> p.id == portfolio.id } // Finding matching portfolio
         if (foundPortfolio != null) {
             if (foundPortfolio.projects != null) { // If there are already projects in the portfolio, add this project to the list
                 var portfolioProjects = foundPortfolio.projects
                 portfolioProjects = portfolioProjects?.plus(project)
                 foundPortfolio.projects = portfolioProjects
             } else {
-                foundPortfolio.projects = arrayOf(project) // Otherwise initiate a new array of projects
+                foundPortfolio.projects =
+                    arrayOf(project) // Otherwise initiate a new array of projects
             }
             //serialize() // Add project to portfolio JSON file
             logAll()
@@ -147,21 +152,30 @@ object PortfolioManager : PortfolioStore {
     override fun updateProject(project: NewProject, portfolio: PortfolioModel) {
 
         // Process for updating portfolio JSON file
-        var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
+        var foundPortfolio: PortfolioModel? =
+            portfolios.find { p -> p.id == portfolio.id } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
-                var projectIdList = arrayListOf<Long>() // Create a arrayList variable for storing project IDs
+                var projectIdList =
+                    arrayListOf<Long>() // Create a arrayList variable for storing project IDs
                 foundPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
                     projectIdList += it.projectId
                 }
                 println("this is projectIdList: $projectIdList")
-                val index = projectIdList.indexOf(project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                var projectId = project.projectId
+                println("this is projectId: $projectId")
+                val index =
+                    projectIdList.indexOf(project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
                 println("this is index: $index")
-                var portfolioProjects1 = foundPortfolio.projects!!.toMutableList() // Create a list of the projects from the passed portfolio
-                var short = portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                var portfolioProjects1 =
+                    foundPortfolio.projects!!.toMutableList() // Create a list of the projects from the passed portfolio
+                var short =
+                    portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
                 println("this is short: $short")
-                portfolioProjects1 = portfolioProjects1.plus(project) as MutableList<NewProject> // Add the passed project to the shortened list of projects
-                foundPortfolio.projects = ArrayList(portfolioProjects1).toTypedArray() // Assign the new list of projects to the found portfolio
+                portfolioProjects1 =
+                    portfolioProjects1.plus(project) as MutableList<NewProject> // Add the passed project to the shortened list of projects
+                foundPortfolio.projects =
+                    ArrayList(portfolioProjects1).toTypedArray() // Assign the new list of projects to the found portfolio
             }
             //serialize() // Update the portfolio JSON file
             logAll()
@@ -173,22 +187,44 @@ object PortfolioManager : PortfolioStore {
         var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id }
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
-                var projectIdList = arrayListOf<Long>() // Create a arrayList variable for storing project IDs
+                var projectIdList =
+                    arrayListOf<Long>() // Create a arrayList variable for storing project IDs
                 foundPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
                     projectIdList += it.projectId
                 }
                 println("this is projectIdList: $projectIdList")
-                val index = projectIdList.indexOf(project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                val index =
+                    projectIdList.indexOf(project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
                 println("this is index: $index")
-                var portfolioProjects1 = foundPortfolio.projects!!.toMutableList() // Create a list of the projects from the passed portfolio
-                var short = portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                var portfolioProjects1 =
+                    foundPortfolio.projects!!.toMutableList() // Create a list of the projects from the passed portfolio
+                var short =
+                    portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
                 println("this is short: $short")
-                foundPortfolio.projects = ArrayList(portfolioProjects1).toTypedArray() // Assign the new list of projects to the found portfolio
+                foundPortfolio.projects =
+                    ArrayList(portfolioProjects1).toTypedArray() // Assign the new list of projects to the found portfolio
             }
             //serialize() // Update the portfolio JSON file
             logAll()
         }
     }
 
+    override fun findProjectById(projectId: Long, portfolioId: Long): NewProject? {
+        var foundProject: NewProject? = null
+        // Process for updating portfolio JSON file
+        var foundPortfolio: PortfolioModel? =
+            portfolios.find { p -> p.id == portfolioId } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
+        if (foundPortfolio != null) { // If the portfolio is found...
+            if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
+
+                foundPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                    if (it.projectId == projectId) {
+                        foundProject = it
+                    }
+                }
+            }
+        }
+        return foundProject
+    }
 }
 

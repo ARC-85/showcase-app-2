@@ -64,7 +64,7 @@ class PortfolioNewFragment : Fragment() {
             spinner.onItemSelectedListener = object :
                 AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>,
-                                            view: View, position: Int, id: Long) {
+                                            view: View?, position: Int, id: Long) {
                     portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
 
                     println("this is portfolioType: $portfolioType")
