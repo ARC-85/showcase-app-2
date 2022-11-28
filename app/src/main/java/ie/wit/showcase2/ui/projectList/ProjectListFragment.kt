@@ -105,7 +105,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
-                //(requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 //getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
                 //getActivity().getActionBar().setHomeButtonEnabled(false);
             }
@@ -116,6 +116,16 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Validate and handle the selected menu item
+                when (menuItem.itemId) {
+                    R.id.item_home -> {
+                        val action = ProjectListFragmentDirections.actionProjectListFragmentToPortfolioListFragment()
+                        findNavController().navigate(action)
+                    }
+                    R.id.item_cancel -> {
+                        val action = ProjectListFragmentDirections.actionProjectListFragmentToPortfolioDetailFragment(args.portfolioid)
+                        findNavController().navigate(action)
+                    }
+                }
                 return NavigationUI.onNavDestinationSelected(menuItem,
                     requireView().findNavController())
             }

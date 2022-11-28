@@ -5,10 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SpinnerAdapter
@@ -16,10 +14,15 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.NavigationUI
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentPortfolioNewBinding
@@ -27,6 +30,7 @@ import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 import ie.wit.showcase2.ui.portfolioList.PortfolioListFragmentDirections
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
+import ie.wit.showcase2.ui.projectList.ProjectListFragmentDirections
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 
@@ -54,6 +58,8 @@ class PortfolioDetailFragment : Fragment() {
 
         detailViewModel = ViewModelProvider(this).get(PortfolioDetailViewModel::class.java)
         detailViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer { render() })
+
+        setupMenu()
 
 
         /*fragBinding.editPortfolioButton.setOnClickListener {
@@ -148,14 +154,64 @@ class PortfolioDetailFragment : Fragment() {
 
     fun setDeleteButtonListener(layout: FragmentPortfolioDetailBinding) {
         fragBinding.deletePortfolioButton.setOnClickListener {
-            detailViewModel.deletePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!, PortfolioModel(id = args.portfolioid, title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
-                        email = loggedInViewModel.liveFirebaseUser.value?.email!!))
+            detailViewModel.deletePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!, args.portfolioid)
             findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
             }
 
     }
 
+    private fun setupMenu() {
+        (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
+            override fun onPrepareMenu(menu: Menu) {
+                // Handle for example visibility of menu items
+            }
 
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(ie.wit.showcase2.R.menu.menu_portfolio_detail, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Validate and handle the selected menu item
+                when (menuItem.itemId) {
+                    ie.wit.showcase2.R.id.item_home -> {
+                        val action = PortfolioDetailFragmentDirections.actionPortfolioDetailFragmentToPortfolioListFragment()
+                        findNavController().navigate(action)
+                    }
+
+                    ie.wit.showcase2.R.id.item_portfolio_save -> {
+                        if (fragBinding.portfolioTitle.text.isEmpty()) {
+                            Toast.makeText(context, ie.wit.showcase2.R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
+                        } else {
+                            detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
+                                args.portfolioid, PortfolioModel(id = args.portfolioid, title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
+                                    email = loggedInViewModel.liveFirebaseUser.value?.email!!))
+                            println(portfolioType)
+                        }
+                        findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
+                    }
+
+                    ie.wit.showcase2.R.id.item_portfolio_delete -> {
+                            detailViewModel.deletePortfolio(
+                                loggedInViewModel.liveFirebaseUser.value?.email!!,
+                                args.portfolioid
+                            )
+                            findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
+
+                    }
+
+                    ie.wit.showcase2.R.id.item_goToProjects -> {
+                        val action = PortfolioDetailFragmentDirections.actionPortfolioDetailFragmentToProjectListFragment(
+                            args.portfolioid
+                        )
+                        findNavController().navigate(action)
+                    }
+
+                }
+                return NavigationUI.onNavDestinationSelected(menuItem,
+                    requireView().findNavController())
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
 
     // Image picker is setup for choosing portfolio image
     private fun registerImagePickerCallback() {

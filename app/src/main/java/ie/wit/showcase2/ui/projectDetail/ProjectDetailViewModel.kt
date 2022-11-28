@@ -31,7 +31,9 @@ class ProjectDetailViewModel : ViewModel() {
 
     fun deleteProject(email:String, projectId: Long, portfolioId: Long) {
         var deletedProject = PortfolioManager.findProjectById(projectId, portfolioId)
+        println("this is deleted project $deletedProject")
         var deletedPortfolio = PortfolioManager.findPortfolioById(portfolioId)
+        println("this is deleted project portfolio $deletedPortfolio")
         PortfolioManager.deleteProject(deletedProject!!, deletedPortfolio!!)
     }
 }

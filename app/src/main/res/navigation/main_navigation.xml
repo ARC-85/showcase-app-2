@@ -57,7 +57,7 @@
     <fragment
         android:id="@+id/projectListFragment"
         android:name="ie.wit.showcase2.ui.projectList.ProjectListFragment"
-        android:label="fragment_project_list"
+        android:label="Project List"
         tools:layout="@layout/fragment_project_list">
         <argument
             android:name="portfolioid"
@@ -71,11 +71,14 @@
         <action
             android:id="@+id/action_projectListFragment_to_projectDetailFragment"
             app:destination="@id/projectDetailFragment" />
+        <action
+            android:id="@+id/action_projectListFragment_to_portfolioListFragment"
+            app:destination="@id/portfolioListFragment" />
     </fragment>
     <fragment
         android:id="@+id/projectNewFragment"
         android:name="ie.wit.showcase2.ui.projectNew.ProjectNewFragment"
-        android:label="fragment_project_new"
+        android:label="New Project"
         tools:layout="@layout/fragment_project_new">
         <action
             android:id="@+id/action_projectNewFragment_to_projectListFragment"
@@ -84,13 +87,13 @@
             android:name="portfolioid"
             app:argType="long" />
         <action
-            android:id="@+id/action_projectNewFragment_to_editLocationFragment"
-            app:destination="@id/editLocationFragment" />
+            android:id="@+id/action_projectNewFragment_to_portfolioListFragment"
+            app:destination="@id/portfolioListFragment" />
     </fragment>
     <fragment
         android:id="@+id/projectDetailFragment"
         android:name="ie.wit.showcase2.ui.projectDetail.ProjectDetailFragment"
-        android:label="fragment_project_detail">
+        android:label="Project Detail">
         <action
             android:id="@+id/action_projectDetailFragment_to_projectListFragment"
             app:destination="@id/projectListFragment" />
@@ -100,14 +103,8 @@
         <argument
             android:name="portfolioid"
             app:argType="long" />
-    </fragment>
-    <fragment
-        android:id="@+id/editLocationFragment"
-        android:name="ie.wit.showcase2.EditLocationFragment"
-        android:label="fragment_edit_location"
-        tools:layout="@layout/fragment_edit_location" >
         <action
-            android:id="@+id/action_editLocationFragment_to_projectNewFragment"
-            app:destination="@id/projectNewFragment" />
+            android:id="@+id/action_projectDetailFragment_to_portfolioListFragment"
+            app:destination="@id/portfolioListFragment" />
     </fragment>
 </navigation>

@@ -26,6 +26,7 @@ import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.FragmentProjectNewBinding
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
+import ie.wit.showcase2.models.PortfolioModel
 
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 import ie.wit.showcase2.ui.map.MapProject
@@ -288,6 +289,32 @@ class ProjectNewFragment : Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Validate and handle the selected menu item
+                when (menuItem.itemId) {
+                    R.id.item_home -> {
+                        findNavController().navigate(R.id.action_projectNewFragment_to_portfolioListFragment)
+                    }
+                    R.id.item_cancel -> {
+                        val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectListFragment(args.portfolioid)
+                        findNavController().navigate(action)
+                    }
+                    R.id.item_project_save -> {
+                        if (fragBinding.projectTitle.text.isEmpty()) {
+                            Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
+                        } else {
+                            val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
+                                args.portfolioid)
+                            projectViewModel.addProject(
+                                NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
+                                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                                    projectPortfolioName = portfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
+                                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
+                                args.portfolioid
+                            )
+                        }
+                        val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectListFragment(args.portfolioid)
+                        findNavController().navigate(action)
+                    }
+                }
                 return NavigationUI.onNavDestinationSelected(menuItem,
                     requireView().findNavController())
             }

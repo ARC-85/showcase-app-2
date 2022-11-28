@@ -24,6 +24,7 @@ import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.FragmentPortfolioNewBinding
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
+import ie.wit.showcase2.ui.portfolioDetail.PortfolioDetailFragmentDirections
 import ie.wit.showcase2.ui.portfolioList.PortfolioListFragment
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.utils.showImagePicker
@@ -148,6 +149,21 @@ class PortfolioNewFragment : Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Validate and handle the selected menu item
+                when (menuItem.itemId) {
+                    R.id.item_home -> {
+                        findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)
+                    }
+                    R.id.item_portfolio_save -> {
+                        if (fragBinding.portfolioTitle.text.isEmpty()) {
+                            Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
+                        } else {
+                            portfolioViewModel.addPortfolio(PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
+                                email = loggedInViewModel.liveFirebaseUser.value?.email!!))
+                            println(portfolioType)
+                        }
+                        findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)
+                    }
+                }
                 return NavigationUI.onNavDestinationSelected(menuItem,
                     requireView().findNavController())
             }

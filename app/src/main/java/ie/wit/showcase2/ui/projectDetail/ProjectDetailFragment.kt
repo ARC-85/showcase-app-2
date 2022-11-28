@@ -24,6 +24,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
+import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectNewBinding
 import ie.wit.showcase2.models.Location
@@ -140,7 +141,8 @@ class ProjectDetailFragment : Fragment() {
             println("this is dateProjectCompletion: $dateProjectCompletion")
         }
 
-        setButtonListener(fragBinding)
+        setUpdateButtonListener(fragBinding)
+        setDeleteButtonListener(fragBinding)
 
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
@@ -197,7 +199,7 @@ class ProjectDetailFragment : Fragment() {
         //Timber.i("Retrofit fragBinding.donationvm == $fragBinding.donationvm")
     }
 
-    fun setButtonListener(layout: FragmentProjectDetailBinding) {
+    fun setUpdateButtonListener(layout: FragmentProjectDetailBinding) {
         layout.editProjectButton.setOnClickListener {
             if (layout.projectTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
@@ -214,6 +216,15 @@ class ProjectDetailFragment : Fragment() {
             val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
             findNavController().navigate(action)
         }
+    }
+
+    fun setDeleteButtonListener(layout: FragmentProjectDetailBinding) {
+        fragBinding.deleteProjectButton.setOnClickListener {
+            projectViewModel.deleteProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.projectid, args.portfolioid)
+            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+            findNavController().navigate(action)
+        }
+
     }
 
     // Image picker is setup for choosing project image
@@ -313,11 +324,41 @@ class ProjectDetailFragment : Fragment() {
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_project_new, menu)
+                menuInflater.inflate(R.menu.menu_project_detail, menu)
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Validate and handle the selected menu item
+                when (menuItem.itemId) {
+                    R.id.item_home -> {
+                        findNavController().navigate(R.id.action_projectDetailFragment_to_portfolioListFragment)
+                    }
+                    R.id.item_cancel -> {
+                        val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+                        findNavController().navigate(action)
+                    }
+                    R.id.item_project_save -> {
+                        if (fragBinding.projectTitle.text.isEmpty()) {
+                            Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
+                        } else {
+                            val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
+                                args.portfolioid)
+                            projectViewModel.updateProject(loggedInViewModel.liveFirebaseUser.value?.email!!,
+                                NewProject(projectId = args.projectid, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
+                                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                                    projectPortfolioName = portfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng,
+                                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
+                                args.portfolioid)
+                        }
+                        val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+                        findNavController().navigate(action)
+                    }
+                    R.id.item_project_delete -> {
+                            projectViewModel.deleteProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.projectid, args.portfolioid)
+                            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+                            findNavController().navigate(action)
+                    }
+                }
                 return NavigationUI.onNavDestinationSelected(menuItem,
                     requireView().findNavController())
             }

@@ -3,6 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/item_home"
+        android:icon="@drawable/icon_home_white"
+        android:title="@string/menu_home"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/item_portfolio_save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/portfolio_save"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/portfolioListFragment"
         android:orderInCategory="100"
         android:title="@string/action_portfolio_list"

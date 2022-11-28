@@ -26,8 +26,9 @@ class PortfolioDetailViewModel : ViewModel() {
         PortfolioManager.update(portfolio)
     }
 
-    fun deletePortfolio(email:String, portfolio: PortfolioModel) {
-        PortfolioManager.delete(portfolio)
+    fun deletePortfolio(email:String, id: Long) {
+        var deletedPortfolio = PortfolioManager.findPortfolioById(id)
+        PortfolioManager.delete(deletedPortfolio!!)
     }
 }
 

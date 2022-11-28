@@ -139,4 +139,6 @@
     <string name="action_project_list">Project List</string>
     <string name="action_new_portfolio">New Portfolio</string>
     <string name="action_new_project">New Project</string>
+    <string name="menu_home">Home</string>
+
 </resources>
