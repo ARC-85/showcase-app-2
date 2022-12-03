@@ -51,7 +51,7 @@ class ProjectNewFragment : Fragment() {
     private lateinit var image3IntentLauncher : ActivityResultLauncher<Intent>
     private lateinit var mapIntentLauncher : ActivityResultLauncher<Intent>
     var projectBudget = "Show All" // Project budget initial selection
-    var image: Uri = Uri.EMPTY
+    var image: String = ""
     val projectBudgets = arrayOf("Show All", "€0-€50K", "€50K-€100K", "€100K-€250K", "€250K-€500K", "€500K-€1M", "€1M+") // Creating array of different project budgets
     val today = Calendar.getInstance()
     var dateDay = today.get(Calendar.DAY_OF_MONTH)
@@ -174,10 +174,10 @@ class ProjectNewFragment : Fragment() {
             } else {
                 val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
                     args.portfolioid)
-                projectViewModel.addProject(
+                projectViewModel.addProject(loggedInViewModel.liveFirebaseUser.value?.uid!!,
                     NewProject(projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
                         projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                    projectPortfolioName = portfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
+                    portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
                         projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
                     args.portfolioid
                 )
@@ -196,7 +196,7 @@ class ProjectNewFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            image = result.data!!.data!!
+                            image = result.data!!.data!!.toString()
                             // Picasso used to get images, as well as standardising sizes and cropping as necessary
                             Picasso.get()
                                 .load(image)
@@ -216,7 +216,7 @@ class ProjectNewFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            project.projectImage2 = result.data!!.data!!
+                            project.projectImage2 = result.data!!.data!!.toString()
                             Picasso.get()
                                 .load(project.projectImage2)
                                 .centerCrop()
@@ -236,7 +236,7 @@ class ProjectNewFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            project.projectImage3 = result.data!!.data!!
+                            project.projectImage3 = result.data!!.data!!.toString()
                             Picasso.get()
                                 .load(project.projectImage3)
                                 .centerCrop()
@@ -303,10 +303,9 @@ class ProjectNewFragment : Fragment() {
                         } else {
                             val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
                                 args.portfolioid)
-                            projectViewModel.addProject(
+                            projectViewModel.addProject(loggedInViewModel.liveFirebaseUser.value?.uid!!,
                                 NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
-                                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                                    projectPortfolioName = portfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
+                                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
                                     projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
                                 args.portfolioid
                             )

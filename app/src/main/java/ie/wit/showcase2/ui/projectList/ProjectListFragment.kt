@@ -83,7 +83,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
                 val adapter = fragBinding.recyclerView.adapter as ProjectAdapter
                 adapter.removeAt(viewHolder.adapterPosition)
                 projectListViewModel.delete(projectListViewModel.liveFirebaseUser.value?.email!!,
-                    (viewHolder.itemView.tag as NewProject), args.portfolioid)
+                    (viewHolder.itemView.tag as NewProject).projectId, args.portfolioid)
                 hideLoader(loader)
             }
         }

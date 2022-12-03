@@ -48,7 +48,7 @@ class PortfolioJSONStore(private val context: Context) : PortfolioStore {
     }
 
     // Function for finding individual project on portfolio JSON file, using passed project ID
-    override fun findProject(id: Long): NewProject? {
+    override fun findProject(id: String): NewProject? {
         logProjects()
         return projects.find { p -> p.projectId == id }
     }
@@ -60,7 +60,7 @@ class PortfolioJSONStore(private val context: Context) : PortfolioStore {
     }
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
-    override fun findPortfolioById(id: Long): PortfolioModel? {
+    override fun findPortfolioById(id: String): PortfolioModel? {
         logAll()
         return portfolios.find { p -> p.id == id }
     }

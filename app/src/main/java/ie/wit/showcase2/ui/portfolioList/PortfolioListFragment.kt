@@ -72,7 +72,7 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
                 val adapter = fragBinding.recyclerView.adapter as PortfolioAdapter
                 adapter.removeAt(viewHolder.adapterPosition)
                 portfolioListViewModel.delete(portfolioListViewModel.liveFirebaseUser.value?.email!!,
-                    (viewHolder.itemView.tag as PortfolioModel))
+                    (viewHolder.itemView.tag as PortfolioModel).uid!!)
                 hideLoader(loader)
             }
         }
@@ -121,7 +121,7 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
 
     override fun onPortfolioClick(portfolio: PortfolioModel) {
         val action = PortfolioListFragmentDirections.actionPortfolioListFragmentToPortfolioDetailFragment(
-            portfolio.id
+            portfolio.uid!!
         )
         findNavController().navigate(action)
     }

@@ -41,7 +41,9 @@ class PortfolioAdapter constructor(private var portfolios: ArrayList<PortfolioMo
         fun bind(portfolio: PortfolioModel, listener: PortfolioClickListener) {
             binding.root.tag = portfolio
             binding.portfolio = portfolio
-            Picasso.get().load(portfolio.image).resize(200,200).into(binding.imageIcon)
+            if (portfolio.image.isNotEmpty()) {
+                Picasso.get().load(portfolio.image).resize(200,200).into(binding.imageIcon)
+            }
             binding.root.setOnClickListener { listener.onPortfolioClick(portfolio) }
             binding.executePendingBindings()
         }

@@ -53,7 +53,7 @@ class ProjectDetailFragment : Fragment() {
     private lateinit var image3IntentLauncher : ActivityResultLauncher<Intent>
     private lateinit var mapIntentLauncher : ActivityResultLauncher<Intent>
     var projectBudget = "Show All" // Project budget initial selection
-    var image: Uri = Uri.EMPTY
+    var image: String = ""
     val projectBudgets = arrayOf("Show All", "€0-€50K", "€50K-€100K", "€100K-€250K", "€250K-€500K", "€500K-€1M", "€1M+") // Creating array of different project budgets
     val today = Calendar.getInstance()
     var dateDay = today.get(Calendar.DAY_OF_MONTH)
@@ -141,8 +141,8 @@ class ProjectDetailFragment : Fragment() {
             println("this is dateProjectCompletion: $dateProjectCompletion")
         }
 
-        setUpdateButtonListener(fragBinding)
-        setDeleteButtonListener(fragBinding)
+        //setUpdateButtonListener(fragBinding)
+        //setDeleteButtonListener(fragBinding)
 
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
@@ -165,7 +165,7 @@ class ProjectDetailFragment : Fragment() {
             .centerCrop()
             .resize(450, 420)
             .into(fragBinding.projectImage)
-        if (project.projectImage != Uri.EMPTY) {
+        if (project.projectImage != "") {
             fragBinding.chooseImage.setText(R.string.button_changeImage)
         }
         Picasso.get()
@@ -173,7 +173,7 @@ class ProjectDetailFragment : Fragment() {
             .centerCrop()
             .resize(450, 420)
             .into(fragBinding.projectImage2)
-        if (project.projectImage2 != Uri.EMPTY) {
+        if (project.projectImage2 != "") {
             fragBinding.chooseImage2.isVisible = true
             fragBinding.projectImage2.isVisible = true
             fragBinding.chooseImage2.setText(R.string.button_changeImage)
@@ -183,7 +183,7 @@ class ProjectDetailFragment : Fragment() {
             .centerCrop()
             .resize(450, 420)
             .into(fragBinding.projectImage3)
-        if (project.projectImage3 != Uri.EMPTY) {
+        if (project.projectImage3 != "") {
             fragBinding.chooseImage3.isVisible = true
             fragBinding.projectImage3.isVisible = true
             fragBinding.chooseImage3.setText(R.string.button_changeImage)
@@ -199,12 +199,12 @@ class ProjectDetailFragment : Fragment() {
         //Timber.i("Retrofit fragBinding.donationvm == $fragBinding.donationvm")
     }
 
-    fun setUpdateButtonListener(layout: FragmentProjectDetailBinding) {
+    /*fun setUpdateButtonListener(layout: FragmentProjectDetailBinding) {
         layout.editProjectButton.setOnClickListener {
             if (layout.projectTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
             } else {
-                val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
+                val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
                     args.portfolioid)
                 projectViewModel.updateProject(loggedInViewModel.liveFirebaseUser.value?.email!!,
                     NewProject(projectId = args.projectid, projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
@@ -225,7 +225,7 @@ class ProjectDetailFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-    }
+    }*/
 
     // Image picker is setup for choosing project image
     private fun registerImagePickerCallback() {
@@ -236,7 +236,7 @@ class ProjectDetailFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            image = result.data!!.data!!
+                            image = result.data!!.data!!.toString()
                             // Picasso used to get images, as well as standardising sizes and cropping as necessary
                             Picasso.get()
                                 .load(image)
@@ -256,7 +256,7 @@ class ProjectDetailFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            project.projectImage2 = result.data!!.data!!
+                            project.projectImage2 = result.data!!.data!!.toString()
                             Picasso.get()
                                 .load(project.projectImage2)
                                 .centerCrop()
@@ -276,7 +276,7 @@ class ProjectDetailFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            project.projectImage3 = result.data!!.data!!
+                            project.projectImage3 = result.data!!.data!!.toString()
                             Picasso.get()
                                 .load(project.projectImage3)
                                 .centerCrop()
@@ -337,7 +337,7 @@ class ProjectDetailFragment : Fragment() {
                         val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
                         findNavController().navigate(action)
                     }
-                    R.id.item_project_save -> {
+                    /*R.id.item_project_save -> {
                         if (fragBinding.projectTitle.text.isEmpty()) {
                             Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
                         } else {
@@ -357,7 +357,7 @@ class ProjectDetailFragment : Fragment() {
                             projectViewModel.deleteProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.projectid, args.portfolioid)
                             val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
                             findNavController().navigate(action)
-                    }
+                    }*/
                 }
                 return NavigationUI.onNavDestinationSelected(menuItem,
                     requireView().findNavController())

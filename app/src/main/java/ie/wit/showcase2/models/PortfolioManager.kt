@@ -1,5 +1,7 @@
 package ie.wit.showcase2.models
 
+import androidx.lifecycle.MutableLiveData
+import com.google.firebase.auth.FirebaseUser
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -15,19 +17,19 @@ object PortfolioManager : PortfolioStore {
     var portfolios = mutableListOf<PortfolioModel>()
 
     // Function for finding all portfolios on portfolio JSON file
-    override fun findAll(): MutableList<PortfolioModel> {
+    override fun findAll(userid: String, portfolioList: MutableLiveData<List<PortfolioModel>>) {
         //logAll()
-        return portfolios
+
     }
 
     // Function for finding all projects on portfolio JSON file
-    override fun findProjects(): MutableList<NewProject> {
+    override fun findProjects(userid: String, projectList: MutableLiveData<List<NewProject>>) {
         logProjects()
-        return projects
+
     }
 
     // Function for finding individual project on portfolio JSON file, using passed project ID
-    override fun findProject(id: Long): NewProject? {
+    override fun findProject(id: String): NewProject? {
         logProjects()
         return projects.find { p -> p.projectId == id }
     }
@@ -35,27 +37,36 @@ object PortfolioManager : PortfolioStore {
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
     override fun findPortfolio(portfolio: PortfolioModel): PortfolioModel? {
         logAll()
-        return portfolios.find { p -> p.id == portfolio.id }
+        return portfolios.find { p -> p.uid == portfolio.uid }
     }
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
-    override fun findPortfolioById(id: Long): PortfolioModel? {
+    override fun findPortfolioById(userid: String, id: String, portfolio: MutableLiveData<PortfolioModel>) {
         logAll()
-        return portfolios.find { p -> p.id == id }
+        //return portfolios.find { p -> p.uid == id }
+
+    }
+
+    // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
+    override fun findPortfolioById2(userid: String, id: String, portfolio: MutableLiveData<PortfolioModel>): PortfolioModel? {
+        logAll()
+        //return portfolios.find { p -> p.uid == id }
+        return PortfolioModel()
+
     }
 
     // Function for creating new portfolio on portfolio JSON file
-    override fun create(portfolio: PortfolioModel) {
-        portfolio.id = generateRandomId() // Generation of random id for portfolio
+    override fun create(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel) {
+        //portfolio.id = generateRandomId() // Generation of random id for portfolio
         portfolios.add(portfolio)
         //serialize()
         logAll()
     }
 
     // Function for updating existing portfolio on portfolio JSON file, using passed portfolio
-    override fun update(portfolio: PortfolioModel) {
+    override fun update(userid: String, portfolioId: String, portfolio: PortfolioModel) {
         // Find portfolio based on ID
-        var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id }
+        var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.uid == portfolio.uid }
         // Update values and store
         if (foundPortfolio != null) {
             foundPortfolio.title = portfolio.title
@@ -69,9 +80,9 @@ object PortfolioManager : PortfolioStore {
     }
 
     // Function for deleting portfolio on portfolio JSON file, using passed portfolio
-    override fun delete(portfolio: PortfolioModel) {
-        println("this is the removed portfolio: $portfolio")
-        portfolios.remove(portfolio)
+    override fun delete(userid: String, portfolioId: String) {
+        //println("this is the removed portfolio: $portfolio")
+        //portfolios.remove(portfolio)
         //serialize()
         logAll()
     }
@@ -131,9 +142,9 @@ object PortfolioManager : PortfolioStore {
 
     // Function for creating a new project using passed data for project and portfolio
     override fun createProject(project: NewProject, portfolio: PortfolioModel) {
-        project.projectId = generateRandomId()
+        //project.projectId = generateRandomId()
         var foundPortfolio: PortfolioModel? =
-            portfolios.find { p -> p.id == portfolio.id } // Finding matching portfolio
+            portfolios.find { p -> p.uid == portfolio.uid } // Finding matching portfolio
         if (foundPortfolio != null) {
             if (foundPortfolio.projects != null) { // If there are already projects in the portfolio, add this project to the list
                 var portfolioProjects = foundPortfolio.projects
@@ -152,14 +163,14 @@ object PortfolioManager : PortfolioStore {
     override fun updateProject(project: NewProject, portfolio: PortfolioModel) {
 
         // Process for updating portfolio JSON file
-        var foundPortfolio: PortfolioModel? =
+        /*var foundPortfolio: PortfolioModel? =
             portfolios.find { p -> p.id == portfolio.id } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
                 var projectIdList =
                     arrayListOf<Long>() // Create a arrayList variable for storing project IDs
                 foundPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
-                    projectIdList += it.projectId
+                    //projectIdList += it.projectId
                 }
                 println("this is projectIdList: $projectIdList")
                 var projectId = project.projectId
@@ -179,12 +190,12 @@ object PortfolioManager : PortfolioStore {
             }
             //serialize() // Update the portfolio JSON file
             logAll()
-        }
+        }*/
     }
 
     // Function to delete a project based on passed data for project and portfolio
     override fun deleteProject(project: NewProject, portfolio: PortfolioModel) {
-        var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id }
+       /* var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id }
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
                 var projectIdList =
@@ -206,14 +217,14 @@ object PortfolioManager : PortfolioStore {
             }
             //serialize() // Update the portfolio JSON file
             logAll()
-        }
+        }*/
     }
 
-    override fun findProjectById(projectId: Long, portfolioId: Long): NewProject? {
+    override fun findProjectById(projectId: String, portfolioId: String): NewProject? {
         var foundProject: NewProject? = null
         // Process for updating portfolio JSON file
         var foundPortfolio: PortfolioModel? =
-            portfolios.find { p -> p.id == portfolioId } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
+            portfolios.find { p -> p.uid == portfolioId } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
 

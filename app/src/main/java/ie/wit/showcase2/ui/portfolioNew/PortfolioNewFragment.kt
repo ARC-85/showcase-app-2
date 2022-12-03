@@ -41,7 +41,7 @@ class PortfolioNewFragment : Fragment() {
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
     var portfolioType = "" // Current portfolio type
-    var image: Uri = Uri.EMPTY
+    var image: String = ""
     val portfolioTypes = arrayOf("New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,7 +105,8 @@ class PortfolioNewFragment : Fragment() {
             if (layout.portfolioTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
             } else {
-                portfolioViewModel.addPortfolio(PortfolioModel(title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
+                println(loggedInViewModel.liveFirebaseUser)
+                portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
                     email = loggedInViewModel.liveFirebaseUser.value?.email!!))
                 println(portfolioType)
             }
@@ -122,7 +123,7 @@ class PortfolioNewFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            image = result.data!!.data!!
+                            image = result.data!!.data!!.toString()
                             // Picasso used to get images, as well as standardising sizes and cropping as necessary
                             Picasso.get()
                                 .load(image)
@@ -157,7 +158,7 @@ class PortfolioNewFragment : Fragment() {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
                             Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
                         } else {
-                            portfolioViewModel.addPortfolio(PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
+                            portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
                                 email = loggedInViewModel.liveFirebaseUser.value?.email!!))
                             println(portfolioType)
                         }

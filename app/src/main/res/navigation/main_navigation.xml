@@ -47,7 +47,7 @@
             app:destination="@id/portfolioListFragment" />
         <argument
             android:name="portfolioid"
-            app:argType="long" />
+            app:argType="string" />
         <action
             android:id="@+id/action_portfolioDetailFragment_to_projectListFragment"
             app:destination="@id/projectListFragment"
@@ -61,7 +61,7 @@
         tools:layout="@layout/fragment_project_list">
         <argument
             android:name="portfolioid"
-            app:argType="long" />
+            app:argType="string" />
         <action
             android:id="@+id/action_projectListFragment_to_portfolioDetailFragment"
             app:destination="@id/portfolioDetailFragment" />
@@ -85,7 +85,7 @@
             app:destination="@id/projectListFragment" />
         <argument
             android:name="portfolioid"
-            app:argType="long" />
+            app:argType="string" />
         <action
             android:id="@+id/action_projectNewFragment_to_portfolioListFragment"
             app:destination="@id/portfolioListFragment" />
@@ -99,10 +99,10 @@
             app:destination="@id/projectListFragment" />
         <argument
             android:name="projectid"
-            app:argType="long" />
+            app:argType="string" />
         <argument
             android:name="portfolioid"
-            app:argType="long" />
+            app:argType="string" />
         <action
             android:id="@+id/action_projectDetailFragment_to_portfolioListFragment"
             app:destination="@id/portfolioListFragment" />

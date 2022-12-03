@@ -26,13 +26,16 @@ import androidx.navigation.ui.NavigationUI
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentPortfolioNewBinding
+import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 import ie.wit.showcase2.ui.portfolioList.PortfolioListFragmentDirections
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.ui.projectList.ProjectListFragmentDirections
+import ie.wit.showcase2.utils.hideLoader
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
+
 
 
 class PortfolioDetailFragment : Fragment() {
@@ -44,9 +47,12 @@ class PortfolioDetailFragment : Fragment() {
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
     private val portfolioListViewModel : PortfolioListViewModel by activityViewModels()
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
+    var currentPortfolio = PortfolioModel()
+    var imageLoad: Boolean = false
+    var projects: Array<NewProject>? = null
 
     var portfolioType = "" // Current portfolio type
-    var image: Uri = Uri.EMPTY
+    var image: String = ""
     val portfolioTypes = arrayOf("New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -57,9 +63,28 @@ class PortfolioDetailFragment : Fragment() {
         registerImagePickerCallback()
 
         detailViewModel = ViewModelProvider(this).get(PortfolioDetailViewModel::class.java)
-        detailViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer { render() })
+        //detailViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer { render() })
+
+
+        detailViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer {
+                portfolio ->
+            portfolio?.let {
+                render(portfolio)
+                getCurrentPortfolio(portfolio)
+                currentPortfolio = portfolio
+                println("this is currentPortfolio $currentPortfolio")
+            }
+        })
+
+        println("this is currentPortfolio2 $currentPortfolio")
+
+        var test = detailViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
+            args.portfolioid)
+        println("this is test $test")
 
         setupMenu()
+
+
 
 
         /*fragBinding.editPortfolioButton.setOnClickListener {
@@ -83,16 +108,25 @@ class PortfolioDetailFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        var portfolio = detailViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
-            args.portfolioid)
+        //var portId = detailViewModel.portfolio.value?.id
+
+        /*var portfolio = detailViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid)
+        //var portfolio = detailViewModel.observablePortfolio.value
+
+        var userUid = loggedInViewModel.liveFirebaseUser.value?.uid!!
 
 
 
-        println("this is portfolioid $portfolio")
+        println("this is uid $userUid")
+        println("this is portfolioid ${args.portfolioid}")
+
+
+
+        println("this is portfolio $portfolio")
         fragBinding.portfolioTitle.setText(portfolio?.title)
         fragBinding.description.setText(portfolio?.description)
-        portfolioType = portfolio?.type!!
-        image = portfolio?.image!!
+        portfolioType = portfolio?.type.toString()
+        image = portfolio?.image.toString()*/
 
         val spinner = fragBinding.portfolioTypeSpinner
         val adapter = activity?.applicationContext?.let { ArrayAdapter(it, R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
@@ -115,11 +149,15 @@ class PortfolioDetailFragment : Fragment() {
             }
         }
 
-        Picasso.get()
-            .load(portfolio.image)
+        /*Picasso.get()
+            .load(portfolio?.image)
             .resize(450, 420)
             .centerCrop()
             .into(fragBinding.portfolioImage)
+
+        fragBinding.chooseImage.setOnClickListener {
+            showImagePicker(imageIntentLauncher)
+        }*/
 
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
@@ -131,11 +169,32 @@ class PortfolioDetailFragment : Fragment() {
         return root
     }
 
-    private fun render() {
+    private fun render(portfolio: PortfolioModel) {
         //fragBinding.portfolioTitle.setText("This is Title")
         //fragBinding.editUpvotes.setText("0")
         fragBinding.portfoliovm = detailViewModel
         //Timber.i("Retrofit fragBinding.donationvm == $fragBinding.donationvm")
+        //fragBinding.portfolioTitle.setText(portfolio?.title)
+        //fragBinding.description.setText(portfolio?.description)
+        projects = portfolio.projects
+        portfolioType = portfolio?.type.toString()
+        if (!imageLoad) {
+            image = portfolio?.image.toString()
+        }
+        println("portfolio.image in render ${portfolio?.image}")
+        println("image in render $image")
+        Picasso.get()
+            .load(image)
+            .resize(450, 420)
+            .centerCrop()
+            .into(fragBinding.portfolioImage)
+
+
+    }
+
+    private fun getCurrentPortfolio(portfolio: PortfolioModel) {
+        currentPortfolio = portfolio
+        println("this is currentPortfolio3 $currentPortfolio")
     }
 
     fun setUpdateButtonListener(layout: FragmentPortfolioDetailBinding) {
@@ -143,9 +202,9 @@ class PortfolioDetailFragment : Fragment() {
             if (layout.portfolioTitle.text.isEmpty()) {
                 Toast.makeText(context, ie.wit.showcase2.R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
             } else {
-                detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
-                    args.portfolioid, PortfolioModel(id = args.portfolioid, title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
-                    email = loggedInViewModel.liveFirebaseUser.value?.email!!))
+                detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
+                    args.portfolioid, PortfolioModel(uid = args.portfolioid, title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
+                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, projects = projects))
                 println(portfolioType)
             }
             findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
@@ -154,7 +213,7 @@ class PortfolioDetailFragment : Fragment() {
 
     fun setDeleteButtonListener(layout: FragmentPortfolioDetailBinding) {
         fragBinding.deletePortfolioButton.setOnClickListener {
-            detailViewModel.deletePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!, args.portfolioid)
+            detailViewModel.deletePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid)
             findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
             }
 
@@ -183,7 +242,7 @@ class PortfolioDetailFragment : Fragment() {
                             Toast.makeText(context, ie.wit.showcase2.R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
                         } else {
                             detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
-                                args.portfolioid, PortfolioModel(id = args.portfolioid, title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
+                                args.portfolioid, PortfolioModel(uid = args.portfolioid, title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
                                     email = loggedInViewModel.liveFirebaseUser.value?.email!!))
                             println(portfolioType)
                         }
@@ -222,7 +281,8 @@ class PortfolioDetailFragment : Fragment() {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${result.data!!.data}")
-                            image = result.data!!.data!!
+                            image = result.data!!.data!!.toString()
+                            println("image in imageLauncher $image")
                             // Picasso used to get images, as well as standardising sizes and cropping as necessary
                             Picasso.get()
                                 .load(image)
@@ -230,6 +290,8 @@ class PortfolioDetailFragment : Fragment() {
                                 .resize(450, 420)
                                 .into(fragBinding.portfolioImage)
                             fragBinding.chooseImage.setText(ie.wit.showcase2.R.string.button_changeImage)
+                            detailViewModel.observablePortfolio.value?.image = image
+                            imageLoad = true
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
@@ -239,8 +301,9 @@ class PortfolioDetailFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        detailViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
+        detailViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
             args.portfolioid)
+        println("onResume is used")
 
     }
 
