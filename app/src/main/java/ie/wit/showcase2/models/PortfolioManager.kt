@@ -23,7 +23,7 @@ object PortfolioManager : PortfolioStore {
     }
 
     // Function for finding all projects on portfolio JSON file
-    override fun findProjects(userid: String, projectList: MutableLiveData<List<NewProject>>) {
+    override fun findProjects(userid: String, portfolioID: String, portfolio: MutableLiveData<PortfolioModel>, projectList: MutableLiveData<List<NewProject>>) {
         logProjects()
 
     }
@@ -148,11 +148,11 @@ object PortfolioManager : PortfolioStore {
         if (foundPortfolio != null) {
             if (foundPortfolio.projects != null) { // If there are already projects in the portfolio, add this project to the list
                 var portfolioProjects = foundPortfolio.projects
-                portfolioProjects = portfolioProjects?.plus(project)
+                portfolioProjects = portfolioProjects?.plus(project)?.toMutableList()
                 foundPortfolio.projects = portfolioProjects
             } else {
                 foundPortfolio.projects =
-                    arrayOf(project) // Otherwise initiate a new array of projects
+                    listOf(project).toMutableList() // Otherwise initiate a new array of projects
             }
             //serialize() // Add project to portfolio JSON file
             logAll()

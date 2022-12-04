@@ -49,7 +49,7 @@ class PortfolioDetailFragment : Fragment() {
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
     var currentPortfolio = PortfolioModel()
     var imageLoad: Boolean = false
-    var projects: Array<NewProject>? = null
+    var projects: MutableList<NewProject>? = null
 
     var portfolioType = "" // Current portfolio type
     var image: String = ""
@@ -128,7 +128,7 @@ class PortfolioDetailFragment : Fragment() {
         portfolioType = portfolio?.type.toString()
         image = portfolio?.image.toString()*/
 
-        val spinner = fragBinding.portfolioTypeSpinner
+        /*val spinner = fragBinding.portfolioTypeSpinner
         val adapter = activity?.applicationContext?.let { ArrayAdapter(it, R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
         spinner.adapter = adapter
         val spinnerPosition = portfolioTypes.indexOf(portfolioType)
@@ -147,7 +147,7 @@ class PortfolioDetailFragment : Fragment() {
             // No problem if nothing selected
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
-        }
+        }*/
 
         /*Picasso.get()
             .load(portfolio?.image)
@@ -180,6 +180,26 @@ class PortfolioDetailFragment : Fragment() {
         portfolioType = portfolio?.type.toString()
         if (!imageLoad) {
             image = portfolio?.image.toString()
+        }
+        val spinner = fragBinding.portfolioTypeSpinner
+        val adapter = activity?.applicationContext?.let { ArrayAdapter(it, R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
+        spinner.adapter = adapter
+        val spinnerPosition = portfolioTypes.indexOf(portfolioType)
+        spinner.setSelection(spinnerPosition)
+        spinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>,
+                                        view: View?, position: Int, id: Long) {
+                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
+                // The toast message was taken out because it was annoying, but can be reinstated if wanted
+                /*Toast.makeText(this@PortfolioActivity,
+                    getString(R.string.selected_item) + " " +
+                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                println("this is portfolioType: $portfolioType")
+            }
+            // No problem if nothing selected
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
         }
         println("portfolio.image in render ${portfolio?.image}")
         println("image in render $image")

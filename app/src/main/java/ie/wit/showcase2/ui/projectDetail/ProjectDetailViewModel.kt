@@ -20,7 +20,9 @@ class ProjectDetailViewModel : ViewModel() {
 
     var observablePortfolio: LiveData<PortfolioModel>
         get() = portfolio
-        set(value) {portfolio.value = value.value}
+        set(value) {
+            portfolio.value = value.value
+        }
 
     private lateinit var currentPortfolio : PortfolioModel
 
@@ -40,6 +42,15 @@ class ProjectDetailViewModel : ViewModel() {
             )
         } catch (e: Exception) {
             Timber.i("Detail getPortfolio() Error : $e.message")
+        }
+    }
+
+    fun updatePortfolio(userid: String, id: String, portfolio: PortfolioModel) {
+        try {
+            FirebaseDBManager.update(userid, id, portfolio)
+            Timber.i("Detail update() Success : $portfolio")
+        } catch (e: Exception) {
+            Timber.i("Detail update() Error : $e.message")
         }
     }
 

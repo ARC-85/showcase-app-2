@@ -26,15 +26,20 @@ class ProjectListViewModel : ViewModel() {
 
     private val portfolio = MutableLiveData<PortfolioModel>()
 
-    var observablePortfolio: LiveData<PortfolioModel>
+    /*var observablePortfolio: LiveData<PortfolioModel>
         get() = portfolio
-        set(value) {portfolio.value = value.value}
+        set(value) {portfolio.value = value.value}*/
 
-
-
-
-
-
+    fun load(portfolioid: String) {
+        try {
+            //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
+            FirebaseDBManager.findProjects(liveFirebaseUser.value?.uid!!,portfolioid, portfolio, projectsList)
+            Timber.i("Report Load Success : ${projectsList.value.toString()}")
+        }
+        catch (e: Exception) {
+            Timber.i("Report Load Error : $e.message")
+        }
+    }
 
 
 
@@ -42,7 +47,7 @@ class ProjectListViewModel : ViewModel() {
         load(state["portfolioid"]!!)
     }*/
 
-    fun load(portfolioid: String) {
+    /*fun load(portfolioid: String) {
         try {
             //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
             FirebaseDBManager.findProjects(liveFirebaseUser.value?.uid!!,projectsList)
@@ -51,7 +56,7 @@ class ProjectListViewModel : ViewModel() {
         catch (e: Exception) {
             Timber.i("Report Load Error : $e.message")
         }
-    }
+    }*/
 
     fun delete(userid: String, projectid: String, portfolioid: String) {
         try {

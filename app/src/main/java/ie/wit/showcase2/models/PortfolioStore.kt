@@ -12,7 +12,7 @@ interface PortfolioStore {
     fun createProject(project: NewProject, portfolio: PortfolioModel)
     fun updateProject(project: NewProject, portfolio: PortfolioModel)
     fun deleteProject(project: NewProject, portfolio: PortfolioModel)
-    fun findProjects(userid: String, projectList: MutableLiveData<List<NewProject>>)
+    fun findProjects(userid: String, portfolioId: String, portfolio: MutableLiveData<PortfolioModel>, projectList: MutableLiveData<List<NewProject>>)
     fun findProject(id: String): NewProject?
     fun findPortfolio(portfolio: PortfolioModel): PortfolioModel?
     fun findSpecificPortfolios(portfolioType: String): List<PortfolioModel>

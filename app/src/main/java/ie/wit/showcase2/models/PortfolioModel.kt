@@ -14,7 +14,7 @@ data class PortfolioModel(var uid: String? = "",
                           var type: String = "",
                           var image: String = "",
                           val email: String? = "joe@bloggs.com",
-                          var projects: Array<NewProject>? = null) : Parcelable
+                          var projects: MutableList<NewProject>? = null) : Parcelable
 {
     @Exclude
     fun toMap(): Map<String, Any?> {

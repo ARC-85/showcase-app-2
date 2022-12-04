@@ -64,7 +64,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
         projectListViewModel.observableProjectsList.observe(viewLifecycleOwner, Observer {
                 projects ->
             projects?.let {
-                render(projects as ArrayList<NewProject>)
+                render(ArrayList(projects))
                 hideLoader(loader)
                 checkSwipeRefresh()
             }

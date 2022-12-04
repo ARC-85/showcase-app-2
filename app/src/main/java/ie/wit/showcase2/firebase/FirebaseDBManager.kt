@@ -49,23 +49,19 @@ object FirebaseDBManager : PortfolioStore {
     }
 
     // Function for finding all projects on portfolio JSON file
-    override fun findProjects(userid: String, projectsList: MutableLiveData<List<NewProject>>) {
-        database.child("user-portfolios").child(userid)
+    override fun findProjects(userid: String, portfolioId: String, portfolio: MutableLiveData<PortfolioModel>, projectsList: MutableLiveData<List<NewProject>>) {
+        database.child("user-portfolios").child(userid).child(portfolioId)
             .addValueEventListener(object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {
                     Timber.i("Firebase Project error : ${error.message}")
                 }
 
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val localList = ArrayList<NewProject>()
-                    val children = snapshot.children
-                    children.forEach {
-                        val project = it.getValue(NewProject::class.java)
-                        localList.add(project!!)
-                    }
-                    database.child("user-projects").child(userid)
-                        .removeEventListener(this)
+                    val localPortfolio = snapshot.getValue(PortfolioModel::class.java)
+                    val localList = localPortfolio?.projects?.toList()
 
+                    database.child("user-portfolios").child(userid).child(portfolioId)
+                        .removeEventListener(this)
                     projectsList.value = localList
                 }
             })
@@ -247,11 +243,11 @@ object FirebaseDBManager : PortfolioStore {
         if (foundPortfolio != null) {
             if (foundPortfolio.projects != null) { // If there are already projects in the portfolio, add this project to the list
                 var portfolioProjects = foundPortfolio.projects
-                portfolioProjects = portfolioProjects?.plus(project)
+                portfolioProjects = portfolioProjects?.plus(project)?.toMutableList()
                 foundPortfolio.projects = portfolioProjects
             } else {
                 foundPortfolio.projects =
-                    arrayOf(project) // Otherwise initiate a new array of projects
+                    listOf(project).toMutableList() // Otherwise initiate a new array of projects
             }
             //serialize() // Add project to portfolio JSON file
             logAll()

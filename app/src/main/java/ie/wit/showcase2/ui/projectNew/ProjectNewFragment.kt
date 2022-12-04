@@ -58,6 +58,7 @@ class ProjectNewFragment : Fragment() {
     var dateMonth = today.get(Calendar.MONTH)
     var dateYear = today.get(Calendar.YEAR)
     var project = NewProject()
+    var currentPortfolio = PortfolioModel()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +76,20 @@ class ProjectNewFragment : Fragment() {
         projectViewModel.observableStatus.observe(viewLifecycleOwner, Observer {
                 status -> status?.let { render(status) }
         })
+
+        projectViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer {
+                portfolio ->
+            portfolio?.let {
+                currentPortfolio = portfolio
+                getCurrentPortfolio(portfolio)
+            }
+        })
+
+        var test = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
+            args.portfolioid)
+        println("this is test $test")
+
+        println("this is newnewcurrentPortfolio $currentPortfolio")
 
         val spinner = fragBinding.projectBudgetSpinner
         spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
@@ -167,20 +182,31 @@ class ProjectNewFragment : Fragment() {
         }
     }
 
+    private fun getCurrentPortfolio(portfolio: PortfolioModel) {
+        currentPortfolio = portfolio
+        println("this is newCurrentPortfolio3 $currentPortfolio")
+    }
+
     fun setButtonListener(layout: FragmentProjectNewBinding) {
         layout.btnProjectAdd.setOnClickListener {
             if (layout.projectTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
             } else {
-                val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
-                    args.portfolioid)
-                projectViewModel.addProject(loggedInViewModel.liveFirebaseUser.value?.uid!!,
-                    NewProject(projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
-                        projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
+                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                     portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
-                        projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
-                    args.portfolioid
-                )
+                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
+                if (currentPortfolio.projects == null) {
+                    currentPortfolio.projects = listOf(updatedProject).toMutableList()
+                } else {
+                    currentPortfolio.projects = currentPortfolio.projects?.plus(updatedProject)?.toMutableList()
+                }
+
+                println("this is updatedProject $updatedProject")
+                println("this is updated currentprojects ${currentPortfolio.projects}")
+
+                println("this is updated currentPortfolio $currentPortfolio")
+                projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
             }
             val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectListFragment(args.portfolioid)
             findNavController().navigate(action)
@@ -306,8 +332,7 @@ class ProjectNewFragment : Fragment() {
                             projectViewModel.addProject(loggedInViewModel.liveFirebaseUser.value?.uid!!,
                                 NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                                     projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
-                                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
-                                args.portfolioid
+                                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
                             )
                         }
                         val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectListFragment(args.portfolioid)
@@ -328,6 +353,10 @@ class ProjectNewFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+    }
+
+    internal fun generateRandomId(): Long {
+        return Random().nextLong()
     }
 
 }
