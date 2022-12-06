@@ -3,6 +3,9 @@ package ie.wit.showcase2.ui.projectList
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SpinnerAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -18,6 +21,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ie.wit.showcase2.R
+import ie.wit.showcase2.adapters.PortfolioAdapter
 import ie.wit.showcase2.adapters.ProjectAdapter
 import ie.wit.showcase2.adapters.ProjectListener
 
@@ -42,6 +46,10 @@ class ProjectListFragment : Fragment(), ProjectListener {
     private val projectListViewModel: ProjectListViewModel by activityViewModels()
     private val args by navArgs<ProjectListFragmentArgs>()
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
+    var projectBudget = "" // Selected portfolio type for filtering list
+    val projectBudgets = arrayOf("Show All", "€0-€50K", "€50K-€100K", "€100K-€250K", "€250K-€500K", "€500K-€1M", "€1M+") // Creating array of different project budgets
+    var list = ArrayList<NewProject>()
+    var currentPortfolio = PortfolioModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +78,18 @@ class ProjectListFragment : Fragment(), ProjectListener {
             }
         })
 
+        projectListViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer {
+                portfolio ->
+            portfolio?.let {
+                currentPortfolio = portfolio
+                getCurrentPortfolio(portfolio)
+
+            }
+        })
+        var test = projectListViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
+            args.portfolioid)
+        println("this is test $test")
+
         fragBinding.fab.setOnClickListener {
             val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid)
             findNavController().navigate(action)
@@ -79,11 +99,42 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
         val swipeDeleteHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
                 showLoader(loader,"Deleting Project")
                 val adapter = fragBinding.recyclerView.adapter as ProjectAdapter
+
                 adapter.removeAt(viewHolder.adapterPosition)
-                projectListViewModel.delete(projectListViewModel.liveFirebaseUser.value?.email!!,
-                    (viewHolder.itemView.tag as NewProject).projectId, args.portfolioid)
+                //var projectId = (viewHolder.itemView.tag as NewProject).projectId
+                //println("this is projectId: $projectId")
+                //projectListViewModel.delete(projectListViewModel.liveFirebaseUser.value?.uid!!,
+                   // (viewHolder.itemView.tag as NewProject).projectId, args.portfolioid)
+
+                if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
+                    var projectIdList =
+                        arrayListOf<String>() // Create a arrayList variable for storing project IDs
+                    currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                        projectIdList += it.projectId
+                    }
+                    println("this is projectIdList: $projectIdList")
+                    var projectId = (viewHolder.itemView.tag as NewProject).projectId
+                    println("this is projectId: $projectId")
+                    val index =
+                        projectIdList.indexOf(projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                    println("this is index: $index")
+                    var portfolioProjects1 =
+                        currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
+                    var short =
+                        portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                    println("this is short: $short")
+
+                    currentPortfolio.projects =
+                        java.util.ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
+
+                    println("this is updated portfolio projects ${currentPortfolio.projects}")
+                }
+
+                projectListViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+
                 hideLoader(loader)
             }
         }
@@ -98,7 +149,34 @@ class ProjectListFragment : Fragment(), ProjectListener {
         val itemTouchEditHelper = ItemTouchHelper(swipeEditHandler)
         itemTouchEditHelper.attachToRecyclerView(fragBinding.recyclerView)
 
+        val spinner = fragBinding.projectBudgetSpinner
+        spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
+
+        spinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>,
+                                        view: View?, position: Int, id: Long) {
+                projectBudget = projectBudgets[position] // Index of array and spinner position used to select project budget
+
+                println("this is projectBudget: $projectBudget")
+                projectListViewModel.observableProjectsList.observe(viewLifecycleOwner, Observer {
+                        projects ->
+                    projects?.let {
+                        render(ArrayList(projects))
+                    }
+                })
+            }
+            // No problem if nothing selected
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
         return root
+    }
+
+    private fun getCurrentPortfolio(portfolio: PortfolioModel) {
+        currentPortfolio = portfolio
+        println("this is newCurrentPortfolio3 $currentPortfolio")
     }
 
     private fun setupMenu() {
@@ -133,7 +211,16 @@ class ProjectListFragment : Fragment(), ProjectListener {
     }
 
     private fun render(projectsList: ArrayList<NewProject>) {
-        fragBinding.recyclerView.adapter = ProjectAdapter(projectsList,this)
+        if (projectBudget != "Show All") {
+            list = ArrayList(projectsList.filter { p -> p.projectBudget == projectBudget })
+            println("this is internal list $list")
+            fragBinding.recyclerView.adapter = ProjectAdapter(list,this)
+        } else {
+            list = projectsList
+        }
+        println("this is portfoliosList $projectsList")
+        println("this is list $list")
+        fragBinding.recyclerView.adapter = ProjectAdapter(list,this)
         if (projectsList.isEmpty()) {
             fragBinding.recyclerView.visibility = View.GONE
             fragBinding.projectsNotFound.visibility = View.VISIBLE
@@ -153,9 +240,19 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
     fun setSwipeRefresh() {
         fragBinding.swiperefresh.setOnRefreshListener {
+
+        if (currentPortfolio.projects?.isNotEmpty()!!) {
             fragBinding.swiperefresh.isRefreshing = true
             showLoader(loader,"Downloading Projects")
+        } else {
+            fragBinding.swiperefresh.isRefreshing = false
+            fragBinding.recyclerView.visibility = View.GONE
+            fragBinding.projectsNotFound.visibility = View.VISIBLE
+        }
             projectListViewModel.load(args.portfolioid)
+
+
+            //projectListViewModel.load(args.portfolioid)
         }
     }
 

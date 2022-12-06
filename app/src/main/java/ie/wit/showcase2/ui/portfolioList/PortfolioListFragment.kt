@@ -95,8 +95,8 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         val spinner = fragBinding.portfolioTypeSpinner
         val adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
         spinner.adapter = adapter
-        val spinnerPosition = portfolioTypes.indexOf(portfolioType)
-        spinner.setSelection(spinnerPosition)
+        //val spinnerPosition = portfolioTypes.indexOf(portfolioType)
+        //spinner.setSelection(spinnerPosition)
         spinner.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>,

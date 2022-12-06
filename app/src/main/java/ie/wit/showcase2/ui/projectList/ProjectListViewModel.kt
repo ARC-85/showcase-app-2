@@ -26,9 +26,9 @@ class ProjectListViewModel : ViewModel() {
 
     private val portfolio = MutableLiveData<PortfolioModel>()
 
-    /*var observablePortfolio: LiveData<PortfolioModel>
+    var observablePortfolio: LiveData<PortfolioModel>
         get() = portfolio
-        set(value) {portfolio.value = value.value}*/
+        set(value) {portfolio.value = value.value}
 
     fun load(portfolioid: String) {
         try {
@@ -38,6 +38,21 @@ class ProjectListViewModel : ViewModel() {
         }
         catch (e: Exception) {
             Timber.i("Report Load Error : $e.message")
+        }
+    }
+
+    fun getPortfolio(userid: String, id: String) {
+        //var currentPortfolio = FirebaseDBManager.findPortfolioById(userid, id, portfolio)
+        //println("this is currentportfolio $currentPortfolio")
+        try {
+            FirebaseDBManager.findPortfolioById(userid, id, portfolio)
+            Timber.i(
+                "Detail getPortfolio() Success : ${
+                    portfolio.value.toString()
+                }"
+            )
+        } catch (e: Exception) {
+            Timber.i("Detail getPortfolio() Error : $e.message")
         }
     }
 
@@ -66,6 +81,15 @@ class ProjectListViewModel : ViewModel() {
         }
         catch (e: Exception) {
             Timber.i("Report Delete Error : $e.message")
+        }
+    }
+
+    fun updatePortfolio(userid: String, id: String, portfolio: PortfolioModel) {
+        try {
+            FirebaseDBManager.update(userid, id, portfolio)
+            Timber.i("Detail update() Success : $portfolio")
+        } catch (e: Exception) {
+            Timber.i("Detail update() Error : $e.message")
         }
     }
 }

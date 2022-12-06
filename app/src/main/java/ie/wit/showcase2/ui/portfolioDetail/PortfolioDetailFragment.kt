@@ -203,11 +203,12 @@ class PortfolioDetailFragment : Fragment() {
         }
         println("portfolio.image in render ${portfolio?.image}")
         println("image in render $image")
+        if (image.isNotEmpty()) {
         Picasso.get()
             .load(image)
             .resize(450, 420)
             .centerCrop()
-            .into(fragBinding.portfolioImage)
+            .into(fragBinding.portfolioImage) }
 
 
     }

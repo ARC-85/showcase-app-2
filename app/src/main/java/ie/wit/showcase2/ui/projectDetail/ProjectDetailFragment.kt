@@ -165,7 +165,7 @@ class ProjectDetailFragment : Fragment() {
          */
 
         setUpdateButtonListener(fragBinding)
-        //setDeleteButtonListener(fragBinding)
+        setDeleteButtonListener(fragBinding)
 
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
@@ -362,16 +362,43 @@ class ProjectDetailFragment : Fragment() {
         }
     }
 
-    /*
+
 
     fun setDeleteButtonListener(layout: FragmentProjectDetailBinding) {
         fragBinding.deleteProjectButton.setOnClickListener {
-            projectViewModel.deleteProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.projectid, args.portfolioid)
-            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
-            findNavController().navigate(action)
+
+            if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
+                var projectIdList =
+                    arrayListOf<String>() // Create a arrayList variable for storing project IDs
+                currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                    projectIdList += it.projectId
+                }
+                println("this is projectIdList: $projectIdList")
+                var projectId = args.projectid
+                println("this is projectId: $projectId")
+                val index =
+                    projectIdList.indexOf(args.projectid) // Find the index position of the project ID that matches the ID of the project that was passed
+                println("this is index: $index")
+                var portfolioProjects1 =
+                    currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
+                var short =
+                    portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                println("this is short: $short")
+
+                currentPortfolio.projects =
+                    ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
+
+                println("this is updated portfolio projects ${currentPortfolio.projects}")
+            }
+
+            projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+
+        val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+        findNavController().navigate(action)
+        }
         }
 
-    }*/
+
 
     // Image picker is setup for choosing project image
     private fun registerImagePickerCallback() {
