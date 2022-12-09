@@ -14,6 +14,7 @@ data class PortfolioModel(var uid: String? = "",
                           var type: String = "",
                           var image: String = "",
                           val email: String? = "joe@bloggs.com",
+                          var profilePic: String = "",
                           var projects: MutableList<NewProject>? = null) : Parcelable
 {
     @Exclude
@@ -25,6 +26,7 @@ data class PortfolioModel(var uid: String? = "",
             "type" to type,
             "image" to image,
             "email" to email,
+            "profilePic" to profilePic,
             "projects" to projects
         )
     }

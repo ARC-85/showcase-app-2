@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SpinnerAdapter
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -132,6 +133,16 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_portfolio_list, menu)
+
+                val item = menu.findItem(R.id.togglePortfolios) as MenuItem
+                item.setActionView(R.layout.togglebutton_layout)
+                val togglePortfolios: SwitchCompat = item.actionView!!.findViewById(R.id.toggleButton)
+                togglePortfolios.isChecked = false
+
+                togglePortfolios.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) portfolioListViewModel.loadAll()
+                    else portfolioListViewModel.load()
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -146,13 +157,13 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         if (portfolioType != "Show All") {
             list = ArrayList(portfoliosList.filter { p -> p.type == portfolioType })
             println("this is internal list $list")
-            fragBinding.recyclerView.adapter = PortfolioAdapter(list,this)
+            fragBinding.recyclerView.adapter = PortfolioAdapter(list,this, portfolioListViewModel.readOnly.value!!)
         } else {
             list = portfoliosList
         }
         println("this is portfoliosList $portfoliosList")
         println("this is list $list")
-        fragBinding.recyclerView.adapter = PortfolioAdapter(list,this)
+        fragBinding.recyclerView.adapter = PortfolioAdapter(list,this, portfolioListViewModel.readOnly.value!!)
         if (portfoliosList.isEmpty()) {
             fragBinding.recyclerView.visibility = View.GONE
             fragBinding.portfoliosNotFound.visibility = View.VISIBLE
@@ -166,14 +177,20 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         val action = PortfolioListFragmentDirections.actionPortfolioListFragmentToPortfolioDetailFragment(
             portfolio.uid!!
         )
-        findNavController().navigate(action)
+        if(!portfolioListViewModel.readOnly.value!!) {
+            findNavController().navigate(action)
+        }
     }
 
     fun setSwipeRefresh() {
         fragBinding.swiperefresh.setOnRefreshListener {
             fragBinding.swiperefresh.isRefreshing = true
             showLoader(loader,"Downloading Portfolios")
-            portfolioListViewModel.load()
+            if (portfolioListViewModel.readOnly.value!!) {
+                portfolioListViewModel.loadAll()
+            } else {
+                portfolioListViewModel.load()
+            }
         }
     }
 

@@ -24,7 +24,29 @@ object FirebaseDBManager : PortfolioStore {
 
     var portfolios = mutableListOf<PortfolioModel>()
 
-    // Function for finding all portfolios on portfolio JSON file
+
+    override fun findAll(portfoliosList: MutableLiveData<List<PortfolioModel>>) {
+        database.child("portfolios")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Portfolio error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<PortfolioModel>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        localList.add(portfolio!!)
+                    }
+                    database.child("portfolios")
+                        .removeEventListener(this)
+
+                    portfoliosList.value = localList
+                }
+            })
+    }
+
     override fun findAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>) {
         database.child("user-portfolios").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -180,6 +202,27 @@ object FirebaseDBManager : PortfolioStore {
         childDelete["/user-portfolios/$userid/$portfolioId"] = null
 
         database.updateChildren(childDelete)
+    }
+
+    fun updateImageRef(userid: String,imageUri: String, path: String) {
+
+        val userPortfolios = database.child("user-portfolios").child(userid)
+        val allPortfolios = database.child("portfolios")
+
+        userPortfolios.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {}
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.forEach {
+                        //Update Users imageUri
+                        it.ref.child("$path").setValue(imageUri)
+                        //Update all portfolios that match 'it'
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        allPortfolios.child(portfolio!!.uid!!)
+                            .child("$path").setValue(imageUri)
+                    }
+                }
+            })
     }
 
     // Function for using Timber to log each portfolio in portfolio list

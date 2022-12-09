@@ -21,6 +21,8 @@ class PortfolioListViewModel : ViewModel() {
 
     var liveFirebaseUser = MutableLiveData<FirebaseUser>()
 
+    var readOnly = MutableLiveData(false)
+
     init {
         load()
     }
@@ -28,11 +30,23 @@ class PortfolioListViewModel : ViewModel() {
     fun load() {
         try {
             //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
+            readOnly.value = false
             FirebaseDBManager.findAll(liveFirebaseUser.value?.uid!!,portfoliosList)
             Timber.i("Report Load Success : ${portfoliosList.value.toString()}")
         }
         catch (e: Exception) {
             Timber.i("Report Load Error : $e.message")
+        }
+    }
+
+    fun loadAll() {
+        try {
+            readOnly.value = true
+            FirebaseDBManager.findAll(portfoliosList)
+            Timber.i("Report LoadAll Success : ${portfoliosList.value.toString()}")
+        }
+        catch (e: Exception) {
+            Timber.i("Report LoadAll Error : $e.message")
         }
     }
 

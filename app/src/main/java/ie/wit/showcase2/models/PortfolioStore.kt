@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseUser
 
 interface PortfolioStore {
-    fun findAll(userid: String, portfolioList: MutableLiveData<List<PortfolioModel>>)
+    fun findAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>)
     fun findPortfolioById2(userid:String, id: String, portfolio: MutableLiveData<PortfolioModel>): PortfolioModel?
     fun create(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel)
     fun update(userid:String, portfolioId: String, portfolio: PortfolioModel)
@@ -19,5 +19,6 @@ interface PortfolioStore {
     fun findSpecificTypeProjects(portfolioType: String): MutableList<NewProject>
     fun findPortfolioById(userid:String, id: String, portfolio: MutableLiveData<PortfolioModel>)
     fun findProjectById(projectId: String, portfolioId: String): NewProject?
+    fun findAll(portfoliosList: MutableLiveData<List<PortfolioModel>>)
 }
 

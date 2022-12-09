@@ -22,6 +22,12 @@ object PortfolioManager : PortfolioStore {
 
     }
 
+    // Function for finding all portfolios on portfolio JSON file
+    override fun findAll(portfolioList: MutableLiveData<List<PortfolioModel>>) {
+        //logAll()
+
+    }
+
     // Function for finding all projects on portfolio JSON file
     override fun findProjects(userid: String, portfolioID: String, portfolio: MutableLiveData<PortfolioModel>, projectList: MutableLiveData<List<NewProject>>) {
         logProjects()
