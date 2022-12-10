@@ -97,7 +97,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
         setSwipeRefresh()
 
-        val swipeDeleteHandler = object : SwipeToDeleteCallback(requireContext()) {
+        val swipeDeleteHandler = object : SwipeToDeleteProjectCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
                 showLoader(loader,"Deleting Project")

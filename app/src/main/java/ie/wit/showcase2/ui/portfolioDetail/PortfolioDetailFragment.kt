@@ -26,6 +26,7 @@ import androidx.navigation.ui.NavigationUI
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentPortfolioNewBinding
+import ie.wit.showcase2.firebase.FirebaseImageManager
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
@@ -33,6 +34,7 @@ import ie.wit.showcase2.ui.portfolioList.PortfolioListFragmentDirections
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.ui.projectList.ProjectListFragmentDirections
 import ie.wit.showcase2.utils.hideLoader
+import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 
@@ -50,6 +52,7 @@ class PortfolioDetailFragment : Fragment() {
     var currentPortfolio = PortfolioModel()
     var imageLoad: Boolean = false
     var projects: MutableList<NewProject>? = null
+    var testing: Boolean = false
 
     var portfolioType = "" // Current portfolio type
     var image: String = ""
@@ -223,9 +226,13 @@ class PortfolioDetailFragment : Fragment() {
             if (layout.portfolioTitle.text.isEmpty()) {
                 Toast.makeText(context, ie.wit.showcase2.R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
             } else {
+                if(imageLoad) {
+                    image = FirebaseImageManager.imageUriPortfolio.value.toString()
+                    println("tell me imageUriValue ${FirebaseImageManager.imageUriPortfolio.value.toString()}")
+                }
                 detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
-                    args.portfolioid, PortfolioModel(uid = args.portfolioid, title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
-                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, projects = projects))
+                    args.portfolioid, PortfolioModel(uid = args.portfolioid, title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType,
+                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, projects = projects, profilePic = FirebaseImageManager.imageUri.value.toString(), image = image))
                 println(portfolioType)
             }
             findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
@@ -262,10 +269,14 @@ class PortfolioDetailFragment : Fragment() {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
                             Toast.makeText(context, ie.wit.showcase2.R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
                         } else {
-                            detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
-                                args.portfolioid, PortfolioModel(uid = args.portfolioid, title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
-                                    email = loggedInViewModel.liveFirebaseUser.value?.email!!))
-                            println(portfolioType)
+                            if(imageLoad) {
+                                image = FirebaseImageManager.imageUriPortfolio.value.toString()
+                                println("tell me imageUriValue ${FirebaseImageManager.imageUriPortfolio.value.toString()}")
+                            }
+                            detailViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
+                                args.portfolioid, PortfolioModel(uid = args.portfolioid, title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType,
+                                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, projects = projects, profilePic = FirebaseImageManager.imageUri.value.toString(), image = image))
+                            println("tell me image $image")
                         }
                         findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
                     }
@@ -301,18 +312,24 @@ class PortfolioDetailFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
                             image = result.data!!.data!!.toString()
                             println("image in imageLauncher $image")
                             // Picasso used to get images, as well as standardising sizes and cropping as necessary
-                            Picasso.get()
+                            /*Picasso.get()
                                 .load(image)
                                 .centerCrop()
                                 .resize(450, 420)
-                                .into(fragBinding.portfolioImage)
+                                .into(fragBinding.portfolioImage)*/
                             fragBinding.chooseImage.setText(ie.wit.showcase2.R.string.button_changeImage)
-                            detailViewModel.observablePortfolio.value?.image = image
+                            FirebaseImageManager
+                                .updatePortfolioImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.portfolioImage,
+                                    true)
                             imageLoad = true
+                            testing = true
+
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }

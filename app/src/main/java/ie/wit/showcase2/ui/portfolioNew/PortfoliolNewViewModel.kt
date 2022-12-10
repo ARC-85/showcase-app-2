@@ -20,7 +20,7 @@ class PortfoliolNewViewModel : ViewModel() {
     fun addPortfolio(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel) {
         //PortfolioManager.create(portfolio)
         status.value = try {
-            portfolio.image = FirebaseImageManager.imageUriPortfolio.value.toString()
+            //portfolio.image = FirebaseImageManager.imageUriPortfolio.value.toString()
             FirebaseDBManager.create(firebaseUser, portfolio)
 
             true

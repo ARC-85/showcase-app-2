@@ -28,6 +28,7 @@ import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectNewBinding
+import ie.wit.showcase2.firebase.FirebaseImageManager
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioManager
@@ -38,6 +39,7 @@ import ie.wit.showcase2.ui.projectList.ProjectListViewModel
 import ie.wit.showcase2.ui.projectNew.ProjectNewFragmentArgs
 import ie.wit.showcase2.ui.projectNew.ProjectNewFragmentDirections
 import ie.wit.showcase2.ui.projectNew.ProjectNewViewModel
+import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 import java.util.*
@@ -65,6 +67,9 @@ class ProjectDetailFragment : Fragment() {
     var project = NewProject()
     var currentPortfolio = PortfolioModel()
     var currentProject = NewProject()
+    var projectImageUpdate: Boolean = false
+    var projectImage2Update: Boolean = false
+    var projectImage3Update: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -323,9 +328,17 @@ class ProjectDetailFragment : Fragment() {
             if (layout.projectTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
             } else {
-
+                if (projectImageUpdate) {
+                    project.projectImage = FirebaseImageManager.imageUriProject.value.toString()
+                }
+                if (projectImage2Update) {
+                    project.projectImage2 = FirebaseImageManager.imageUriProject2.value.toString()
+                }
+                if (projectImage3Update) {
+                    project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
+                }
                 var updatedProject = NewProject(projectId = args.projectid, projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
-                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                    projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                     projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng,
                     projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
 
@@ -408,15 +421,17 @@ class ProjectDetailFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
                             image = result.data!!.data!!.toString()
-                            // Picasso used to get images, as well as standardising sizes and cropping as necessary
-                            Picasso.get()
-                                .load(image)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.projectImage)
                             fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.projectImage,
+                                    false, "projectImage")
+                            project.projectImage = result.data!!.data!!.toString()
+                            println("this is project.projectImage ${project.projectImage}")
+                            projectImageUpdate = true
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
@@ -428,14 +443,15 @@ class ProjectDetailFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
+                            fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.projectImage2,
+                                    false, "projectImage2")
                             project.projectImage2 = result.data!!.data!!.toString()
-                            Picasso.get()
-                                .load(project.projectImage2)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.projectImage2)
-                            fragBinding.chooseImage2.setText(R.string.button_changeImage)
+                            projectImage2Update = true
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
@@ -448,14 +464,15 @@ class ProjectDetailFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
+                            fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.projectImage3,
+                                    false, "projectImage3")
                             project.projectImage3 = result.data!!.data!!.toString()
-                            Picasso.get()
-                                .load(project.projectImage3)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.projectImage3)
-                            fragBinding.chooseImage3.setText(R.string.button_changeImage)
+                            projectImage3Update = true
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }

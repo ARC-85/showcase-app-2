@@ -44,6 +44,7 @@ class PortfolioNewFragment : Fragment() {
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
     var portfolioType = "" // Current portfolio type
     var image: String = ""
+    var imageLoad: Boolean = false
     val portfolioTypes = arrayOf("New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,9 +108,12 @@ class PortfolioNewFragment : Fragment() {
             if (layout.portfolioTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
             } else {
+                if(imageLoad) {
+                    image = FirebaseImageManager.imageUriPortfolio.value.toString()
+                }
                 println(loggedInViewModel.liveFirebaseUser)
                 portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType,
-                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, profilePic = FirebaseImageManager.imageUri.value.toString()))
+                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, profilePic = FirebaseImageManager.imageUri.value.toString(), image = image))
                 println(portfolioType)
             }
             findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)
@@ -138,6 +142,7 @@ class PortfolioNewFragment : Fragment() {
                                     readImageUri(result.resultCode, result.data),
                                     fragBinding.portfolioImage,
                                     false)
+                            imageLoad = true
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }

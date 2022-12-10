@@ -24,6 +24,7 @@ import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
 
 import ie.wit.showcase2.databinding.FragmentProjectNewBinding
+import ie.wit.showcase2.firebase.FirebaseImageManager
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
@@ -33,6 +34,7 @@ import ie.wit.showcase2.ui.map.MapProject
 import ie.wit.showcase2.ui.projectList.ProjectListFragmentDirections
 
 import ie.wit.showcase2.ui.projectList.ProjectListViewModel
+import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 import java.util.*
@@ -192,8 +194,17 @@ class ProjectNewFragment : Fragment() {
             if (layout.projectTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
             } else {
+                if (project.projectImage.isNotEmpty()) {
+                    project.projectImage = FirebaseImageManager.imageUriProject.value.toString()
+                }
+                if (project.projectImage2.isNotEmpty()) {
+                    project.projectImage2 = FirebaseImageManager.imageUriProject2.value.toString()
+                }
+                if (project.projectImage3.isNotEmpty()) {
+                    project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
+                }
                 val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
-                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                    projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                     portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
                     projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
                 if (currentPortfolio.projects == null) {
@@ -221,15 +232,16 @@ class ProjectNewFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
                             image = result.data!!.data!!.toString()
-                            // Picasso used to get images, as well as standardising sizes and cropping as necessary
-                            Picasso.get()
-                                .load(image)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.projectImage)
                             fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.projectImage,
+                                    false, "projectImage")
+                            project.projectImage = result.data!!.data!!.toString()
+                            println("this is project.projectImage ${project.projectImage}")
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
@@ -241,14 +253,14 @@ class ProjectNewFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
+                            fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.projectImage2,
+                                    false, "projectImage2")
                             project.projectImage2 = result.data!!.data!!.toString()
-                            Picasso.get()
-                                .load(project.projectImage2)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.projectImage2)
-                            fragBinding.chooseImage2.setText(R.string.button_changeImage)
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
@@ -261,14 +273,14 @@ class ProjectNewFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
+                            fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.projectImage3,
+                                    false, "projectImage3")
                             project.projectImage3 = result.data!!.data!!.toString()
-                            Picasso.get()
-                                .load(project.projectImage3)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.projectImage3)
-                            fragBinding.chooseImage3.setText(R.string.button_changeImage)
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
