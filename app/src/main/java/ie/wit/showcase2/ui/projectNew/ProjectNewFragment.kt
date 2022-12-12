@@ -1,5 +1,6 @@
 package ie.wit.showcase2.ui.projectNew
 
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
@@ -63,6 +64,8 @@ class ProjectNewFragment : Fragment() {
     var currentPortfolio = PortfolioModel()
 
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -73,17 +76,16 @@ class ProjectNewFragment : Fragment() {
         val root = fragBinding.root
         setupMenu()
         registerImagePickerCallback()
-        registerMapCallback()
+        //registerMapCallback()
         projectViewModel = ViewModelProvider(this).get(ProjectNewViewModel::class.java)
-        projectViewModel.observableStatus.observe(viewLifecycleOwner, Observer {
-                status -> status?.let { render(status) }
-        })
+
 
         projectViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer {
                 portfolio ->
             portfolio?.let {
                 currentPortfolio = portfolio
                 getCurrentPortfolio(portfolio)
+                render(portfolio)
             }
         })
 
@@ -115,17 +117,23 @@ class ProjectNewFragment : Fragment() {
 
         // Set the initial values for location if a new location is set, passing details of location and project to the map activity
         fragBinding.projectLocation.setOnClickListener {
-            val location = Location(52.245696, -7.139102, 15f)
-            if (project.zoom != 0f) {
-                location.lat =  project.lat
-                location.lng = project.lng
-                location.zoom = project.zoom
-            }
-            val launcherIntent = Intent(activity, MapProject::class.java)
+            val location = args.location
+
+
+
+
+            /*val launcherIntent = Intent(activity, MapProject::class.java)
                 .putExtra("location", location)
                 //.putExtra("project_edit", project)
-            mapIntentLauncher.launch(launcherIntent)
+            mapIntentLauncher.launch(launcherIntent)*/
+            val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectMapFragment(location, args.portfolioid,NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
+                projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = 15f,
+                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear))
+            findNavController().navigate(action)
         }
+
+
 
         // Set up DatePicker
         val datePicker = fragBinding.projectCompletionDatePicker
@@ -169,18 +177,106 @@ class ProjectNewFragment : Fragment() {
             showImagePicker(image3IntentLauncher)
         }
 
+        var location = args.location
+        println("this is passed location $location")
+        var formattedLatitude = String.format("%.2f", location.lat); // Limit the decimal places to two
+        fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
+        var formattedLongitude = String.format("%.2f", location.lng); // Limit the decimal places to two
+        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
+
         return root;
     }
 
-    private fun render(status: Boolean) {
-        when (status) {
-            true -> {
-                view?.let {
-                    //Uncomment this if you want to immediately return to Report
+    private fun render(portfolio: PortfolioModel) {
 
-                }
+        project = args.project
+        println("this is the currentProject $project")
+
+        fragBinding.projectTitle.setText(project.projectTitle)
+        fragBinding.projectDescription.setText(project.projectDescription)
+        projectBudget = project.projectBudget
+        image = project.projectImage
+        var formattedLatitude = String.format("%.2f", args.location.lat); // Limit the decimal places to two
+        fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
+        var formattedLongitude = String.format("%.2f", args.location.lng); // Limit the decimal places to two
+        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
+
+
+        val spinner = fragBinding.projectBudgetSpinner
+        spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
+        val spinnerPosition = projectBudgets.indexOf(projectBudget)
+        spinner.setSelection(spinnerPosition)
+
+        spinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>,
+                                        view: View?, position: Int, id: Long) {
+                projectBudget = projectBudgets[position] // Index of array and spinner position used to select project budget
+
+                println("this is projectBudget: $projectBudget")
             }
-            false -> Toast.makeText(context,getString(R.string.donationError), Toast.LENGTH_LONG).show()
+            // No problem if nothing selected
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
+        // Set up DatePicker
+        val datePicker = fragBinding.projectCompletionDatePicker
+        // Set initial values if a completion date already exists
+
+        dateDay = project.projectCompletionDay
+        dateMonth = project.projectCompletionMonth
+        dateYear = project.projectCompletionYear
+
+        datePicker.init(dateYear, dateMonth, dateDay) { view, year, month, day ->
+            val month = month
+            val msg = "You Selected: $day/$month/$year"
+            var dateProjectCompletion = "$day/${month+1}/$year"
+            dateDay = day
+            dateMonth = month
+            dateYear = year
+            // Toast is turned off, but can be turned back on
+            //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            println ("this is dateDay: $dateDay")
+            println ("this is dateMonth: $dateMonth")
+            println ("this is dateYear: $dateYear")
+            println("this is datePicker: $datePicker")
+            println("this is dateProjectCompletion: $dateProjectCompletion")
+        }
+
+        if (project.projectImage.isNotEmpty()) {
+            Picasso.get()
+                .load(project.projectImage)
+                .centerCrop()
+                .resize(450, 420)
+                .into(fragBinding.projectImage) }
+        if (project.projectImage != "") {
+            fragBinding.chooseImage.setText(R.string.button_changeImage)
+        }
+
+        if (project.projectImage2.isNotEmpty()) {
+            Picasso.get()
+                .load(project.projectImage2)
+                .centerCrop()
+                .resize(450, 420)
+                .into(fragBinding.projectImage2)}
+
+        if (project.projectImage2 != "") {
+            fragBinding.chooseImage2.isVisible = true
+            fragBinding.projectImage2.isVisible = true
+            fragBinding.chooseImage2.setText(R.string.button_changeImage)
+        }
+        if (project.projectImage3.isNotEmpty()) {
+            Picasso.get()
+                .load(project.projectImage3)
+                .centerCrop()
+                .resize(450, 420)
+                .into(fragBinding.projectImage3)}
+
+        if (project.projectImage3 != "") {
+            fragBinding.chooseImage3.isVisible = true
+            fragBinding.projectImage3.isVisible = true
+            fragBinding.chooseImage3.setText(R.string.button_changeImage)
         }
     }
 
@@ -205,7 +301,7 @@ class ProjectNewFragment : Fragment() {
                 }
                 val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
                     projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                    portfolioId = args.portfolioid, lat = project.lat, lng = project.lng, zoom = 15f,
+                    portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = 15f,
                     projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
                 if (currentPortfolio.projects == null) {
                     currentPortfolio.projects = listOf(updatedProject).toMutableList()

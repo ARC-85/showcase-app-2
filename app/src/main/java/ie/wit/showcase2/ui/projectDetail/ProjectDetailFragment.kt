@@ -99,6 +99,9 @@ class ProjectDetailFragment : Fragment() {
             args.portfolioid)
         println("this is test $test")
 
+        var location = args.location
+        println("this is passed location $location")
+
         //project = projectViewModel.getProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.portfolioid, args.projectid)!!
 
         /*fragBinding.projectTitle.setText(project.projectTitle)
@@ -135,12 +138,24 @@ class ProjectDetailFragment : Fragment() {
 
         // Set the initial values for location if a new location is set, passing details of location and project to the map activity
         fragBinding.projectLocation.setOnClickListener {
-            val location = Location(project.lat, project.lng, project.zoom)
+            /*val location = Location(project.lat, project.lng, project.zoom)
 
             val launcherIntent = Intent(activity, MapProject::class.java)
                 .putExtra("location", location)
             //.putExtra("project_edit", project)
-            mapIntentLauncher.launch(launcherIntent)
+            mapIntentLauncher.launch(launcherIntent)*/
+            val location = args.location
+            var tempProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
+                projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
+                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
+
+            /*val launcherIntent = Intent(activity, MapProject::class.java)
+                .putExtra("location", location)
+                //.putExtra("project_edit", project)
+            mapIntentLauncher.launch(launcherIntent)*/
+            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectMapFragment(location, args.portfolioid,tempProject)
+            findNavController().navigate(action)
         }
 
         /*
@@ -230,16 +245,17 @@ class ProjectDetailFragment : Fragment() {
     }
 
     private fun render(portfolio: PortfolioModel) {
-        project = portfolio.projects?.find { p -> p.projectId == args.projectid }!!
+        //project = portfolio.projects?.find { p -> p.projectId == args.project.projectId }!!
+        project = args.project
         println("this is the currentProject $project")
 
         fragBinding.projectTitle.setText(project.projectTitle)
         fragBinding.projectDescription.setText(project.projectDescription)
         projectBudget = project.projectBudget
         image = project.projectImage
-        var formattedLatitude = String.format("%.2f", project.lat); // Limit the decimal places to two
+        var formattedLatitude = String.format("%.2f", args.location.lat); // Limit the decimal places to two
         fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
-        var formattedLongitude = String.format("%.2f", project.lng); // Limit the decimal places to two
+        var formattedLongitude = String.format("%.2f", args.location.lng); // Limit the decimal places to two
         fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
 
 
@@ -265,10 +281,10 @@ class ProjectDetailFragment : Fragment() {
         val datePicker = fragBinding.projectCompletionDatePicker
         // Set initial values if a completion date already exists
         dateDay = project.projectCompletionDay
-        dateMonth = project.projectCompletionMonth - 1
+        dateMonth = project.projectCompletionMonth
         dateYear = project.projectCompletionYear
         datePicker.init(dateYear, dateMonth, dateDay) { view, year, month, day ->
-            val month = month + 1
+            val month = month
             val msg = "You Selected: $day/$month/$year"
             var dateProjectCompletion = "$day/$month/$year"
             dateDay = day
@@ -337,9 +353,9 @@ class ProjectDetailFragment : Fragment() {
                 if (projectImage3Update) {
                     project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
                 }
-                var updatedProject = NewProject(projectId = args.projectid, projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
+                var updatedProject = NewProject(projectId = args.project.projectId, projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
                     projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                    projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng,
+                    projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
                     projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
 
                 if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
@@ -387,10 +403,10 @@ class ProjectDetailFragment : Fragment() {
                     projectIdList += it.projectId
                 }
                 println("this is projectIdList: $projectIdList")
-                var projectId = args.projectid
+                var projectId = args.project.projectId
                 println("this is projectId: $projectId")
                 val index =
-                    projectIdList.indexOf(args.projectid) // Find the index position of the project ID that matches the ID of the project that was passed
+                    projectIdList.indexOf(args.project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
                 println("this is index: $index")
                 var portfolioProjects1 =
                     currentPortfolio.projects!! // Create a list of the projects from the passed portfolio

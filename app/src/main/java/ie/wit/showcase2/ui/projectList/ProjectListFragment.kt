@@ -25,9 +25,10 @@ import ie.wit.showcase2.adapters.PortfolioAdapter
 import ie.wit.showcase2.adapters.ProjectAdapter
 import ie.wit.showcase2.adapters.ProjectListener
 
-import ie.wit.showcase2.databinding.FragmentPortfolioListBinding
+
 import ie.wit.showcase2.databinding.FragmentProjectListBinding
 import ie.wit.showcase2.main.Showcase2App
+import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
@@ -35,6 +36,8 @@ import ie.wit.showcase2.ui.portfolioDetail.PortfolioDetailFragmentArgs
 
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.utils.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ProjectListFragment : Fragment(), ProjectListener {
 
@@ -50,6 +53,10 @@ class ProjectListFragment : Fragment(), ProjectListener {
     val projectBudgets = arrayOf("Show All", "€0-€50K", "€50K-€100K", "€100K-€250K", "€250K-€500K", "€500K-€1M", "€1M+") // Creating array of different project budgets
     var list = ArrayList<NewProject>()
     var currentPortfolio = PortfolioModel()
+    val today = Calendar.getInstance()
+    var dateDay = today.get(Calendar.DAY_OF_MONTH)
+    var dateMonth = today.get(Calendar.MONTH)
+    var dateYear = today.get(Calendar.YEAR)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +98,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
         println("this is test $test")
 
         fragBinding.fab.setOnClickListener {
-            val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid)
+            val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid, Location(52.245696, -7.139102, 15f), NewProject(projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear))
             findNavController().navigate(action)
         }
 
@@ -141,7 +148,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
         val itemTouchDeleteHelper = ItemTouchHelper(swipeDeleteHandler)
         itemTouchDeleteHelper.attachToRecyclerView(fragBinding.recyclerView)
 
-        val swipeEditHandler = object : SwipeToEditCallback(requireContext()) {
+        val swipeEditHandler = object : SwipeToEditProjectCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 onProjectClick(viewHolder.itemView.tag as NewProject)
             }
@@ -232,8 +239,9 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
     override fun onProjectClick(project: NewProject) {
         val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectDetailFragment(
-            project.projectId,
-            args.portfolioid
+            project,
+            args.portfolioid,
+            Location(lat = project.lat, lng = project.lng, zoom = project.zoom)
         )
         findNavController().navigate(action)
     }
