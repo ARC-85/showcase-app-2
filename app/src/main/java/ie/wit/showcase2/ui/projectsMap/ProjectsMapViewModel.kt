@@ -16,8 +16,6 @@ class ProjectsMapViewModel : ViewModel() {
 
     lateinit var map : GoogleMap
 
-
-
     private val projectsList =
         MutableLiveData<List<NewProject>>()
 

@@ -3,6 +3,7 @@ package ie.wit.showcase2.ui.projectNew
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.GoogleMap
 import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.models.NewProject
@@ -13,6 +14,8 @@ import timber.log.Timber
 class ProjectNewViewModel : ViewModel() {
 
     private val status = MutableLiveData<Boolean>()
+
+    lateinit var map : GoogleMap
 
     val observableStatus: LiveData<Boolean>
         get() = status

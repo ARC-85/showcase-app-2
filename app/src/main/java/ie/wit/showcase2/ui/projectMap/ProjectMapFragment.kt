@@ -94,8 +94,8 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
     }
 
     override fun onMarkerDrag(marker: Marker)  {
-        fragBinding.lat.setText("%.6f".format(marker.position.latitude))
-        fragBinding.lng.setText("%.6f".format(marker.position.longitude))
+        fragBinding.lat.setText("Lat: " + "%.6f".format(marker.position.latitude))
+        fragBinding.lng.setText("Lng: " + "%.6f".format(marker.position.longitude))
 
     }
 

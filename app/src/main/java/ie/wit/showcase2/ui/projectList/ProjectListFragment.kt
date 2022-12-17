@@ -1,11 +1,14 @@
 package ie.wit.showcase2.ui.projectList
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SpinnerAdapter
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -20,10 +23,13 @@ import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import ie.wit.showcase2.R
 import ie.wit.showcase2.adapters.PortfolioAdapter
 import ie.wit.showcase2.adapters.ProjectAdapter
 import ie.wit.showcase2.adapters.ProjectListener
+import ie.wit.showcase2.utils.checkLocationPermissions
 
 
 import ie.wit.showcase2.databinding.FragmentProjectListBinding
@@ -36,6 +42,7 @@ import ie.wit.showcase2.ui.portfolioDetail.PortfolioDetailFragmentArgs
 
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.utils.*
+import timber.log.Timber.i
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -57,6 +64,11 @@ class ProjectListFragment : Fragment(), ProjectListener {
     var dateDay = today.get(Calendar.DAY_OF_MONTH)
     var dateMonth = today.get(Calendar.MONTH)
     var dateYear = today.get(Calendar.YEAR)
+    var initialLocation = Location(0.0, -7.139102, 15f)
+
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,8 +109,12 @@ class ProjectListFragment : Fragment(), ProjectListener {
             args.portfolioid)
         println("this is test $test")
 
+
+
+
         fragBinding.fab.setOnClickListener {
-            val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid, Location(52.245696, -7.139102, 15f), NewProject(projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear))
+
+            val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid, initialLocation, NewProject(projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear))
             findNavController().navigate(action)
         }
 
@@ -177,6 +193,9 @@ class ProjectListFragment : Fragment(), ProjectListener {
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
+
+
+
 
         return root
     }
@@ -285,4 +304,6 @@ class ProjectListFragment : Fragment(), ProjectListener {
         super.onDestroyView()
         _fragBinding = null
     }
+
+
 }
