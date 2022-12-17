@@ -41,13 +41,14 @@ object FirebaseDBManager : PortfolioStore {
                     }
                     database.child("portfolios")
                         .removeEventListener(this)
+                    println("findAll localList $localList")
 
                     portfoliosList.value = localList
                 }
             })
     }
 
-    override fun findAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>) {
+    override fun findUserAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>) {
         database.child("user-portfolios").child(userid)
             .addValueEventListener(object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {
@@ -63,6 +64,7 @@ object FirebaseDBManager : PortfolioStore {
                     }
                     database.child("user-portfolios").child(userid)
                         .removeEventListener(this)
+                    println("findUserAll localList $localList")
 
                     portfoliosList.value = localList
                 }
@@ -90,10 +92,84 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
+    override fun findUserProjects(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>, projectsList: MutableLiveData<List<NewProject>>) {
+        database.child("user-portfolios").child(userid)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Portfolio error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localProjectList = mutableListOf<NewProject>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        val portfolioProjects = portfolio?.projects?.toMutableList()
+                        if (portfolioProjects != null) {
+                            localProjectList += portfolioProjects.toMutableList()
+                        }
+                    }
+                    database.child("user-portfolios").child(userid)
+                        .removeEventListener(this)
+
+                    projectsList.value = localProjectList
+                }
+            })
+
+    }
+
     // Function for finding individual project on portfolio JSON file, using passed project ID
-    override fun findProject(id: String): NewProject? {
-        logProjects()
-        return projects.find { p -> p.projectId == id }
+    override fun findUserProject(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>, projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>) {
+        database.child("user-portfolios").child(userid)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Portfolio error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localProjectList = mutableListOf<NewProject>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        val portfolioProjects = portfolio?.projects?.toMutableList()
+                        if (portfolioProjects != null) {
+                            localProjectList += portfolioProjects.toMutableList()
+                        }
+                    }
+                    database.child("user-portfolios").child(userid)
+                        .removeEventListener(this)
+
+                    projectsList.value = localProjectList
+                    project.value = localProjectList.find { p -> p.projectId == projectId }
+                }
+            })
+    }
+
+    // Function for finding individual project on portfolio JSON file, using passed project ID
+    override fun findProject(projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>) {
+        database.child("portfolios")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Portfolio error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localProjectList = mutableListOf<NewProject>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        val portfolioProjects = portfolio?.projects?.toMutableList()
+                        if (portfolioProjects != null) {
+                            localProjectList += portfolioProjects.toMutableList()
+                        }
+                    }
+                    database.child("portfolios")
+                        .removeEventListener(this)
+
+                    projectsList.value = localProjectList
+                    project.value = localProjectList.find { p -> p.projectId == projectId }
+                }
+            })
     }
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
@@ -119,6 +195,8 @@ object FirebaseDBManager : PortfolioStore {
             }
 
     }
+
+
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
     override fun findPortfolioById2(
