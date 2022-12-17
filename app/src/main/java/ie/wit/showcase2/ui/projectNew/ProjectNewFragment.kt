@@ -1,5 +1,6 @@
 package ie.wit.showcase2.ui.projectNew
 
+import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
@@ -21,6 +22,14 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
 
@@ -35,12 +44,13 @@ import ie.wit.showcase2.ui.map.MapProject
 import ie.wit.showcase2.ui.projectList.ProjectListFragmentDirections
 
 import ie.wit.showcase2.ui.projectList.ProjectListViewModel
+import ie.wit.showcase2.utils.checkLocationPermissions
 import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 import java.util.*
 
-class ProjectNewFragment : Fragment() {
+class ProjectNewFragment : Fragment(), OnMapReadyCallback {
 
     private var _fragBinding: FragmentProjectNewBinding? = null
     // This property is only valid between onCreateView and onDestroyView.
@@ -62,6 +72,10 @@ class ProjectNewFragment : Fragment() {
     var dateYear = today.get(Calendar.YEAR)
     var project = NewProject()
     var currentPortfolio = PortfolioModel()
+    var initialLocation = Location(52.245696, -7.139102, 15f)
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient //from https://www.tutorialspoint.com/how-to-show-current-location-on-a-google-map-on-android-using-kotlin
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
 
 
 
@@ -69,7 +83,7 @@ class ProjectNewFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
-
+    @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         _fragBinding = FragmentProjectNewBinding.inflate(inflater, container, false)
@@ -78,6 +92,7 @@ class ProjectNewFragment : Fragment() {
         registerImagePickerCallback()
         //registerMapCallback()
         projectViewModel = ViewModelProvider(this).get(ProjectNewViewModel::class.java)
+        fusedLocationProviderClient = requireActivity().let{LocationServices.getFusedLocationProviderClient(it)}
 
 
         projectViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer {
@@ -117,7 +132,16 @@ class ProjectNewFragment : Fragment() {
 
         // Set the initial values for location if a new location is set, passing details of location and project to the map activity
         fragBinding.projectLocation.setOnClickListener {
-            val location = args.location
+            var location = args.location
+            if (args.location.lat.equals(0.0)) {
+                val task = fusedLocationProviderClient.lastLocation
+                task.addOnSuccessListener { myLocation ->
+                    location.lat = myLocation.latitude
+                    location.lng = myLocation.longitude
+                }
+            } else {
+                location = args.location
+            }
 
 
 
@@ -128,7 +152,7 @@ class ProjectNewFragment : Fragment() {
             mapIntentLauncher.launch(launcherIntent)*/
             val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectMapFragment(location, args.portfolioid,NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = 15f,
+                portfolioId = args.portfolioid, lat = location.lat, lng = location.lng, zoom = 15f,
                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title))
             findNavController().navigate(action)
         }
@@ -177,16 +201,86 @@ class ProjectNewFragment : Fragment() {
             showImagePicker(image3IntentLauncher)
         }
 
-        var location = args.location
+        /*var location = args.location
         println("this is passed location $location")
         var formattedLatitude = String.format("%.2f", location.lat); // Limit the decimal places to two
         fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
         var formattedLongitude = String.format("%.2f", location.lng); // Limit the decimal places to two
-        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
+        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")*/
+
 
         return root;
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val mapFragment = childFragmentManager
+            .findFragmentById(R.id.mapView3) as SupportMapFragment
+        mapFragment.getMapAsync {
+            onMapReady(it) // Calling configure map function
+        }
+    }
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(googleMap: GoogleMap) {
+        projectViewModel.map = googleMap
+        if (args.location.lat.equals(0.0) ) {
+            if (activity?.let { checkLocationPermissions(it) } == true) {
+                val task = fusedLocationProviderClient.lastLocation
+                task.addOnSuccessListener { myLocation ->
+                    locationUpdate(myLocation.latitude, myLocation.longitude)
+                    println("this is myLocation $myLocation")
+                }
+                /*locationService?.lastLocation?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val myLocation = task.result
+
+                } else {
+                    Timber.i( "Exception of task: ${task.exception}", )
+                    }
+
+            }*/
+                println("permission is true")
+            } else {
+                doPermissionLauncher()
+                println("permission is false")
+            }
+        } else {
+            locationUpdate(args.location.lat, args.location.lng)
+        }
+        //locationUpdate(args.location.lat, args.location.lng)
+    }
+
+    fun locationUpdate(lat: Double, lng: Double) {
+        println("this is lat $lat and lng $lng")
+        project.lat = lat
+        project.lng = lng
+        project.zoom = 15f
+        projectViewModel.map.clear()
+        projectViewModel.map.uiSettings?.setZoomControlsEnabled(true)
+        val options = MarkerOptions().title(project.projectTitle).position(LatLng(project.lat, project.lng))
+        projectViewModel.map.addMarker(options)
+        projectViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(project.lat, project.lng), project.zoom))
+        //showProject(project)
+    }
+
+    /*fun showProject(project: NewProject) {
+        if (fragBinding.projectTitle.text.isEmpty()) fragBinding.projectTitle.setText(project.projectTitle)
+        if (fragBinding.projectDescription.text.isEmpty())  fragBinding.projectDescription.setText(project.projectDescription)
+
+        if (project.projectImage != "") {
+            Picasso.get()
+                .load(project.projectImage)
+                .into(fragBinding.projectImage)
+
+            fragBinding.chooseImage.setText(R.string.button_changeImage)
+        }
+        this.showLocation(project.lat, project.lng)
+    }
+    private fun showLocation (lat: Double, lng: Double){
+        fragBinding.projectLatitude.setText("Latitude: %.6f".format(lat))
+        fragBinding.projectLongitude.setText("Longitude: %.6f".format(lng))
+    }*/
+    @SuppressLint("MissingPermission")
     private fun render(portfolio: PortfolioModel) {
 
         project = args.project
@@ -196,10 +290,23 @@ class ProjectNewFragment : Fragment() {
         fragBinding.projectDescription.setText(project.projectDescription)
         projectBudget = project.projectBudget
         image = project.projectImage
-        var formattedLatitude = String.format("%.2f", args.location.lat); // Limit the decimal places to two
-        fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
-        var formattedLongitude = String.format("%.2f", args.location.lng); // Limit the decimal places to two
-        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
+        if (args.location.lat.equals(0.0)) {
+            val task = fusedLocationProviderClient.lastLocation
+            task.addOnSuccessListener { myLocation ->
+                locationUpdate(myLocation.latitude, myLocation.longitude)
+                println("this is myLocation $myLocation")
+                var formattedLatitude = String.format("%.2f", myLocation.latitude); // Limit the decimal places to two
+                fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
+                var formattedLongitude = String.format("%.2f", myLocation.longitude); // Limit the decimal places to two
+                fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
+            }
+        } else {
+            var formattedLatitude = String.format("%.2f", args.location.lat); // Limit the decimal places to two
+            fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
+            var formattedLongitude = String.format("%.2f", args.location.lng); // Limit the decimal places to two
+            fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
+        }
+
 
 
         val spinner = fragBinding.projectBudgetSpinner
@@ -282,10 +389,23 @@ class ProjectNewFragment : Fragment() {
 
     private fun getCurrentPortfolio(portfolio: PortfolioModel) {
         currentPortfolio = portfolio
+
         println("this is newCurrentPortfolio3 $currentPortfolio")
     }
-
+    @SuppressLint("MissingPermission")
     fun setButtonListener(layout: FragmentProjectNewBinding) {
+        if (args.location.lat.equals(0.0)) {
+            println("this was the path")
+            val task = fusedLocationProviderClient.lastLocation
+            task.addOnSuccessListener { myLocation ->
+                initialLocation.lat = myLocation.latitude
+                initialLocation.lng = myLocation.longitude
+            }
+        } else {
+            println("that was the path")
+            initialLocation = args.location
+        }
+        println("the updated location saved $initialLocation")
         layout.btnProjectAdd.setOnClickListener {
             if (layout.projectTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
@@ -299,9 +419,11 @@ class ProjectNewFragment : Fragment() {
                 if (project.projectImage3.isNotEmpty()) {
                     project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
                 }
+
+
                 val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
                     projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                    portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = 15f,
+                    portfolioId = args.portfolioid, lat = initialLocation.lat, lng = initialLocation.lng, zoom = 15f,
                     projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title)
                 if (currentPortfolio.projects == null) {
                     currentPortfolio.projects = listOf(updatedProject).toMutableList()
@@ -466,5 +588,25 @@ class ProjectNewFragment : Fragment() {
     internal fun generateRandomId(): Long {
         return Random().nextLong()
     }
+
+    @SuppressLint("MissingPermission")
+    private fun doPermissionLauncher() {
+        Timber.i("permission check called")
+        requestPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission())
+            { isGranted: Boolean ->
+                if (isGranted) {
+                    /*locationService?.lastLocation?.addOnSuccessListener {
+                        locationUpdate(it.latitude, it.longitude)
+                    }*/
+                    println("permission granted")
+                } else {
+                    initialLocation = Location(52.245696, -7.139102, 15f)
+                    println("permission not granted")
+                }
+            }
+    }
+
+
 
 }

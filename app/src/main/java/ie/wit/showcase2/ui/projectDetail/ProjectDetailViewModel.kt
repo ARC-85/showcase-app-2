@@ -3,6 +3,7 @@ package ie.wit.showcase2.ui.projectDetail
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.GoogleMap
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioManager
@@ -11,6 +12,8 @@ import timber.log.Timber
 
 class ProjectDetailViewModel : ViewModel() {
     private val project = MutableLiveData<NewProject>()
+
+    lateinit var map : GoogleMap
 
     var observableProject: LiveData<NewProject>
         get() = project

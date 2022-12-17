@@ -23,6 +23,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
@@ -44,7 +50,7 @@ import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 import java.util.*
 
-class ProjectDetailFragment : Fragment() {
+class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
     private var _fragBinding: FragmentProjectDetailBinding? = null
     // This property is only valid between onCreateView and onDestroyView.
@@ -144,10 +150,10 @@ class ProjectDetailFragment : Fragment() {
                 .putExtra("location", location)
             //.putExtra("project_edit", project)
             mapIntentLauncher.launch(launcherIntent)*/
-            val location = args.location
+            val location = Location(args.location.lat, args.location.lng, 15f)
             var tempProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
+                projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = args.location.zoom,
                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
 
             /*val launcherIntent = Intent(activity, MapProject::class.java)
@@ -242,6 +248,32 @@ class ProjectDetailFragment : Fragment() {
     private fun getCurrentPortfolio(portfolio: PortfolioModel) {
         currentPortfolio = portfolio
         println("this is newCurrentPortfolio3 $currentPortfolio")
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val mapFragment = childFragmentManager
+            .findFragmentById(R.id.mapView4) as SupportMapFragment
+        mapFragment.getMapAsync {
+            onMapReady(it) // Calling configure map function
+        }
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        projectViewModel.map = googleMap
+        locationUpdate(args.location.lat, args.location.lng)
+    }
+
+    fun locationUpdate(lat: Double, lng: Double) {
+        project.lat = lat
+        project.lng = lng
+        project.zoom = 15f
+        projectViewModel.map.clear()
+        projectViewModel.map.uiSettings?.setZoomControlsEnabled(true)
+        val options = MarkerOptions().title(project.projectTitle).position(LatLng(project.lat, project.lng))
+        projectViewModel.map.addMarker(options)
+        projectViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(project.lat, project.lng), project.zoom))
+        //showProject(project)
     }
 
     private fun render(portfolio: PortfolioModel) {
