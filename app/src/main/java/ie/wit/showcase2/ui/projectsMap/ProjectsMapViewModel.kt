@@ -1,17 +1,28 @@
-package ie.wit.showcase2.ui.portfolioList
+package ie.wit.showcase2.ui.projectsMap
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.GoogleMap
 import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
+import ie.wit.showcase2.models.Location
+import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
-import ie.wit.showcase2.main.Showcase2App
-import ie.wit.showcase2.models.PortfolioManager
 import timber.log.Timber
 import java.lang.Exception
 
-class PortfolioListViewModel : ViewModel() {
+class ProjectsMapViewModel : ViewModel() {
+
+    lateinit var map : GoogleMap
+
+
+
+    private val projectsList =
+        MutableLiveData<List<NewProject>>()
+
+    val observableProjectsList: LiveData<List<NewProject>>
+        get() = projectsList
 
     private val portfoliosList =
         MutableLiveData<List<PortfolioModel>>()
@@ -21,16 +32,15 @@ class PortfolioListViewModel : ViewModel() {
 
     var liveFirebaseUser = MutableLiveData<FirebaseUser>()
 
-    var readOnly = MutableLiveData(false)
 
-    init {
-        load()
-    }
+
+
+
 
     fun load() {
         try {
             //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
-            readOnly.value = false
+
             FirebaseDBManager.findUserAll(liveFirebaseUser.value?.uid!!,portfoliosList)
             Timber.i("Report Load Success : ${portfoliosList.value.toString()}")
         }
@@ -41,7 +51,7 @@ class PortfolioListViewModel : ViewModel() {
 
     fun loadAll() {
         try {
-            readOnly.value = true
+
             FirebaseDBManager.findAll(portfoliosList)
             Timber.i("Report LoadAll Success : ${portfoliosList.value.toString()}")
         }
@@ -50,15 +60,8 @@ class PortfolioListViewModel : ViewModel() {
         }
     }
 
-    fun delete(userid: String, id: String) {
-        try {
-            //DonationManager.delete(userid,id)
-            FirebaseDBManager.delete(userid,id)
-            Timber.i("Report Delete Success")
-        }
-        catch (e: Exception) {
-            Timber.i("Report Delete Error : $e.message")
-        }
-    }
-}
 
+
+
+
+}

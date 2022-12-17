@@ -141,5 +141,8 @@
     <string name="action_new_portfolio">New Portfolio</string>
     <string name="action_new_project">New Project</string>
     <string name="menu_home">Home</string>
+    <string name="group_map">Map of Projects</string>
+    <string name="action_map">Projects</string>
+    <string name="action_portfolio">New Portfolio</string>
 
 </resources>

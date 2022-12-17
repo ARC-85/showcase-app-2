@@ -5,8 +5,8 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/portfolioNewFragment"
-            android:icon="@drawable/ic_menu_donate"
-            android:title="@string/action_donate" />
+            android:icon="@android:drawable/ic_menu_add"
+            android:title="@string/action_portfolio" />
         <item
             android:id="@+id/portfolioListFragment"
             android:icon="@drawable/ic_menu_report"
@@ -16,12 +16,12 @@
             android:icon="@drawable/ic_menu_aboutus"
             android:title="@string/action_about" />
     </group>
-    <item android:title="@string/group_communicate">
+    <item android:title="@string/group_map">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="@string/action_share" />
+                android:id="@+id/projectsMapFragment"
+                android:icon="@android:drawable/ic_menu_mapmode"
+                android:title="@string/action_map" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"

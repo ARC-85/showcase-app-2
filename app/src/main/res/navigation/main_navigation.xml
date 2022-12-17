@@ -143,4 +143,9 @@
             android:name="project"
             app:argType="ie.wit.showcase2.models.NewProject" />
     </fragment>
+    <fragment
+        android:id="@+id/projectsMapFragment"
+        android:name="ie.wit.showcase2.ui.projectsMap.ProjectsMapFragment"
+        android:label="fragment_projects_map"
+        tools:layout="@layout/fragment_projects_map" />
 </navigation>

@@ -17,7 +17,7 @@ object PortfolioManager : PortfolioStore {
     var portfolios = mutableListOf<PortfolioModel>()
 
     // Function for finding all portfolios on portfolio JSON file
-    override fun findAll(userid: String, portfolioList: MutableLiveData<List<PortfolioModel>>) {
+    override fun findUserAll(userid: String, portfolioList: MutableLiveData<List<PortfolioModel>>) {
         //logAll()
 
     }
@@ -34,10 +34,20 @@ object PortfolioManager : PortfolioStore {
 
     }
 
-    // Function for finding individual project on portfolio JSON file, using passed project ID
-    override fun findProject(id: String): NewProject? {
+    override fun findUserProjects(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>, projectsList: MutableLiveData<List<NewProject>>) {
         logProjects()
-        return projects.find { p -> p.projectId == id }
+
+    }
+
+    // Function for finding individual project on portfolio JSON file, using passed project ID
+    override fun findProject(projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>) {
+        logProjects()
+
+    }
+
+    override fun findUserProject(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>, projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>) {
+        logProjects()
+
     }
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio

@@ -41,7 +41,7 @@ import kotlin.collections.ArrayList
 
 class ProjectListFragment : Fragment(), ProjectListener {
 
-    lateinit var app: Showcase2App
+    //lateinit var app: Showcase2App
     private var _fragBinding: FragmentProjectListBinding? = null
     private val fragBinding get() = _fragBinding!!
 
