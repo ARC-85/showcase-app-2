@@ -1,36 +1,92 @@
-package ie.wit.showcase2.models
+package ie.wit.showcase2.firebase
 
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.*
+import ie.wit.showcase2.models.NewProject
+import ie.wit.showcase2.models.PortfolioManager
+import ie.wit.showcase2.models.PortfolioModel
+import ie.wit.showcase2.models.PortfolioStore
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 // Function for generating random ID numbers
 internal fun generateRandomId(): Long {
     return Random().nextLong()
 }
 
-object PortfolioManager : PortfolioStore {
+object FirebaseDBManager : PortfolioStore {
 
-    // Creation of portfolios list
+    var database: DatabaseReference = FirebaseDatabase.getInstance().reference
+
     var portfolios = mutableListOf<PortfolioModel>()
 
-    // Function for finding all portfolios on portfolio JSON file
-    override fun findAll(userid: String, portfolioList: MutableLiveData<List<PortfolioModel>>) {
-        //logAll()
 
+    override fun findAll(portfoliosList: MutableLiveData<List<PortfolioModel>>) {
+        database.child("portfolios")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Portfolio error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<PortfolioModel>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        localList.add(portfolio!!)
+                    }
+                    database.child("portfolios")
+                        .removeEventListener(this)
+
+                    portfoliosList.value = localList
+                }
+            })
     }
 
-    // Function for finding all portfolios on portfolio JSON file
-    override fun findAll(portfolioList: MutableLiveData<List<PortfolioModel>>) {
-        //logAll()
+    override fun findAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>) {
+        database.child("user-portfolios").child(userid)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Portfolio error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<PortfolioModel>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        localList.add(portfolio!!)
+                    }
+                    database.child("user-portfolios").child(userid)
+                        .removeEventListener(this)
+
+                    portfoliosList.value = localList
+                }
+            })
 
     }
 
     // Function for finding all projects on portfolio JSON file
-    override fun findProjects(userid: String, portfolioID: String, portfolio: MutableLiveData<PortfolioModel>, projectList: MutableLiveData<List<NewProject>>) {
-        logProjects()
+    override fun findProjects(userid: String, portfolioId: String, portfolio: MutableLiveData<PortfolioModel>, projectsList: MutableLiveData<List<NewProject>>) {
+        database.child("user-portfolios").child(userid).child(portfolioId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Project error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localPortfolio = snapshot.getValue(PortfolioModel::class.java)
+                    val localList = localPortfolio?.projects?.toList()
+
+                    database.child("user-portfolios").child(userid).child(portfolioId)
+                        .removeEventListener(this)
+                    projectsList.value = localList
+                }
+            })
 
     }
 
@@ -43,36 +99,90 @@ object PortfolioManager : PortfolioStore {
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
     override fun findPortfolio(portfolio: PortfolioModel): PortfolioModel? {
         logAll()
-        return portfolios.find { p -> p.uid == portfolio.uid }
+        return PortfolioManager.portfolios.find { p -> p.uid == portfolio.uid }
     }
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
-    override fun findPortfolioById(userid: String, id: String, portfolio: MutableLiveData<PortfolioModel>) {
-        logAll()
-        //return portfolios.find { p -> p.uid == id }
+    override fun findPortfolioById(
+        userid: String,
+        id: String,
+        portfolio: MutableLiveData<PortfolioModel>
+    ) {
+
+        database.child("user-portfolios").child(userid)
+            .child(id.toString()).get().addOnSuccessListener {
+                portfolio.value = it.getValue(PortfolioModel::class.java)!!
+                println("this is foundportfolio ${portfolio.value}")
+                Timber.i("firebase Got value ${it.value}")
+            }.addOnFailureListener{
+                Timber.e("firebase Error getting data $it")
+            }
 
     }
 
     // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
-    override fun findPortfolioById2(userid: String, id: String, portfolio: MutableLiveData<PortfolioModel>): PortfolioModel? {
-        logAll()
-        //return portfolios.find { p -> p.uid == id }
-        return PortfolioModel()
+    override fun findPortfolioById2(
+        userid: String,
+        id: String,
+        portfolio: MutableLiveData<PortfolioModel>
+    ): PortfolioModel? {
+        var currentPortfolio = PortfolioModel()
+            val ref = database.child("user-portfolios").child(userid).child(id.toString())
+        val menuListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                currentPortfolio = dataSnapshot.getValue(PortfolioModel::class.java)!!
+                println("this is the currentPort inside $currentPortfolio")
+
+            }
+            override fun onCancelled(databaseError: DatabaseError) {
+                // handle error
+            }
+        }
+        ref.addListenerForSingleValueEvent(menuListener)
+        println("this is the currentPort outside $currentPortfolio")
+
+        return currentPortfolio
 
     }
 
     // Function for creating new portfolio on portfolio JSON file
     override fun create(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel) {
+        Timber.i("Firebase DB Reference : $database")
         //portfolio.id = generateRandomId() // Generation of random id for portfolio
-        portfolios.add(portfolio)
-        //serialize()
-        logAll()
+
+        val uid = firebaseUser.value!!.uid
+        val key = database.child("donations").push().key
+        if (key == null) {
+            Timber.i("Firebase Error : Key Empty")
+            return
+        }
+        portfolio.uid = key
+        val portfolioValues = portfolio.toMap()
+
+        val childAdd = HashMap<String, Any>()
+        childAdd["/portfolios/$key"] = portfolioValues
+        childAdd["/user-portfolios/$uid/$key"] = portfolioValues
+
+        database.updateChildren(childAdd)
     }
 
     // Function for updating existing portfolio on portfolio JSON file, using passed portfolio
-    override fun update(userid: String, portfolioId: String, portfolio: PortfolioModel) {
+    override fun update(userid: String, portfolioid: String, portfolio: PortfolioModel) {
+
+        val portfolioValues = portfolio.toMap()
+
+        println("this is userid in update $userid")
+        println("this is portfolioid in update $portfolioid")
+        println("this is portfolio in update $portfolio")
+
+
+        val childUpdate : MutableMap<String, Any?> = HashMap()
+        childUpdate["portfolios/$portfolioid"] = portfolioValues
+        childUpdate["user-portfolios/$userid/$portfolioid"] = portfolioValues
+
+        database.updateChildren(childUpdate)
         // Find portfolio based on ID
-        var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.uid == portfolio.uid }
+        /*var foundPortfolio: PortfolioModel? = PortfolioManager.portfolios.find { p -> p.uid == portfolio.uid }
         // Update values and store
         if (foundPortfolio != null) {
             foundPortfolio.title = portfolio.title
@@ -82,25 +192,47 @@ object PortfolioManager : PortfolioStore {
             foundPortfolio.type = portfolio.type
             //serialize()
             logAll()
-        }
+        }*/
     }
 
     // Function for deleting portfolio on portfolio JSON file, using passed portfolio
     override fun delete(userid: String, portfolioId: String) {
-        //println("this is the removed portfolio: $portfolio")
-        //portfolios.remove(portfolio)
-        //serialize()
-        logAll()
+        val childDelete : MutableMap<String, Any?> = HashMap()
+        childDelete["/portfolios/$portfolioId"] = null
+        childDelete["/user-portfolios/$userid/$portfolioId"] = null
+
+        database.updateChildren(childDelete)
+    }
+
+    fun updateImageRef(userid: String,imageUri: String, path: String) {
+
+        val userPortfolios = database.child("user-portfolios").child(userid)
+        val allPortfolios = database.child("portfolios")
+
+        userPortfolios.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {}
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.forEach {
+                        //Update Users imageUri
+                        it.ref.child("$path").setValue(imageUri)
+                        //Update all portfolios that match 'it'
+                        val portfolio = it.getValue(PortfolioModel::class.java)
+                        allPortfolios.child(portfolio!!.uid!!)
+                            .child("$path").setValue(imageUri)
+                    }
+                }
+            })
     }
 
     // Function for using Timber to log each portfolio in portfolio list
     private fun logAll() {
-        portfolios.forEach { Timber.i("$it") }
+        PortfolioManager.portfolios.forEach { Timber.i("$it") }
     }
 
     // Function for using Timber to log each project associated to portfolios in portfolio list
     private fun logProjects() {
-        portfolios.forEach {
+        PortfolioManager.portfolios.forEach {
             var portfolioProjects = it.projects?.toMutableList()
             if (portfolioProjects != null) {
                 projects += portfolioProjects.toMutableList()
@@ -115,17 +247,17 @@ object PortfolioManager : PortfolioStore {
     // Function to find specific portfolios based on passed portfolio type
     override fun findSpecificPortfolios(portfolioType: String): MutableList<PortfolioModel> {
         var list =
-            portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
+            PortfolioManager.portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
         return list.toMutableList() // Return mutable list and log
         println("this is list: $list")
         logAll()
-        return portfolios
+        return PortfolioManager.portfolios
     }
 
     // Function to find projects that come from portfolios of specific type, using data on passed type
     override fun findSpecificTypeProjects(portfolioType: String): MutableList<NewProject> {
         var list =
-            portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
+            PortfolioManager.portfolios.filter { p -> p.type == portfolioType } // Create a list based on matching/filtering portfolio types
         println("this is list: $list")
         var portfolioTypeProjectsOverall: MutableList<NewProject> =
             arrayListOf() // Create a mutable list for following
@@ -148,9 +280,9 @@ object PortfolioManager : PortfolioStore {
 
     // Function for creating a new project using passed data for project and portfolio
     override fun createProject(project: NewProject, portfolio: PortfolioModel) {
-        //project.projectId = generateRandomId()
+        //project.projectId = ie.wit.showcase2.models.generateRandomId()
         var foundPortfolio: PortfolioModel? =
-            portfolios.find { p -> p.uid == portfolio.uid } // Finding matching portfolio
+            PortfolioManager.portfolios.find { p -> p.uid == portfolio.uid } // Finding matching portfolio
         if (foundPortfolio != null) {
             if (foundPortfolio.projects != null) { // If there are already projects in the portfolio, add this project to the list
                 var portfolioProjects = foundPortfolio.projects
@@ -169,14 +301,14 @@ object PortfolioManager : PortfolioStore {
     override fun updateProject(project: NewProject, portfolio: PortfolioModel) {
 
         // Process for updating portfolio JSON file
-        /*var foundPortfolio: PortfolioModel? =
-            portfolios.find { p -> p.id == portfolio.id } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
+       /* var foundPortfolio: PortfolioModel? =
+            PortfolioManager.portfolios.find { p -> p.id == portfolio.id } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
                 var projectIdList =
                     arrayListOf<Long>() // Create a arrayList variable for storing project IDs
                 foundPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
-                    //projectIdList += it.projectId
+                    projectIdList += it.projectId
                 }
                 println("this is projectIdList: $projectIdList")
                 var projectId = project.projectId
@@ -201,7 +333,7 @@ object PortfolioManager : PortfolioStore {
 
     // Function to delete a project based on passed data for project and portfolio
     override fun deleteProject(project: NewProject, portfolio: PortfolioModel) {
-       /* var foundPortfolio: PortfolioModel? = portfolios.find { p -> p.id == portfolio.id }
+        /*var foundPortfolio: PortfolioModel? = PortfolioManager.portfolios.find { p -> p.id == portfolio.id }
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
                 var projectIdList =
@@ -230,7 +362,7 @@ object PortfolioManager : PortfolioStore {
         var foundProject: NewProject? = null
         // Process for updating portfolio JSON file
         var foundPortfolio: PortfolioModel? =
-            portfolios.find { p -> p.uid == portfolioId } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
+            PortfolioManager.portfolios.find { p -> p.uid == portfolioId } // Find the relevant portfolio from the portfolios list based on matching id of passed portfolio
         if (foundPortfolio != null) { // If the portfolio is found...
             if (foundPortfolio.projects != null) { // And the portfolio has projects (as expected)
 
@@ -243,5 +375,5 @@ object PortfolioManager : PortfolioStore {
         }
         return foundProject
     }
-}
 
+}

@@ -3,6 +3,10 @@ package ie.wit.showcase2.ui.portfolioList
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SpinnerAdapter
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -29,10 +33,12 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
     lateinit var app: Showcase2App
     private var _fragBinding: FragmentPortfolioListBinding? = null
     private val fragBinding get() = _fragBinding!!
-
+    val portfolioTypes = arrayOf("Show All", "New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
     lateinit var loader : AlertDialog
     private val portfolioListViewModel: PortfolioListViewModel by activityViewModels()
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
+    var portfolioType = "" // Selected portfolio type for filtering list
+    var list = ArrayList<PortfolioModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +77,8 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
                 showLoader(loader,"Deleting Portfolio")
                 val adapter = fragBinding.recyclerView.adapter as PortfolioAdapter
                 adapter.removeAt(viewHolder.adapterPosition)
-                portfolioListViewModel.delete(portfolioListViewModel.liveFirebaseUser.value?.email!!,
-                    (viewHolder.itemView.tag as PortfolioModel))
+                portfolioListViewModel.delete(portfolioListViewModel.liveFirebaseUser.value?.uid!!,
+                    (viewHolder.itemView.tag as PortfolioModel).uid!!)
                 hideLoader(loader)
             }
         }
@@ -87,6 +93,35 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         val itemTouchEditHelper = ItemTouchHelper(swipeEditHandler)
         itemTouchEditHelper.attachToRecyclerView(fragBinding.recyclerView)
 
+        val spinner = fragBinding.portfolioTypeSpinner
+        val adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
+        spinner.adapter = adapter
+        //val spinnerPosition = portfolioTypes.indexOf(portfolioType)
+        //spinner.setSelection(spinnerPosition)
+        spinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>,
+                                        view: View?, position: Int, id: Long) {
+                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
+                // The toast message was taken out because it was annoying, but can be reinstated if wanted
+                /*Toast.makeText(this@PortfolioActivity,
+                    getString(R.string.selected_item) + " " +
+                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                println("this is portfolioType: $portfolioType")
+                portfolioListViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
+                        portfolios ->
+                    portfolios?.let {
+                        render(portfolios as ArrayList<PortfolioModel>)
+                        println("testing this is working")
+                    }
+                })
+
+            }
+            // No problem if nothing selected
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
         return root
     }
 
@@ -98,6 +133,16 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_portfolio_list, menu)
+
+                val item = menu.findItem(R.id.togglePortfolios) as MenuItem
+                item.setActionView(R.layout.togglebutton_layout)
+                val togglePortfolios: SwitchCompat = item.actionView!!.findViewById(R.id.toggleButton)
+                togglePortfolios.isChecked = false
+
+                togglePortfolios.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) portfolioListViewModel.loadAll()
+                    else portfolioListViewModel.load()
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -109,7 +154,16 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
     }
 
     private fun render(portfoliosList: ArrayList<PortfolioModel>) {
-        fragBinding.recyclerView.adapter = PortfolioAdapter(portfoliosList,this)
+        if (portfolioType != "Show All") {
+            list = ArrayList(portfoliosList.filter { p -> p.type == portfolioType })
+            println("this is internal list $list")
+            fragBinding.recyclerView.adapter = PortfolioAdapter(list,this, portfolioListViewModel.readOnly.value!!)
+        } else {
+            list = portfoliosList
+        }
+        println("this is portfoliosList $portfoliosList")
+        println("this is list $list")
+        fragBinding.recyclerView.adapter = PortfolioAdapter(list,this, portfolioListViewModel.readOnly.value!!)
         if (portfoliosList.isEmpty()) {
             fragBinding.recyclerView.visibility = View.GONE
             fragBinding.portfoliosNotFound.visibility = View.VISIBLE
@@ -121,16 +175,22 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
 
     override fun onPortfolioClick(portfolio: PortfolioModel) {
         val action = PortfolioListFragmentDirections.actionPortfolioListFragmentToPortfolioDetailFragment(
-            portfolio.id
+            portfolio.uid!!
         )
-        findNavController().navigate(action)
+        if(!portfolioListViewModel.readOnly.value!!) {
+            findNavController().navigate(action)
+        }
     }
 
     fun setSwipeRefresh() {
         fragBinding.swiperefresh.setOnRefreshListener {
             fragBinding.swiperefresh.isRefreshing = true
             showLoader(loader,"Downloading Portfolios")
-            portfolioListViewModel.load()
+            if (portfolioListViewModel.readOnly.value!!) {
+                portfolioListViewModel.loadAll()
+            } else {
+                portfolioListViewModel.load()
+            }
         }
     }
 

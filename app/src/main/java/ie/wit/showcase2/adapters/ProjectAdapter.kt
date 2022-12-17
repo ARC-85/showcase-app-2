@@ -43,10 +43,14 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
 
         fun bind(project: NewProject, listener: ProjectListener) {
             // Function to bind different values to the project adapter card
+            binding.root.tag = project
+            binding.project = project
             binding.projectTitle.text = project.projectTitle
             binding.projectBudget.text = project.projectBudget
             binding.projectDescription.text = project.projectDescription
-            Picasso.get().load(project.projectImage).resize(200,200).into(binding.projectImageIcon)
+            if (project.projectImage.isNotEmpty()) {
+                Picasso.get().load(project.projectImage).resize(200,200).into(binding.projectImageIcon)
+            }
             binding.root.setOnClickListener { listener.onProjectClick(project) }
 
         }

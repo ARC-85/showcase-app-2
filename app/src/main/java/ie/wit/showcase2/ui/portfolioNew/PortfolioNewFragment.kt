@@ -22,11 +22,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.FragmentPortfolioNewBinding
+import ie.wit.showcase2.firebase.FirebaseImageManager
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 import ie.wit.showcase2.ui.portfolioDetail.PortfolioDetailFragmentDirections
 import ie.wit.showcase2.ui.portfolioList.PortfolioListFragment
 import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
+import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
 
@@ -41,7 +43,8 @@ class PortfolioNewFragment : Fragment() {
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
     var portfolioType = "" // Current portfolio type
-    var image: Uri = Uri.EMPTY
+    var image: String = ""
+    var imageLoad: Boolean = false
     val portfolioTypes = arrayOf("New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,8 +108,12 @@ class PortfolioNewFragment : Fragment() {
             if (layout.portfolioTitle.text.isEmpty()) {
                 Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
             } else {
-                portfolioViewModel.addPortfolio(PortfolioModel(title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType, image = image,
-                    email = loggedInViewModel.liveFirebaseUser.value?.email!!))
+                if(imageLoad) {
+                    image = FirebaseImageManager.imageUriPortfolio.value.toString()
+                }
+                println(loggedInViewModel.liveFirebaseUser)
+                portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType,
+                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, profilePic = FirebaseImageManager.imageUri.value.toString(), image = image))
                 println(portfolioType)
             }
             findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)
@@ -121,21 +128,29 @@ class PortfolioNewFragment : Fragment() {
                 when(result.resultCode){
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
-                            Timber.i("Got Result ${result.data!!.data}")
-                            image = result.data!!.data!!
+                            Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
+                            image = result.data!!.data!!.toString()
                             // Picasso used to get images, as well as standardising sizes and cropping as necessary
-                            Picasso.get()
+                            /*Picasso.get()
                                 .load(image)
                                 .centerCrop()
                                 .resize(450, 420)
-                                .into(fragBinding.portfolioImage)
+                                .into(fragBinding.portfolioImage)*/
                             fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            FirebaseImageManager
+                                .updatePortfolioImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
+                                    readImageUri(result.resultCode, result.data),
+                                    fragBinding.portfolioImage,
+                                    false)
+                            imageLoad = true
                         } // end of if
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
                 }
             }
     }
+
+
 
  private fun setupMenu() {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
@@ -157,7 +172,7 @@ class PortfolioNewFragment : Fragment() {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
                             Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
                         } else {
-                            portfolioViewModel.addPortfolio(PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
+                            portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
                                 email = loggedInViewModel.liveFirebaseUser.value?.email!!))
                             println(portfolioType)
                         }
