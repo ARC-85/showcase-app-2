@@ -1,13 +1,16 @@
 package ie.wit.showcase2.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.CardPortfolioBinding
 import ie.wit.showcase2.databinding.CardProjectBinding
 import ie.wit.showcase2.models.NewProject
+import ie.wit.showcase2.ui.auth.LoggedInViewModel
 
 
 interface ProjectListener {
@@ -40,7 +43,6 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
     inner class MainHolder(val binding : CardProjectBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-
         fun bind(project: NewProject, listener: ProjectListener) {
             // Function to bind different values to the project adapter card
             binding.root.tag = project
@@ -50,6 +52,12 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
             binding.projectDescription.text = project.projectDescription
             if (project.projectImage.isNotEmpty()) {
                 Picasso.get().load(project.projectImage).resize(200,200).into(binding.projectImageIcon)
+            }
+            val projectFavouriteId = project.projectFavourites?.find { p -> p == project.projectUserId }
+            if (projectFavouriteId == null) {
+                binding.imageFavourite.visibility = View.GONE
+            } else {
+                binding.imageFavourite.visibility = View.VISIBLE
             }
             binding.root.setOnClickListener { listener.onProjectClick(project) }
 

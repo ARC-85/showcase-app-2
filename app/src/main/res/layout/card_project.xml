@@ -37,7 +37,7 @@
 
         <TextView
             android:id="@+id/projectTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:fontFamily="@font/cinzel"
@@ -76,6 +76,20 @@
             app:layout_constraintStart_toEndOf="@+id/projectImageIcon"
             app:layout_constraintTop_toBottomOf="@id/projectBudget"
             tools:text="A Description" />
+
+        <ImageView
+            android:id="@+id/imageFavourite"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintStart_toEndOf="@id/projectTitle"
+
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/star_big_off" />
 
 
 

@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import com.google.android.gms.maps.GoogleMap
@@ -34,6 +35,7 @@ import ie.wit.showcase2.databinding.ContentProjectsMapBinding
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 import ie.wit.showcase2.ui.portfolioNew.PortfoliolNewViewModel
+import ie.wit.showcase2.ui.projectDetail.ProjectDetailFragmentDirections
 import ie.wit.showcase2.ui.projectList.ProjectListFragmentArgs
 import ie.wit.showcase2.ui.projectList.ProjectListViewModel
 import ie.wit.showcase2.utils.hideLoader
@@ -41,6 +43,8 @@ import ie.wit.showcase2.utils.hideLoader
 class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 
     private lateinit var projectsMapViewModel: ProjectsMapViewModel
+    var enabler: String = ""
+    var enablerSwitch: Boolean = true
 
 
 
@@ -85,7 +89,7 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
             portfolios?.let {
                 render(portfolios as ArrayList<PortfolioModel>)
                 println("this is the portfolios on the map $portfolios")
-                //configureMap(portfolios)
+                configureEnabler(portfolios)
             }
         })
         return root;
@@ -95,10 +99,24 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         super.onViewCreated(view, savedInstanceState)
     }
 
+    private fun configureEnabler(portfoliosList: ArrayList<PortfolioModel>) {
+
+
+        if (portfoliosList.isNotEmpty() && enablerSwitch) {
+            val userPortfolios = portfoliosList.filter { p -> p.email == loggedInViewModel.liveFirebaseUser.value!!.email }
+
+            val firstPortfolio = userPortfolios[0]
+            enabler = firstPortfolio.uid!!
+        }
+        println("this is enabler $enabler")
+        enablerSwitch = false
+    }
+
 
     private fun render(portfoliosList: ArrayList<PortfolioModel>) {
 
         portfolioList = portfoliosList
+
         println("this is portfolioList $portfolioList")
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapView) as SupportMapFragment
@@ -124,7 +142,7 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
             val loc = LatLng(it.lat, it.lng)
             val options = MarkerOptions().title(it.projectTitle).position(loc)
             projectsMapViewModel.map.addMarker(options)?.tag = it.projectId
-            projectsMapViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, it.zoom))
+            projectsMapViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15f))
         }
     }
 
@@ -141,6 +159,17 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
                 Picasso.get().load(project.projectImage).resize(200, 200)
                     .into(fragBinding.currentImage)
             }
+            if (enabler != "") {
+                fragBinding.cardView.setOnClickListener {
+                    val action = ProjectsMapFragmentDirections.actionProjectsMapFragmentToProjectDetailFragment(
+                        project,
+                        enabler,
+                        Location(lat = project.lat, lng = project.lng, zoom = 15f)
+                    )
+                    findNavController().navigate(action)
+                }
+            }
+
         }
         return false
     }

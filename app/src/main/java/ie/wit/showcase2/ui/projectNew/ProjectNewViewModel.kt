@@ -7,7 +7,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.models.NewProject
-import ie.wit.showcase2.models.PortfolioManager
 import ie.wit.showcase2.models.PortfolioModel
 import timber.log.Timber
 
@@ -30,7 +29,7 @@ class ProjectNewViewModel : ViewModel() {
 
     fun addProject(userid: String, project: NewProject) {
 
-        //PortfolioManager.create(portfolio)
+
         status.value = try {
             //DonationManager.create(donation)
             //FirebaseDBManager.create(firebaseUser, project)

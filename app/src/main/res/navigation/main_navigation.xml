@@ -147,5 +147,9 @@
         android:id="@+id/projectsMapFragment"
         android:name="ie.wit.showcase2.ui.projectsMap.ProjectsMapFragment"
         android:label="fragment_projects_map"
-        tools:layout="@layout/fragment_projects_map" />
+        tools:layout="@layout/fragment_projects_map" >
+        <action
+            android:id="@+id/action_projectsMapFragment_to_projectDetailFragment"
+            app:destination="@id/projectDetailFragment" />
+    </fragment>
 </navigation>

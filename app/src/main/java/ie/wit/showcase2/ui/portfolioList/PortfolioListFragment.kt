@@ -129,6 +129,7 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
+
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

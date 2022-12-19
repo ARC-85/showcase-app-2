@@ -22,4 +22,10 @@
         android:title="@string/menu_cancelPortfolio"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/toggleProjects"
+        android:title=""
+        app:actionLayout="@layout/togglebutton_layout"
+        app:showAsAction="always" />
+
 </menu>

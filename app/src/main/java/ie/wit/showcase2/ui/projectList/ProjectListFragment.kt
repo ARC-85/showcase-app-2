@@ -10,6 +10,7 @@ import android.widget.SpinnerAdapter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -216,6 +217,16 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_project_list, menu)
+
+                val item = menu.findItem(R.id.toggleProjects) as MenuItem
+                item.setActionView(R.layout.togglebutton_layout)
+                val toggleProjects: SwitchCompat = item.actionView!!.findViewById(R.id.toggleButton)
+                toggleProjects.isChecked = false
+
+                toggleProjects.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) projectListViewModel.loadAll()
+                    else projectListViewModel.load(args.portfolioid)
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

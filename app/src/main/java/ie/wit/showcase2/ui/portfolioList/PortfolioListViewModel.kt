@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.main.Showcase2App
-import ie.wit.showcase2.models.PortfolioManager
+
 import timber.log.Timber
 import java.lang.Exception
 
