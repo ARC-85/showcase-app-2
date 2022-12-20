@@ -157,6 +157,9 @@ class ProjectListFragment : Fragment(), ProjectListener {
                     println("this is updated portfolio projects ${currentPortfolio.projects}")
                 }
 
+                val removedProject = (viewHolder.itemView.tag as NewProject)
+                projectListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, removedProject.projectId)
+
                 projectListViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
 
                 hideLoader(loader)
@@ -210,7 +213,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
-                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                //(requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 //getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
                 //getActivity().getActionBar().setHomeButtonEnabled(false);
             }
@@ -279,7 +282,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
     fun setSwipeRefresh() {
         fragBinding.swiperefresh.setOnRefreshListener {
 
-        if (currentPortfolio.projects?.isNotEmpty()!!) {
+        if (currentPortfolio.projects != null) {
             fragBinding.swiperefresh.isRefreshing = true
             showLoader(loader,"Downloading Projects")
         } else {

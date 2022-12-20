@@ -60,5 +60,16 @@ class PortfolioListViewModel : ViewModel() {
             Timber.i("Report Delete Error : $e.message")
         }
     }
+
+    fun removeFavourite(userid: String, projectId: String) {
+
+        try {
+            FirebaseDBManager.deleteFavourite(userid, projectId)
+            Timber.i("Detail delete() Success : $projectId")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
+    }
 }
 

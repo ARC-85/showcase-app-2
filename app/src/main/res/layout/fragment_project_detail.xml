@@ -240,49 +240,39 @@
                         android:id="@+id/chooseImage3"
                         android:layout_width="200dp"
                         android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
+                        android:layout_marginTop="16dp"
                         android:background="@color/colorAccent"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
+                        android:layout_marginBottom="100dp"
                         android:text="@string/button_addImage"
                         android:textColor="@color/colorPrimary"
                         android:textSize="16sp" />
 
-                    <Button
-                        android:id="@+id/btnProjectAdd"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
-                        android:background="@color/colorAccent"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:stateListAnimator="@null"
-                        android:text="@string/button_addProject"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="16sp" />
+
 
 
                 </LinearLayout>
             </ScrollView>
 
             <Button
-                android:id="@+id/editProjectButton"
+                android:id="@+id/favouriteAddButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/update"
+                android:text="@string/add_favourites"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/deleteProjectButton"
+                app:layout_constraintEnd_toStartOf="@+id/favouriteRemoveButton"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
-                android:id="@+id/deleteProjectButton"
+                android:id="@+id/favouriteRemoveButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/delete"
+                android:text="@string/remove_favourites"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/editProjectButton" />
+                app:layout_constraintStart_toEndOf="@+id/favouriteAddButton" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

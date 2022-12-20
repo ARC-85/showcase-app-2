@@ -144,5 +144,8 @@
     <string name="group_map">Map of Projects</string>
     <string name="action_map">Projects</string>
     <string name="action_portfolio">New Portfolio</string>
+    <string name="action_favourites">Favourites</string>
+    <string name="add_favourites">Add To Favourites</string>
+    <string name="remove_favourites">Remove From Favourites</string>
 
 </resources>

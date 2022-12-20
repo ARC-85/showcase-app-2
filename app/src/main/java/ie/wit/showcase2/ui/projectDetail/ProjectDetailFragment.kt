@@ -140,8 +140,8 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
 
 
-        setUpdateButtonListener(fragBinding)
-        setDeleteButtonListener(fragBinding)
+        setAddFavouriteButtonListener(fragBinding)
+        setRemoveFavouriteButtonListener(fragBinding)
 
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
@@ -208,11 +208,11 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         projectFavouritesList = project.projectFavourites
         projectFavouriteId = projectFavouritesList?.find { p -> p == loggedInViewModel.liveFirebaseUser.value?.uid!! }
         if (projectFavouriteId == null) {
-            fragBinding.editProjectButton.visibility = View.VISIBLE
-            fragBinding.deleteProjectButton.visibility = View.GONE
+            fragBinding.favouriteAddButton.visibility = View.VISIBLE
+            fragBinding.favouriteRemoveButton.visibility = View.GONE
         } else {
-            fragBinding.editProjectButton.visibility = View.GONE
-            fragBinding.deleteProjectButton.visibility = View.VISIBLE
+            fragBinding.favouriteAddButton.visibility = View.GONE
+            fragBinding.favouriteRemoveButton.visibility = View.VISIBLE
         }
         image = project.projectImage
         var formattedLatitude = String.format("%.2f", args.location.lat); // Limit the decimal places to two
@@ -298,23 +298,23 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
     }
 
-    fun setUpdateButtonListener(layout: FragmentProjectDetailBinding) {
-        layout.editProjectButton.setOnClickListener {
+    fun setAddFavouriteButtonListener(layout: FragmentProjectDetailBinding) {
+        layout.favouriteAddButton.setOnClickListener {
             if (projectFavouritesList != null) { // If the project has favourites
                 projectFavouritesList!!.add(loggedInViewModel.liveFirebaseUser.value?.uid!!)
             } else {
                 projectFavouritesList = mutableListOf(loggedInViewModel.liveFirebaseUser.value?.uid!!)
             }
-            fragBinding.editProjectButton.visibility = View.GONE
-            fragBinding.deleteProjectButton.visibility = View.VISIBLE
+            fragBinding.favouriteAddButton.visibility = View.GONE
+            fragBinding.favouriteRemoveButton.visibility = View.VISIBLE
             projectViewModel.addFavourite(loggedInViewModel.liveFirebaseUser, Favourite(projectFavourite = project))
         }
     }
 
 
 
-    fun setDeleteButtonListener(layout: FragmentProjectDetailBinding) {
-        fragBinding.deleteProjectButton.setOnClickListener {
+    fun setRemoveFavouriteButtonListener(layout: FragmentProjectDetailBinding) {
+        fragBinding.favouriteRemoveButton.setOnClickListener {
             if (projectFavouritesList != null) { // If the project has favourites
                 var favouriteIdList =
                     arrayListOf<String>() // Create a arrayList variable for storing project IDs
@@ -337,8 +337,8 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
                 println("this is updated project favourites ${projectFavouritesList}")
             }
-            fragBinding.editProjectButton.visibility = View.VISIBLE
-            fragBinding.deleteProjectButton.visibility = View.GONE
+            fragBinding.favouriteAddButton.visibility = View.VISIBLE
+            fragBinding.favouriteRemoveButton.visibility = View.GONE
             projectViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.project.projectId)
         }
     }
@@ -508,6 +508,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
 
                             projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+                            projectViewModel.updateFavourite(args.project.projectUserId, updatedProject)
                         }
                         val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
                         findNavController().navigate(action)
@@ -538,6 +539,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                         }
 
                         projectViewModel.updatePortfolio(args.project.projectUserId, args.project.portfolioId, currentPortfolio)
+                        projectViewModel.removeFavourite(args.project.projectUserId, args.project.projectId)
 
                         val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
                         findNavController().navigate(action)

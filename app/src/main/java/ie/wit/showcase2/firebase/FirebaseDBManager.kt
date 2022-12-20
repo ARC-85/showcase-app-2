@@ -45,6 +45,29 @@ object FirebaseDBManager : PortfolioStore {
             })
     }
 
+    override fun findAllFavourites(favouritesList: MutableLiveData<List<Favourite>>) {
+        database.child("favourites")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Favourite error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<Favourite>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val favourite = it.getValue(Favourite::class.java)
+                        localList.add(favourite!!)
+                    }
+                    database.child("favourites")
+                        .removeEventListener(this)
+                    println("findAllFavourites localList $localList")
+
+                    favouritesList.value = localList
+                }
+            })
+    }
+
     override fun findUserAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>) {
         database.child("user-portfolios").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -64,6 +87,30 @@ object FirebaseDBManager : PortfolioStore {
                     println("findUserAll localList $localList")
 
                     portfoliosList.value = localList
+                }
+            })
+
+    }
+
+    override fun findUserAllFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>) {
+        database.child("user-favourites").child(userid)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Favourite error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<Favourite>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val favourite = it.getValue(Favourite::class.java)
+                        localList.add(favourite!!)
+                    }
+                    database.child("user-favourites").child(userid)
+                        .removeEventListener(this)
+                    println("findUserAllFavourites localList $localList")
+
+                    favouritesList.value = localList
                 }
             })
 
@@ -298,6 +345,44 @@ object FirebaseDBManager : PortfolioStore {
         childUpdate["user-portfolios/$userid/$portfolioid"] = portfolioValues
 
         database.updateChildren(childUpdate)
+
+
+    }
+
+    override fun updateFavourite(userid: String, project: NewProject) {
+        database.child("favourites")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Favourite error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<Favourite>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val favourite = it.getValue(Favourite::class.java)
+                        localList.add(favourite!!)
+                    }
+                    database.child("favourites")
+                        .removeEventListener(this)
+                    println("findAllFavourites localList $localList")
+
+                    localList.forEach {
+                        if (it.projectFavourite?.projectId == project.projectId) {
+                            val favouriteId = it?.uid
+                            val favourite = Favourite(uid = favouriteId, projectFavourite = project)
+                            val favouriteValues = favourite.toMap()
+
+                            val childUpdate : MutableMap<String, Any?> = HashMap()
+                            childUpdate["favourites/$favouriteId"] = favouriteValues
+                            childUpdate["user-favourites/$userid/$favouriteId"] = favouriteValues
+
+                            database.updateChildren(childUpdate)
+                        }
+                    }
+
+                }
+            })
 
 
     }

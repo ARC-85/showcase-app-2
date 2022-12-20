@@ -20,5 +20,8 @@ interface PortfolioStore {
     fun findAllProjects(projectsList: MutableLiveData<List<NewProject>>)
     fun createFavourite(firebaseUser: MutableLiveData<FirebaseUser>, favourite: Favourite)
     fun deleteFavourite(userid: String, favouriteId: String)
+    fun findAllFavourites(favouritesList: MutableLiveData<List<Favourite>>)
+    fun findUserAllFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>)
+    fun updateFavourite(userid: String, project: NewProject)
 }
 

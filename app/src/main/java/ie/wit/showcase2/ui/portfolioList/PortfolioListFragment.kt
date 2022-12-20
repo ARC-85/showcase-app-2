@@ -77,6 +77,11 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
                 showLoader(loader,"Deleting Portfolio")
                 val adapter = fragBinding.recyclerView.adapter as PortfolioAdapter
                 adapter.removeAt(viewHolder.adapterPosition)
+                val removedPortolio = (viewHolder.itemView.tag as PortfolioModel)
+                val removedProjects = removedPortolio.projects
+                removedProjects?.forEach {
+                    portfolioListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, it.projectId)
+                }
                 portfolioListViewModel.delete(portfolioListViewModel.liveFirebaseUser.value?.uid!!,
                     (viewHolder.itemView.tag as PortfolioModel).uid!!)
                 hideLoader(loader)

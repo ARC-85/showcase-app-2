@@ -92,5 +92,16 @@ class ProjectDetailViewModel : ViewModel() {
 
     }
 
+    fun updateFavourite(userid: String, project: NewProject) {
+
+        try {
+            FirebaseDBManager.updateFavourite(userid, project)
+            Timber.i("Detail delete() Success : $project")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
+    }
+
 
 }

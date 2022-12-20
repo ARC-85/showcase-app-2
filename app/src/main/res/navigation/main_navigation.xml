@@ -125,8 +125,8 @@
     <fragment
         android:id="@+id/projectMapFragment"
         android:name="ie.wit.showcase2.ui.projectMap.ProjectMapFragment"
-        android:label="fragment_project_map"
-        tools:layout="@layout/fragment_project_map" >
+        android:label="Project Location"
+        tools:layout="@layout/fragment_project_map">
         <argument
             android:name="location"
             app:argType="ie.wit.showcase2.models.Location" />
@@ -146,10 +146,19 @@
     <fragment
         android:id="@+id/projectsMapFragment"
         android:name="ie.wit.showcase2.ui.projectsMap.ProjectsMapFragment"
-        android:label="fragment_projects_map"
-        tools:layout="@layout/fragment_projects_map" >
+        android:label="Projects Map"
+        tools:layout="@layout/fragment_projects_map">
         <action
             android:id="@+id/action_projectsMapFragment_to_projectDetailFragment"
+            app:destination="@id/projectDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/favouritesMapFragment"
+        android:name="ie.wit.showcase2.ui.favouritesMap.FavouritesMapFragment"
+        android:label="Favourites Map"
+        tools:layout="@layout/fragment_favourites_map">
+        <action
+            android:id="@+id/action_favouritesMapFragment_to_projectDetailFragment"
             app:destination="@id/projectDetailFragment" />
     </fragment>
 </navigation>
