@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.firebase.FirebaseImageManager
 import ie.wit.showcase2.main.Showcase2App
-import ie.wit.showcase2.models.PortfolioManager
 import ie.wit.showcase2.models.PortfolioModel
 import timber.log.Timber
 
@@ -54,6 +53,17 @@ class PortfolioDetailViewModel : ViewModel() {
                 Timber.i("Detail delete() Error : $e.message")
             }
         }
+
+    fun removeFavourite(userid: String, projectId: String) {
+
+        try {
+            FirebaseDBManager.deleteFavourite(userid, projectId)
+            Timber.i("Detail delete() Success : $projectId")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
+    }
 
 }
 

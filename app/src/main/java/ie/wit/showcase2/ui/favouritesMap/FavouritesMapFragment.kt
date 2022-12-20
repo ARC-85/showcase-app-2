@@ -1,4 +1,4 @@
-package ie.wit.showcase2.ui.projectsMap
+package ie.wit.showcase2.ui.favouritesMap
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -12,47 +12,39 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import ie.wit.showcase2.R
-import ie.wit.showcase2.databinding.FragmentProjectMapBinding
-import ie.wit.showcase2.databinding.FragmentProjectsMapBinding
-import ie.wit.showcase2.models.Location
-import ie.wit.showcase2.models.NewProject
-import ie.wit.showcase2.ui.projectDetail.ProjectDetailFragmentArgs
-import ie.wit.showcase2.ui.projectMap.ProjectMapViewModel
-import com.google.android.gms.maps.CameraUpdateFactory
-
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
-import ie.wit.showcase2.adapters.ProjectAdapter
-import ie.wit.showcase2.databinding.ContentProjectsMapBinding
+import ie.wit.showcase2.R
+import ie.wit.showcase2.databinding.FragmentFavouritesMapBinding
+import ie.wit.showcase2.databinding.FragmentProjectsMapBinding
+import ie.wit.showcase2.models.Favourite
+import ie.wit.showcase2.models.Location
+import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
-import ie.wit.showcase2.ui.portfolioNew.PortfoliolNewViewModel
-import ie.wit.showcase2.ui.projectDetail.ProjectDetailFragmentDirections
-import ie.wit.showcase2.ui.projectList.ProjectListFragmentArgs
-import ie.wit.showcase2.ui.projectList.ProjectListViewModel
-import ie.wit.showcase2.utils.hideLoader
+import ie.wit.showcase2.ui.projectsMap.ProjectsMapFragmentDirections
+import ie.wit.showcase2.ui.projectsMap.ProjectsMapViewModel
 
-class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
+class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 
-    private lateinit var projectsMapViewModel: ProjectsMapViewModel
+    private lateinit var favouritesMapViewModel: FavouritesMapViewModel
     var enabler: String = ""
     var enablerSwitch: Boolean = true
 
 
 
-    var userProjects = ArrayList<NewProject>()
-    var portfolioList = ArrayList<PortfolioModel>()
+    var favouriteProjects = ArrayList<NewProject>()
+    var favouriteList = ArrayList<Favourite>()
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
 
-    private var _fragBinding: FragmentProjectsMapBinding? = null
+    private var _fragBinding: FragmentFavouritesMapBinding? = null
     // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
 
@@ -72,24 +64,32 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         savedInstanceState: Bundle?
     ): View? {
 
-        _fragBinding = FragmentProjectsMapBinding.inflate(inflater, container, false)
+        _fragBinding = FragmentFavouritesMapBinding.inflate(inflater, container, false)
         val root = fragBinding.root
         println("testing testing")
         setupMenu()
 
-        projectsMapViewModel = ViewModelProvider(this).get(ProjectsMapViewModel::class.java)
+        favouritesMapViewModel = ViewModelProvider(this).get(FavouritesMapViewModel::class.java)
         //projectsMapViewModel.load()
 
-        var test = projectsMapViewModel.load()
+        var test = favouritesMapViewModel.load()
         println("this is test $test")
 
+        var test2 = favouritesMapViewModel.load()
+        println("this is test $test2")
 
-        projectsMapViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
+        favouritesMapViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
                 portfolios ->
             portfolios?.let {
-                render(portfolios as ArrayList<PortfolioModel>)
-                println("this is the portfolios on the map $portfolios")
-                configureEnabler(portfolios)
+                configureEnabler(portfolios as ArrayList<PortfolioModel>)
+            }
+        })
+
+
+        favouritesMapViewModel.observableFavouritesList.observe(viewLifecycleOwner, Observer {
+                favourites ->
+            favourites?.let {
+                render(favourites as ArrayList<Favourite>)
             }
         })
         return root;
@@ -100,8 +100,6 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
     }
 
     private fun configureEnabler(portfoliosList: ArrayList<PortfolioModel>) {
-
-
         if (portfoliosList.isNotEmpty() && enablerSwitch) {
             val userPortfolios = portfoliosList.filter { p -> p.email == loggedInViewModel.liveFirebaseUser.value!!.email }
 
@@ -113,11 +111,11 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
     }
 
 
-    private fun render(portfoliosList: ArrayList<PortfolioModel>) {
+    private fun render(favouritesList: ArrayList<Favourite>) {
 
-        portfolioList = portfoliosList
+        favouriteList = favouritesList
 
-        println("this is portfolioList $portfolioList")
+        println("this is favouriteList $favouriteList")
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapView) as SupportMapFragment
         mapFragment.getMapAsync {
@@ -126,29 +124,29 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        projectsMapViewModel.map = googleMap
-        println("test  portfolioList $portfolioList")
-        portfolioList.forEach {
-            val portfolioProjects = it.projects?.toMutableList()
-            if (portfolioProjects != null) {
-                userProjects += portfolioProjects.toMutableList()
+        favouritesMapViewModel.map = googleMap
+        println("test  favouriteList $favouriteList")
+        favouriteList.forEach {
+            val projects = it.projectFavourite
+            if (projects != null) {
+                favouriteProjects += projects
             }
         }
-        projectsMapViewModel.map.setOnMarkerClickListener(this)
-        projectsMapViewModel.map.uiSettings.setZoomControlsEnabled(true)
-        println("this is userProjects: $userProjects")
-        projectsMapViewModel.map.clear()
-        userProjects.forEach { // If show all selected, use function for finding all projects from JSON file
+        favouritesMapViewModel.map.setOnMarkerClickListener(this)
+        favouritesMapViewModel.map.uiSettings.setZoomControlsEnabled(true)
+        println("this is favouriteProjects: $favouriteProjects")
+        favouritesMapViewModel.map.clear()
+        favouriteProjects.forEach { // If show all selected, use function for finding all projects from JSON file
             val loc = LatLng(it.lat, it.lng)
             val options = MarkerOptions().title(it.projectTitle).position(loc)
-            projectsMapViewModel.map.addMarker(options)?.tag = it.projectId
-            projectsMapViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15f))
+            favouritesMapViewModel.map.addMarker(options)?.tag = it.projectId
+            favouritesMapViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15f))
         }
     }
 
-        override fun onMarkerClick(marker: Marker): Boolean {
+    override fun onMarkerClick(marker: Marker): Boolean {
         val tag =marker.tag as String
-        val project = userProjects.find { p -> p.projectId == tag }
+        val project = favouriteProjects.find { p -> p.projectId == tag }
         println("this is project: $project")
         // Display information about a project upon clicking on tag, based on project ID
         if (project != null) {
@@ -161,7 +159,7 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
             }
             if (enabler != "") {
                 fragBinding.cardView.setOnClickListener {
-                    val action = ProjectsMapFragmentDirections.actionProjectsMapFragmentToProjectDetailFragment(
+                    val action = FavouritesMapFragmentDirections.actionFavouritesMapFragmentToProjectDetailFragment(
                         project,
                         enabler,
                         Location(lat = project.lat, lng = project.lng, zoom = 15f)
@@ -189,13 +187,13 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
                 toggleProjects.isChecked = false
 
                 toggleProjects.setOnCheckedChangeListener { _, isChecked ->
-                    userProjects.clear()
+                    favouriteProjects.clear()
                     if (isChecked) {
-                        projectsMapViewModel.loadAll()
+                        favouritesMapViewModel.loadAll()
 
                     }
                     else {
-                        projectsMapViewModel.load()
+                        favouritesMapViewModel.load()
 
                     }
                 }
@@ -229,8 +227,8 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         //fragBinding.mapView.onResume()
         loggedInViewModel.liveFirebaseUser.observe(viewLifecycleOwner, Observer { firebaseUser ->
             if (firebaseUser != null) {
-                projectsMapViewModel.liveFirebaseUser.value = firebaseUser
-                projectsMapViewModel.load()
+                favouritesMapViewModel.liveFirebaseUser.value = firebaseUser
+                favouritesMapViewModel.load()
             }
         })
     }
@@ -240,6 +238,3 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         //fragBinding.mapView.onSaveInstanceState(outState)
     }
 }
-
-
-

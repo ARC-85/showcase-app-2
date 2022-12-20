@@ -77,6 +77,11 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
                 showLoader(loader,"Deleting Portfolio")
                 val adapter = fragBinding.recyclerView.adapter as PortfolioAdapter
                 adapter.removeAt(viewHolder.adapterPosition)
+                val removedPortolio = (viewHolder.itemView.tag as PortfolioModel)
+                val removedProjects = removedPortolio.projects
+                removedProjects?.forEach {
+                    portfolioListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, it.projectId)
+                }
                 portfolioListViewModel.delete(portfolioListViewModel.liveFirebaseUser.value?.uid!!,
                     (viewHolder.itemView.tag as PortfolioModel).uid!!)
                 hideLoader(loader)
@@ -129,6 +134,7 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
+
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

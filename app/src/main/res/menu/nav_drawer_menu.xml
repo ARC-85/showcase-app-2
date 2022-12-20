@@ -5,7 +5,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/portfolioNewFragment"
-            android:icon="@android:drawable/ic_menu_add"
+            android:icon="@drawable/ic_portfolio_add"
             android:title="@string/action_portfolio" />
         <item
             android:id="@+id/portfolioListFragment"
@@ -20,12 +20,12 @@
         <menu>
             <item
                 android:id="@+id/projectsMapFragment"
-                android:icon="@android:drawable/ic_menu_mapmode"
+                android:icon="@drawable/ic_projects_map"
                 android:title="@string/action_map" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="@string/action_send" />
+                android:id="@+id/favouritesMapFragment"
+                android:icon="@drawable/ic_project_favourites"
+                android:title="@string/action_favourites" />
         </menu>
     </item>
     <item android:title="Access Control">

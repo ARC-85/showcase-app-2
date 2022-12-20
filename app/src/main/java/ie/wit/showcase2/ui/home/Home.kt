@@ -56,7 +56,7 @@ class Home : AppCompatActivity() {
 
 
         appBarConfiguration = AppBarConfiguration(setOf(
-            R.id.portfolioNewFragment, R.id.portfolioListFragment, R.id.aboutFragment, R.id.projectsMapFragment), drawerLayout)
+            R.id.portfolioNewFragment, R.id.portfolioListFragment, R.id.aboutFragment, R.id.projectsMapFragment, R.id.favouritesMapFragment), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         val navView = homeBinding.navView

@@ -35,9 +35,10 @@ import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectNewBinding
 import ie.wit.showcase2.firebase.FirebaseImageManager
+import ie.wit.showcase2.models.Favourite
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
-import ie.wit.showcase2.models.PortfolioManager
+
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 import ie.wit.showcase2.ui.map.MapProject
@@ -76,6 +77,8 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
     var projectImageUpdate: Boolean = false
     var projectImage2Update: Boolean = false
     var projectImage3Update: Boolean = false
+    var projectFavouritesList: MutableList<String>? = null
+    var projectFavouriteId: String? = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,42 +104,21 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             }
         })
 
+        projectViewModel.observableFavourite.observe(viewLifecycleOwner, Observer {
+                favourite ->
+            favourite?.let {
+                println("this is my favourite")
+            }
+        })
+
         var test = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
             args.portfolioid)
         println("this is test $test")
+        println("this is args.portfolioid ${args.portfolioid}")
 
         var location = args.location
         println("this is passed location $location")
 
-        //project = projectViewModel.getProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.portfolioid, args.projectid)!!
-
-        /*fragBinding.projectTitle.setText(project.projectTitle)
-        fragBinding.projectDescription.setText(project.projectDescription)
-        projectBudget = project.projectBudget
-        image = project.projectImage
-        var formattedLatitude = String.format("%.2f", project.lat); // Limit the decimal places to two
-        fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
-        var formattedLongitude = String.format("%.2f", project.lng); // Limit the decimal places to two
-        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
-
-
-        val spinner = fragBinding.projectBudgetSpinner
-        spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
-        val spinnerPosition = projectBudgets.indexOf(projectBudget)
-        spinner.setSelection(spinnerPosition)
-
-        spinner.onItemSelectedListener = object :
-            AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>,
-                                        view: View?, position: Int, id: Long) {
-                projectBudget = projectBudgets[position] // Index of array and spinner position used to select project budget
-
-                println("this is projectBudget: $projectBudget")
-            }
-            // No problem if nothing selected
-            override fun onNothingSelected(parent: AdapterView<*>) {
-            }
-        }*/
 
         fragBinding.projectLocation.setOnClickListener {
             Timber.i("Set Location Pressed")
@@ -144,54 +126,22 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
         // Set the initial values for location if a new location is set, passing details of location and project to the map activity
         fragBinding.projectLocation.setOnClickListener {
-            /*val location = Location(project.lat, project.lng, project.zoom)
 
-            val launcherIntent = Intent(activity, MapProject::class.java)
-                .putExtra("location", location)
-            //.putExtra("project_edit", project)
-            mapIntentLauncher.launch(launcherIntent)*/
             val location = Location(args.location.lat, args.location.lng, 15f)
             var tempProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = args.location.zoom,
                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
 
-            /*val launcherIntent = Intent(activity, MapProject::class.java)
-                .putExtra("location", location)
-                //.putExtra("project_edit", project)
-            mapIntentLauncher.launch(launcherIntent)*/
+
             val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectMapFragment(location, args.portfolioid,tempProject)
             findNavController().navigate(action)
         }
 
-        /*
 
-        // Set up DatePicker
-        val datePicker = fragBinding.projectCompletionDatePicker
-        // Set initial values if a completion date already exists
-        dateDay = project.projectCompletionDay
-        dateMonth = project.projectCompletionMonth - 1
-        dateYear = project.projectCompletionYear
-        datePicker.init(dateYear, dateMonth, dateDay) { view, year, month, day ->
-            val month = month + 1
-            val msg = "You Selected: $day/$month/$year"
-            var dateProjectCompletion = "$day/$month/$year"
-            dateDay = day
-            dateMonth = month
-            dateYear = year
-            // Toast is turned off, but can be turned back on
-            //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-            println ("this is dateDay: $dateDay")
-            println ("this is dateMonth: $dateMonth")
-            println ("this is dateYear: $dateYear")
-            println("this is datePicker: $datePicker")
-            println("this is dateProjectCompletion: $dateProjectCompletion")
-        }
 
-         */
-
-        setUpdateButtonListener(fragBinding)
-        setDeleteButtonListener(fragBinding)
+        setAddFavouriteButtonListener(fragBinding)
+        setRemoveFavouriteButtonListener(fragBinding)
 
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
@@ -209,38 +159,6 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             showImagePicker(image3IntentLauncher)
         }
 
-        /*
-
-        Picasso.get()
-            .load(project.projectImage)
-            .centerCrop()
-            .resize(450, 420)
-            .into(fragBinding.projectImage)
-        if (project.projectImage != "") {
-            fragBinding.chooseImage.setText(R.string.button_changeImage)
-        }
-        Picasso.get()
-            .load(project.projectImage2)
-            .centerCrop()
-            .resize(450, 420)
-            .into(fragBinding.projectImage2)
-        if (project.projectImage2 != "") {
-            fragBinding.chooseImage2.isVisible = true
-            fragBinding.projectImage2.isVisible = true
-            fragBinding.chooseImage2.setText(R.string.button_changeImage)
-        }
-        Picasso.get()
-            .load(project.projectImage3)
-            .centerCrop()
-            .resize(450, 420)
-            .into(fragBinding.projectImage3)
-        if (project.projectImage3 != "") {
-            fragBinding.chooseImage3.isVisible = true
-            fragBinding.projectImage3.isVisible = true
-            fragBinding.chooseImage3.setText(R.string.button_changeImage)
-        }
-
-         */
 
         return root;
     }
@@ -280,10 +198,22 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         //project = portfolio.projects?.find { p -> p.projectId == args.project.projectId }!!
         project = args.project
         println("this is the currentProject $project")
+        /*var test2 = projectViewModel.getPortfolio(project.projectUserId,
+            project.portfolioId)
+        println("this is test2 $test2")*/
 
         fragBinding.projectTitle.setText(project.projectTitle)
         fragBinding.projectDescription.setText(project.projectDescription)
         projectBudget = project.projectBudget
+        projectFavouritesList = project.projectFavourites
+        projectFavouriteId = projectFavouritesList?.find { p -> p == loggedInViewModel.liveFirebaseUser.value?.uid!! }
+        if (projectFavouriteId == null) {
+            fragBinding.favouriteAddButton.visibility = View.VISIBLE
+            fragBinding.favouriteRemoveButton.visibility = View.GONE
+        } else {
+            fragBinding.favouriteAddButton.visibility = View.GONE
+            fragBinding.favouriteRemoveButton.visibility = View.VISIBLE
+        }
         image = project.projectImage
         var formattedLatitude = String.format("%.2f", args.location.lat); // Limit the decimal places to two
         fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
@@ -365,99 +295,53 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             fragBinding.projectImage3.isVisible = true
             fragBinding.chooseImage3.setText(R.string.button_changeImage)
         }
-        //fragBinding.portfolioTitle.setText("This is Title")
-        //fragBinding.editUpvotes.setText("0")
-        //fragBinding.portfoliovm = detailViewModel
-        //Timber.i("Retrofit fragBinding.donationvm == $fragBinding.donationvm")
+
     }
 
-    fun setUpdateButtonListener(layout: FragmentProjectDetailBinding) {
-        layout.editProjectButton.setOnClickListener {
-            if (layout.projectTitle.text.isEmpty()) {
-                Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
+    fun setAddFavouriteButtonListener(layout: FragmentProjectDetailBinding) {
+        layout.favouriteAddButton.setOnClickListener {
+            if (projectFavouritesList != null) { // If the project has favourites
+                projectFavouritesList!!.add(loggedInViewModel.liveFirebaseUser.value?.uid!!)
             } else {
-                if (projectImageUpdate) {
-                    project.projectImage = FirebaseImageManager.imageUriProject.value.toString()
-                }
-                if (projectImage2Update) {
-                    project.projectImage2 = FirebaseImageManager.imageUriProject2.value.toString()
-                }
-                if (projectImage3Update) {
-                    project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
-                }
-                var updatedProject = NewProject(projectId = args.project.projectId, projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
-                    projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                    projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
-                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
-
-                if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
-                    var projectIdList =
-                        arrayListOf<String>() // Create a arrayList variable for storing project IDs
-                    currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
-                        projectIdList += it.projectId
-                    }
-                    println("this is projectIdList: $projectIdList")
-                    var projectId = updatedProject.projectId
-                    println("this is projectId: $projectId")
-                    val index =
-                        projectIdList.indexOf(updatedProject.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
-                    println("this is index: $index")
-                    var portfolioProjects1 =
-                        currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
-                    var short =
-                        portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
-                    println("this is short: $short")
-                    portfolioProjects1 =
-                        portfolioProjects1.plus(updatedProject) as MutableList<NewProject> // Add the passed project to the shortened list of projects
-                    currentPortfolio.projects =
-                        ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
-
-                    println("this is updated portfolio projects ${currentPortfolio.projects}")
-                }
-
-
-                projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+                projectFavouritesList = mutableListOf(loggedInViewModel.liveFirebaseUser.value?.uid!!)
             }
-            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
-            findNavController().navigate(action)
+            fragBinding.favouriteAddButton.visibility = View.GONE
+            fragBinding.favouriteRemoveButton.visibility = View.VISIBLE
+            projectViewModel.addFavourite(loggedInViewModel.liveFirebaseUser, Favourite(projectFavourite = project))
         }
     }
 
 
 
-    fun setDeleteButtonListener(layout: FragmentProjectDetailBinding) {
-        fragBinding.deleteProjectButton.setOnClickListener {
-
-            if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
-                var projectIdList =
+    fun setRemoveFavouriteButtonListener(layout: FragmentProjectDetailBinding) {
+        fragBinding.favouriteRemoveButton.setOnClickListener {
+            if (projectFavouritesList != null) { // If the project has favourites
+                var favouriteIdList =
                     arrayListOf<String>() // Create a arrayList variable for storing project IDs
-                currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
-                    projectIdList += it.projectId
+                projectFavouritesList!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                    favouriteIdList += it
                 }
-                println("this is projectIdList: $projectIdList")
-                var projectId = args.project.projectId
-                println("this is projectId: $projectId")
+                println("this is favouriteIdList: $favouriteIdList")
+
                 val index =
-                    projectIdList.indexOf(args.project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                    favouriteIdList.indexOf(loggedInViewModel.liveFirebaseUser.value?.uid!!) // Find the index position of the project ID that matches the ID of the project that was passed
                 println("this is index: $index")
-                var portfolioProjects1 =
-                    currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
+                var favouriteProjects1 =
+                    projectFavouritesList!! // Create a list of the projects from the passed portfolio
                 var short =
-                    portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                    favouriteProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
                 println("this is short: $short")
+                // Add the passed project to the shortened list of projects
+                projectFavouritesList =
+                    favouriteProjects1 // Assign the new list of projects to the found portfolio
 
-                currentPortfolio.projects =
-                    ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
-
-                println("this is updated portfolio projects ${currentPortfolio.projects}")
+                println("this is updated project favourites ${projectFavouritesList}")
             }
-
-            projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
-
-        val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
-        findNavController().navigate(action)
+            fragBinding.favouriteAddButton.visibility = View.VISIBLE
+            fragBinding.favouriteRemoveButton.visibility = View.GONE
+            projectViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.project.projectId)
         }
-        }
+    }
 
 
 
@@ -563,6 +447,10 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_project_detail, menu)
+                if (args.project.projectUserId != loggedInViewModel.liveFirebaseUser.value!!.uid) {
+                    menu.getItem(2).isVisible = false
+                    menu.getItem(3).isVisible = false
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -575,27 +463,87 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                         val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
                         findNavController().navigate(action)
                     }
-                    /*R.id.item_project_save -> {
+                    R.id.item_project_save -> {
                         if (fragBinding.projectTitle.text.isEmpty()) {
                             Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
                         } else {
-                            val portfolio = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.email!!,
-                                args.portfolioid)
-                            projectViewModel.updateProject(loggedInViewModel.liveFirebaseUser.value?.email!!,
-                                NewProject(projectId = args.projectid, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
-                                    projectBudget = projectBudget, projectImage = image, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                                    projectPortfolioName = portfolio!!.title, portfolioId = args.portfolioid, lat = project.lat, lng = project.lng,
-                                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear),
-                                args.portfolioid)
+                            if (projectImageUpdate) {
+                                project.projectImage = FirebaseImageManager.imageUriProject.value.toString()
+                            }
+                            if (projectImage2Update) {
+                                project.projectImage2 = FirebaseImageManager.imageUriProject2.value.toString()
+                            }
+                            if (projectImage3Update) {
+                                project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
+                            }
+                            var updatedProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
+                                projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                                projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
+                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId)
+
+                            if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
+                                var projectIdList =
+                                    arrayListOf<String>() // Create a arrayList variable for storing project IDs
+                                currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                                    projectIdList += it.projectId
+                                }
+                                println("this is projectIdList: $projectIdList")
+                                var projectId = updatedProject.projectId
+                                println("this is projectId: $projectId")
+                                val index =
+                                    projectIdList.indexOf(updatedProject.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                                println("this is index: $index")
+                                var portfolioProjects1 =
+                                    currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
+                                var short =
+                                    portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                                println("this is short: $short")
+                                portfolioProjects1 =
+                                    portfolioProjects1.plus(updatedProject) as MutableList<NewProject> // Add the passed project to the shortened list of projects
+                                currentPortfolio.projects =
+                                    ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
+
+                                println("this is updated portfolio projects ${currentPortfolio.projects}")
+                            }
+
+
+                            projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+                            projectViewModel.updateFavourite(args.project.projectUserId, updatedProject)
                         }
                         val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
                         findNavController().navigate(action)
                     }
                     R.id.item_project_delete -> {
-                            projectViewModel.deleteProject(loggedInViewModel.liveFirebaseUser.value?.email!!, args.projectid, args.portfolioid)
-                            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
-                            findNavController().navigate(action)
-                    }*/
+                        if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
+                            var projectIdList =
+                                arrayListOf<String>() // Create a arrayList variable for storing project IDs
+                            currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                                projectIdList += it.projectId
+                            }
+                            println("this is projectIdList: $projectIdList")
+                            var projectId = args.project.projectId
+                            println("this is projectId: $projectId")
+                            val index =
+                                projectIdList.indexOf(args.project.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                            println("this is index: $index")
+                            var portfolioProjects1 =
+                                currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
+                            var short =
+                                portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                            println("this is short: $short")
+
+                            currentPortfolio.projects =
+                                ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
+
+                            println("this is updated portfolio projects ${currentPortfolio.projects}")
+                        }
+
+                        projectViewModel.updatePortfolio(args.project.projectUserId, args.project.portfolioId, currentPortfolio)
+                        projectViewModel.removeFavourite(args.project.projectUserId, args.project.projectId)
+
+                        val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+                        findNavController().navigate(action)
+                    }
                 }
                 return NavigationUI.onNavDestinationSelected(menuItem,
                     requireView().findNavController())

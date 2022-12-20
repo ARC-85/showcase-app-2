@@ -4,9 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.GoogleMap
+import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
+import ie.wit.showcase2.models.Favourite
 import ie.wit.showcase2.models.NewProject
-import ie.wit.showcase2.models.PortfolioManager
+
 import ie.wit.showcase2.models.PortfolioModel
 import timber.log.Timber
 
@@ -27,11 +29,22 @@ class ProjectDetailViewModel : ViewModel() {
             portfolio.value = value.value
         }
 
+    private val favourite = MutableLiveData<Favourite>()
+
+    var observableFavourite: LiveData<Favourite>
+        get() = favourite
+        set(value) {
+            favourite.value = value.value
+        }
+
     private lateinit var currentPortfolio : PortfolioModel
 
-    fun getProject(email: String, portfolioId: String, projectId: String): NewProject? {
-        return PortfolioManager.findProjectById(projectId, portfolioId)
-    }
+    private val status = MutableLiveData<Boolean>()
+
+    val observableStatus: LiveData<Boolean>
+        get() = status
+
+
 
     fun getPortfolio(userid: String, id: String) {
         //var currentPortfolio = FirebaseDBManager.findPortfolioById(userid, id, portfolio)
@@ -57,16 +70,38 @@ class ProjectDetailViewModel : ViewModel() {
         }
     }
 
-    /*fun updateProject(userid:String, project: NewProject, portfolioId: String) {
-        var updatedPortfolio = PortfolioManager.findPortfolioById(userid, portfolioId, portfolio)
-        PortfolioManager.updateProject(project, updatedPortfolio!!)
+    fun addFavourite(firebaseUser: MutableLiveData<FirebaseUser>, favourite: Favourite) {
+
+        try {
+            FirebaseDBManager.createFavourite(firebaseUser, favourite)
+            Timber.i("Detail update() Success : $favourite")
+        } catch (e: Exception) {
+            Timber.i("Detail update() Error : $e.message")
+        }
+
     }
 
-    fun deleteProject(userid:String, projectId: String, portfolioId: String) {
-        var deletedProject = PortfolioManager.findProjectById(projectId, portfolioId)
-        println("this is deleted project $deletedProject")
-        var deletedPortfolio = PortfolioManager.findPortfolioById(userid, portfolioId, portfolio)
-        println("this is deleted project portfolio $deletedPortfolio")
-        PortfolioManager.deleteProject(deletedProject!!, deletedPortfolio!!)
-    }*/
+    fun removeFavourite(userid: String, projectId: String) {
+
+        try {
+            FirebaseDBManager.deleteFavourite(userid, projectId)
+            Timber.i("Detail delete() Success : $projectId")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
+    }
+
+    fun updateFavourite(userid: String, project: NewProject) {
+
+        try {
+            FirebaseDBManager.updateFavourite(userid, project)
+            Timber.i("Detail delete() Success : $project")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
+    }
+
+
 }

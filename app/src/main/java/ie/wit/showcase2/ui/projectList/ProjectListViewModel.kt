@@ -9,7 +9,6 @@ import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.models.NewProject
-import ie.wit.showcase2.models.PortfolioManager
 import ie.wit.showcase2.models.PortfolioModel
 import timber.log.Timber
 import java.lang.Exception
@@ -38,6 +37,16 @@ class ProjectListViewModel : ViewModel() {
         }
         catch (e: Exception) {
             Timber.i("Report Load Error : $e.message")
+        }
+    }
+
+    fun loadAll() {
+        try {
+            FirebaseDBManager.findAllProjects(projectsList)
+            Timber.i("Report LoadAll Success : ${projectsList.value.toString()}")
+        }
+        catch (e: Exception) {
+            Timber.i("Report LoadAll Error : $e.message")
         }
     }
 
@@ -91,5 +100,16 @@ class ProjectListViewModel : ViewModel() {
         } catch (e: Exception) {
             Timber.i("Detail update() Error : $e.message")
         }
+    }
+
+    fun removeFavourite(userid: String, projectId: String) {
+
+        try {
+            FirebaseDBManager.deleteFavourite(userid, projectId)
+            Timber.i("Detail delete() Success : $projectId")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
     }
 }

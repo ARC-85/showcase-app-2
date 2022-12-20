@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.main.Showcase2App
-import ie.wit.showcase2.models.PortfolioManager
+
 import timber.log.Timber
 import java.lang.Exception
 
@@ -59,6 +59,17 @@ class PortfolioListViewModel : ViewModel() {
         catch (e: Exception) {
             Timber.i("Report Delete Error : $e.message")
         }
+    }
+
+    fun removeFavourite(userid: String, projectId: String) {
+
+        try {
+            FirebaseDBManager.deleteFavourite(userid, projectId)
+            Timber.i("Detail delete() Success : $projectId")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
+        }
+
     }
 }
 

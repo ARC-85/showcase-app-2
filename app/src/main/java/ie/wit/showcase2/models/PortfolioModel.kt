@@ -48,7 +48,9 @@ data class NewProject(var projectId: String = "",
                       var projectCompletionDay: Int = 1,
                       var projectCompletionMonth: Int = 1,
                       var projectCompletionYear: Int = 1900,
-                      var projectBudget: String = "") : Parcelable
+                      var projectBudget: String = "",
+                      var projectFavourites: MutableList<String>? = null,
+                      var projectUserId: String = "") : Parcelable
 {
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -67,7 +69,9 @@ data class NewProject(var projectId: String = "",
             "projectCompletionDay" to projectCompletionDay,
             "projectCompletionMonth" to projectCompletionMonth,
             "projectCompletionYear" to projectCompletionYear,
-            "projectBudget" to projectBudget
+            "projectBudget" to projectBudget,
+            "projectFavourites" to projectFavourites,
+            "projectUserId" to projectUserId
         )
     }
 }
@@ -83,6 +87,20 @@ data class Location(var lat: Double = 0.0,
         "lng" to lng
         "zoom" to zoom
         return mapOf()
+    }
+}
+
+@IgnoreExtraProperties
+@Parcelize
+data class Favourite    (var uid: String? = "",
+                          var projectFavourite: NewProject? = null) : Parcelable
+{
+    @Exclude
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "uid" to uid,
+            "projectFavourite" to projectFavourite
+        )
     }
 }
 

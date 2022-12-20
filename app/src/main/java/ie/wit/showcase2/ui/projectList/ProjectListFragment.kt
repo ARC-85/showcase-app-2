@@ -10,6 +10,7 @@ import android.widget.SpinnerAdapter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -156,6 +157,9 @@ class ProjectListFragment : Fragment(), ProjectListener {
                     println("this is updated portfolio projects ${currentPortfolio.projects}")
                 }
 
+                val removedProject = (viewHolder.itemView.tag as NewProject)
+                projectListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, removedProject.projectId)
+
                 projectListViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
 
                 hideLoader(loader)
@@ -209,13 +213,23 @@ class ProjectListFragment : Fragment(), ProjectListener {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
-                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                //(requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 //getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
                 //getActivity().getActionBar().setHomeButtonEnabled(false);
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_project_list, menu)
+
+                val item = menu.findItem(R.id.toggleProjects) as MenuItem
+                item.setActionView(R.layout.togglebutton_layout)
+                val toggleProjects: SwitchCompat = item.actionView!!.findViewById(R.id.toggleButton)
+                toggleProjects.isChecked = false
+
+                toggleProjects.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) projectListViewModel.loadAll()
+                    else projectListViewModel.load(args.portfolioid)
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -268,7 +282,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
     fun setSwipeRefresh() {
         fragBinding.swiperefresh.setOnRefreshListener {
 
-        if (currentPortfolio.projects?.isNotEmpty()!!) {
+        if (currentPortfolio.projects != null) {
             fragBinding.swiperefresh.isRefreshing = true
             showLoader(loader,"Downloading Projects")
         } else {
