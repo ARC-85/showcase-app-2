@@ -206,6 +206,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
     private fun getCurrentPortfolio(portfolio: PortfolioModel) {
         currentPortfolio = portfolio
+        fragBinding.portfolioName.setText(portfolio.title)
         println("this is newCurrentPortfolio3 $currentPortfolio")
     }
 
@@ -213,7 +214,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
-                //(requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 //getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
                 //getActivity().getActionBar().setHomeButtonEnabled(false);
             }

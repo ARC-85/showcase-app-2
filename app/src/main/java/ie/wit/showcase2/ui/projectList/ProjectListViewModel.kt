@@ -51,8 +51,6 @@ class ProjectListViewModel : ViewModel() {
     }
 
     fun getPortfolio(userid: String, id: String) {
-        //var currentPortfolio = FirebaseDBManager.findPortfolioById(userid, id, portfolio)
-        //println("this is currentportfolio $currentPortfolio")
         try {
             FirebaseDBManager.findPortfolioById(userid, id, portfolio)
             Timber.i(

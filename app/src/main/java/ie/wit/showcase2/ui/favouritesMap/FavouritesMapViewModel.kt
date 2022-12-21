@@ -38,7 +38,7 @@ class FavouritesMapViewModel : ViewModel() {
 
     fun load() {
         try {
-            FirebaseDBManager.findUserAllFavourites(liveFirebaseUser.value?.uid!!,favouritesList)
+            FirebaseDBManager.findUserUserFavourites(liveFirebaseUser.value?.uid!!,favouritesList)
             FirebaseDBManager.findUserAll(liveFirebaseUser.value?.uid!!,portfoliosList)
             Timber.i("Report Load Success : ${favouritesList.value.toString()}")
         }
@@ -50,7 +50,7 @@ class FavouritesMapViewModel : ViewModel() {
     fun loadAll() {
         try {
 
-            FirebaseDBManager.findAllFavourites(favouritesList)
+            FirebaseDBManager.findUserAllFavourites(liveFirebaseUser.value?.uid!!,favouritesList)
             Timber.i("Report LoadAll Success : ${favouritesList.value.toString()}")
         }
         catch (e: Exception) {

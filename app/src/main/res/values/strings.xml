@@ -147,5 +147,11 @@
     <string name="action_favourites">Favourites</string>
     <string name="add_favourites">Add To Favourites</string>
     <string name="remove_favourites">Remove From Favourites</string>
+    <string name="project_email_placeholder">Project Email</string>
+    <string name="my_projects">My Projects</string>
+    <string name="my_favourites">My Favourites</string>
+    <string name="theme_switch">Theme Switch</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="dark_mode">Dark Mode</string>
 
 </resources>

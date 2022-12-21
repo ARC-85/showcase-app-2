@@ -23,5 +23,6 @@ interface PortfolioStore {
     fun findAllFavourites(favouritesList: MutableLiveData<List<Favourite>>)
     fun findUserAllFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>)
     fun updateFavourite(userid: String, project: NewProject)
+    fun findUserUserFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>)
 }
 

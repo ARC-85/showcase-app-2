@@ -76,10 +76,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient //from https://www.tutorialspoint.com/how-to-show-current-location-on-a-google-map-on-android-using-kotlin
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
-
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -143,30 +139,17 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
                 location = args.location
             }
 
-
-
-
-            /*val launcherIntent = Intent(activity, MapProject::class.java)
-                .putExtra("location", location)
-                //.putExtra("project_edit", project)
-            mapIntentLauncher.launch(launcherIntent)*/
             val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectMapFragment(location, args.portfolioid,NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                portfolioId = args.portfolioid, lat = location.lat, lng = location.lng, zoom = 15f, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!,
+                portfolioId = args.portfolioid, lat = location.lat, lng = location.lng, zoom = 15f, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!, projectUserEmail = loggedInViewModel.liveFirebaseUser.value?.email!!,
                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title))
             findNavController().navigate(action)
         }
 
-
-
         // Set up DatePicker
         val datePicker = fragBinding.projectCompletionDatePicker
         // Set initial values if a completion date already exists
-        /*if (edit) {
-            dateDay = project.projectCompletionDay
-            dateMonth = project.projectCompletionMonth - 1
-            dateYear = project.projectCompletionYear
-        }*/
+
         datePicker.init(dateYear, dateMonth, dateDay) { view, year, month, day ->
             val month = month + 1
             val msg = "You Selected: $day/$month/$year"
@@ -201,13 +184,10 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
             showImagePicker(image3IntentLauncher)
         }
 
-        /*var location = args.location
-        println("this is passed location $location")
-        var formattedLatitude = String.format("%.2f", location.lat); // Limit the decimal places to two
-        fragBinding.projectLatitude.setText("Latitude: $formattedLatitude")
-        var formattedLongitude = String.format("%.2f", location.lng); // Limit the decimal places to two
-        fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")*/
-
+        fragBinding.chooseImage2.isVisible = false // Initially hidden until previous image set
+        fragBinding.projectImage2.isVisible = false // Initially hidden until previous image set
+        fragBinding.chooseImage3.isVisible = false // Initially hidden until previous image set
+        fragBinding.projectImage3.isVisible = false // Initially hidden until previous image set
 
         return root;
     }
@@ -230,15 +210,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
                     locationUpdate(myLocation.latitude, myLocation.longitude)
                     println("this is myLocation $myLocation")
                 }
-                /*locationService?.lastLocation?.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val myLocation = task.result
 
-                } else {
-                    Timber.i( "Exception of task: ${task.exception}", )
-                    }
-
-            }*/
                 println("permission is true")
             } else {
                 doPermissionLauncher()
@@ -263,23 +235,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         //showProject(project)
     }
 
-    /*fun showProject(project: NewProject) {
-        if (fragBinding.projectTitle.text.isEmpty()) fragBinding.projectTitle.setText(project.projectTitle)
-        if (fragBinding.projectDescription.text.isEmpty())  fragBinding.projectDescription.setText(project.projectDescription)
-
-        if (project.projectImage != "") {
-            Picasso.get()
-                .load(project.projectImage)
-                .into(fragBinding.projectImage)
-
-            fragBinding.chooseImage.setText(R.string.button_changeImage)
-        }
-        this.showLocation(project.lat, project.lng)
-    }
-    private fun showLocation (lat: Double, lng: Double){
-        fragBinding.projectLatitude.setText("Latitude: %.6f".format(lat))
-        fragBinding.projectLongitude.setText("Longitude: %.6f".format(lng))
-    }*/
     @SuppressLint("MissingPermission")
     private fun render(portfolio: PortfolioModel) {
 
@@ -306,8 +261,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
             var formattedLongitude = String.format("%.2f", args.location.lng); // Limit the decimal places to two
             fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
         }
-
-
 
         val spinner = fragBinding.projectBudgetSpinner
         spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
@@ -406,40 +359,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
             initialLocation = args.location
         }
         println("the updated location saved $initialLocation")
-        layout.btnProjectAdd.setOnClickListener {
-            if (layout.projectTitle.text.isEmpty()) {
-                Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
-            } else {
-                if (project.projectImage.isNotEmpty()) {
-                    project.projectImage = FirebaseImageManager.imageUriProject.value.toString()
-                }
-                if (project.projectImage2.isNotEmpty()) {
-                    project.projectImage2 = FirebaseImageManager.imageUriProject2.value.toString()
-                }
-                if (project.projectImage3.isNotEmpty()) {
-                    project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
-                }
-
-
-                val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = layout.projectTitle.text.toString(), projectDescription = layout.projectDescription.text.toString(),
-                    projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                    portfolioId = args.portfolioid, lat = initialLocation.lat, lng = initialLocation.lng, zoom = 15f,
-                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!.toString())
-                if (currentPortfolio.projects == null) {
-                    currentPortfolio.projects = listOf(updatedProject).toMutableList()
-                } else {
-                    currentPortfolio.projects = currentPortfolio.projects?.plus(updatedProject)?.toMutableList()
-                }
-
-                println("this is updatedProject $updatedProject")
-                println("this is updated currentprojects ${currentPortfolio.projects}")
-
-                println("this is updated currentPortfolio $currentPortfolio")
-                projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
-            }
-            val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectListFragment(args.portfolioid)
-            findNavController().navigate(action)
-        }
     }
 
     // Image picker is setup for choosing project image
@@ -537,6 +456,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
+                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -571,7 +491,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
                             val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                                 portfolioId = args.portfolioid, lat = initialLocation.lat, lng = initialLocation.lng, zoom = 15f,
-                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!.toString())
+                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!.toString(), projectUserEmail = loggedInViewModel.liveFirebaseUser.value?.email!!)
                             if (currentPortfolio.projects == null) {
                                 currentPortfolio.projects = listOf(updatedProject).toMutableList()
                             } else {

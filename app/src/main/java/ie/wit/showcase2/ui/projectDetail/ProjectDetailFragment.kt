@@ -131,7 +131,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             var tempProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = args.location.zoom,
-                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear)
+                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail)
 
 
             val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectMapFragment(location, args.portfolioid,tempProject)
@@ -197,6 +197,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
     private fun render(portfolio: PortfolioModel) {
         //project = portfolio.projects?.find { p -> p.projectId == args.project.projectId }!!
         project = args.project
+        fragBinding.projectName.setText(project.projectTitle)
         println("this is the currentProject $project")
         /*var test2 = projectViewModel.getPortfolio(project.projectUserId,
             project.portfolioId)
@@ -204,6 +205,8 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
         fragBinding.projectTitle.setText(project.projectTitle)
         fragBinding.projectDescription.setText(project.projectDescription)
+        fragBinding.projectTitleLocked.setText(project.projectTitle)
+        fragBinding.projectDescriptionLocked.setText(project.projectDescription)
         projectBudget = project.projectBudget
         projectFavouritesList = project.projectFavourites
         projectFavouriteId = projectFavouritesList?.find { p -> p == loggedInViewModel.liveFirebaseUser.value?.uid!! }
@@ -294,6 +297,20 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             fragBinding.chooseImage3.isVisible = true
             fragBinding.projectImage3.isVisible = true
             fragBinding.chooseImage3.setText(R.string.button_changeImage)
+        }
+
+        if (args.project.projectUserId != loggedInViewModel.liveFirebaseUser.value!!.uid) {
+            fragBinding.projectTitle.isVisible = false
+            fragBinding.projectDescription.isVisible = false
+            fragBinding.projectTitleLocked.isVisible = true
+            fragBinding.projectDescriptionLocked.isVisible = true
+            fragBinding.projectLocation.isVisible = false
+            fragBinding.chooseImage.isVisible = false
+            fragBinding.chooseImage2.isVisible = false
+            fragBinding.chooseImage3.isVisible = false
+        } else {
+            fragBinding.projectTitleLocked.isVisible = false
+            fragBinding.projectDescriptionLocked.isVisible = false
         }
 
     }
@@ -443,6 +460,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
+                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -479,7 +497,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                             var updatedProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                                 projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
-                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId)
+                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail)
 
                             if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
                                 var projectIdList =

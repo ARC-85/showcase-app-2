@@ -8,6 +8,19 @@
     android:layout_height="match_parent"
     tools:context=".ui.projectsMap.ProjectsMapFragment">
 
+    <TextView
+        android:id="@+id/mapTitle"
+        android:layout_width="175dp"
+        android:layout_height="21dp"
+        android:fontFamily="@font/roboto"
+        android:text="@string/my_projects"
+        android:textColor="@color/colorTitles"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.722" />
+
 
 
     <androidx.fragment.app.FragmentContainerView
@@ -60,37 +73,38 @@
                 android:textColor="@color/colorTitles"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/currentPortfolio"
+                app:layout_constraintBottom_toTopOf="@+id/currentDescription"
                 app:layout_constraintEnd_toStartOf="@+id/currentImage"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.722" />
 
             <TextView
-                android:id="@+id/currentPortfolio"
+                android:id="@+id/currentDescription"
                 android:layout_width="173dp"
                 android:layout_height="21dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/roboto"
-                android:text="@string/project_portfolio_placeholder"
-                app:layout_constraintBottom_toTopOf="@+id/currentDescription"
+                android:text="@string/project_description_placeholder"
+                app:layout_constraintBottom_toTopOf="@+id/currentEmail"
                 app:layout_constraintTop_toBottomOf="@+id/currentTitle"
                 app:layout_constraintEnd_toStartOf="@+id/currentImage"
                 app:layout_constraintHorizontal_bias="0.521"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
-                android:id="@+id/currentDescription"
+                android:id="@+id/currentEmail"
                 android:layout_width="173dp"
                 android:layout_height="48dp"
                 android:layout_marginBottom="18dp"
                 android:fontFamily="@font/roboto"
-                android:text="@string/project_description_placeholder"
+                android:text="@string/project_email_placeholder"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/currentImage"
                 app:layout_constraintHorizontal_bias="0.521"
                 app:layout_constraintStart_toStartOf="parent" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
