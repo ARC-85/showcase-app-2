@@ -142,7 +142,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
             val action = ProjectNewFragmentDirections.actionProjectNewFragmentToProjectMapFragment(location, args.portfolioid,NewProject(projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 portfolioId = args.portfolioid, lat = location.lat, lng = location.lng, zoom = 15f, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!, projectUserEmail = loggedInViewModel.liveFirebaseUser.value?.email!!,
-                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title))
+                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title, projectPortfolioType = currentPortfolio.type))
             findNavController().navigate(action)
         }
 
@@ -490,7 +490,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
 
                             val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
-                                portfolioId = args.portfolioid, lat = initialLocation.lat, lng = initialLocation.lng, zoom = 15f,
+                                portfolioId = args.portfolioid, lat = initialLocation.lat, lng = initialLocation.lng, zoom = 15f, projectPortfolioType = currentPortfolio.type,
                                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectPortfolioName = currentPortfolio.title, projectUserId = loggedInViewModel.liveFirebaseUser.value?.uid!!.toString(), projectUserEmail = loggedInViewModel.liveFirebaseUser.value?.email!!)
                             if (currentPortfolio.projects == null) {
                                 currentPortfolio.projects = listOf(updatedProject).toMutableList()

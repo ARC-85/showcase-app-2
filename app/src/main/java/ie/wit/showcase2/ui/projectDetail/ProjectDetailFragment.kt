@@ -49,6 +49,8 @@ import ie.wit.showcase2.ui.projectNew.ProjectNewViewModel
 import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
@@ -131,7 +133,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             var tempProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 projectPortfolioName = currentPortfolio!!.title, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng, zoom = args.location.zoom,
-                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail)
+                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
 
 
             val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectMapFragment(location, args.portfolioid,tempProject)
@@ -207,6 +209,9 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         fragBinding.projectDescription.setText(project.projectDescription)
         fragBinding.projectTitleLocked.setText(project.projectTitle)
         fragBinding.projectDescriptionLocked.setText(project.projectDescription)
+        val dateComplete = LocalDate.of(project.projectCompletionYear,project.projectCompletionMonth+1,project.projectCompletionDay)
+        var formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy")
+        fragBinding.dateView.setText(dateComplete.format(formatter))
         projectBudget = project.projectBudget
         projectFavouritesList = project.projectFavourites
         projectFavouriteId = projectFavouritesList?.find { p -> p == loggedInViewModel.liveFirebaseUser.value?.uid!! }
@@ -308,9 +313,12 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             fragBinding.chooseImage.isVisible = false
             fragBinding.chooseImage2.isVisible = false
             fragBinding.chooseImage3.isVisible = false
+            fragBinding.dateView.isVisible = true
+            fragBinding.projectCompletionDatePicker.isVisible = false
         } else {
             fragBinding.projectTitleLocked.isVisible = false
             fragBinding.projectDescriptionLocked.isVisible = false
+            fragBinding.dateView.isVisible = false
         }
 
     }
@@ -322,9 +330,54 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             } else {
                 projectFavouritesList = mutableListOf(loggedInViewModel.liveFirebaseUser.value?.uid!!)
             }
+            if (fragBinding.projectTitle.text.isEmpty()) {
+                Toast.makeText(context,R.string.enter_project_title, Toast.LENGTH_LONG).show()
+            } else {
+                if (projectImageUpdate) {
+                    project.projectImage = FirebaseImageManager.imageUriProject.value.toString()
+                }
+                if (projectImage2Update) {
+                    project.projectImage2 = FirebaseImageManager.imageUriProject2.value.toString()
+                }
+                if (projectImage3Update) {
+                    project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
+                }
+                var updatedProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
+                    projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
+                    projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
+                    projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
+
+                if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
+                    var projectIdList =
+                        arrayListOf<String>() // Create a arrayList variable for storing project IDs
+                    currentPortfolio.projects!!.forEach { // For each project in the relevant portfolio, add the project ID to the list of project IDs
+                        projectIdList += it.projectId
+                    }
+                    println("this is projectIdList: $projectIdList")
+                    var projectId = updatedProject.projectId
+                    println("this is projectId: $projectId")
+                    val index =
+                        projectIdList.indexOf(updatedProject.projectId) // Find the index position of the project ID that matches the ID of the project that was passed
+                    println("this is index: $index")
+                    var portfolioProjects1 =
+                        currentPortfolio.projects!! // Create a list of the projects from the passed portfolio
+                    var short =
+                        portfolioProjects1.removeAt(index) // Remove the project at the previously found index position within the created project list
+                    println("this is short: $short")
+                    portfolioProjects1 =
+                        portfolioProjects1.plus(updatedProject) as MutableList<NewProject> // Add the passed project to the shortened list of projects
+                    currentPortfolio.projects =
+                        ArrayList(portfolioProjects1) // Assign the new list of projects to the found portfolio
+
+                    println("this is updated portfolio projects ${currentPortfolio.projects}")
+                }
+                projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+                projectViewModel.addFavourite(loggedInViewModel.liveFirebaseUser, Favourite(projectFavourite = updatedProject))
+            }
+            val action = ProjectDetailFragmentDirections.actionProjectDetailFragmentToProjectListFragment(args.portfolioid)
+            findNavController().navigate(action)
             fragBinding.favouriteAddButton.visibility = View.GONE
             fragBinding.favouriteRemoveButton.visibility = View.VISIBLE
-            projectViewModel.addFavourite(loggedInViewModel.liveFirebaseUser, Favourite(projectFavourite = project))
         }
     }
 
@@ -497,7 +550,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                             var updatedProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                                 projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
-                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail)
+                                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
 
                             if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
                                 var projectIdList =

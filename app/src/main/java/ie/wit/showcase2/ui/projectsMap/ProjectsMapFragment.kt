@@ -3,6 +3,9 @@ package ie.wit.showcase2.ui.projectsMap
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.view.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SpinnerAdapter
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.core.view.MenuHost
@@ -45,6 +48,8 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
     private lateinit var projectsMapViewModel: ProjectsMapViewModel
     var enabler: String = ""
     var enablerSwitch: Boolean = true
+    val portfolioTypes = arrayOf("Show All", "New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
+    var portfolioType = "Show All" // Selected portfolio type for filtering list
 
 
 
@@ -92,6 +97,33 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
                 configureEnabler(portfolios)
             }
         })
+
+        val spinner = fragBinding.projectTypeSpinner
+        val adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
+        spinner.adapter = adapter
+        spinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>,
+                                        view: View?, position: Int, id: Long) {
+                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
+                // The toast message was taken out because it was annoying, but can be reinstated if wanted
+                /*Toast.makeText(this@PortfolioActivity,
+                    getString(R.string.selected_item) + " " +
+                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                println("this is portfolioType: $portfolioType")
+                userProjects.clear()
+                projectsMapViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
+                        portfolios ->
+                    portfolios?.let {
+                        render(portfolios as ArrayList<PortfolioModel>)
+                        println("testing this is working")
+                    }
+                })
+            }
+            // No problem if nothing selected
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
         return root;
     }
 
@@ -115,7 +147,11 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
 
     private fun render(portfoliosList: ArrayList<PortfolioModel>) {
 
-        portfolioList = portfoliosList
+        if (portfolioType == "Show All") {
+            portfolioList = portfoliosList
+        } else {
+            portfolioList = ArrayList(portfoliosList.filter { p -> p.type == portfolioType })
+        }
 
         println("this is portfolioList $portfolioList")
         val mapFragment = childFragmentManager
