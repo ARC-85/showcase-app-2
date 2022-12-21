@@ -44,6 +44,7 @@
 
                 <EditText
                     android:id="@+id/projectTitle"
+                    style="@style/ThemeOverlay.InputText"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
                     android:layout_margin="8dp"
@@ -54,7 +55,6 @@
                     android:maxLength="20"
                     android:maxLines="1"
                     android:padding="8dp"
-                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp" />
 
                 <TextView
@@ -78,7 +78,7 @@
                     android:maxLength="50"
                     android:maxLines="1"
                     android:padding="8dp"
-                    android:textColor="@color/colorPrimaryDark"
+                    style="@style/ThemeOverlay.InputText"
                     android:textSize="16sp" />
 
                 <TextView
@@ -117,7 +117,7 @@
                     android:maxLength="25"
                     android:maxLines="1"
                     android:padding="8dp"
-                    android:textColor="@color/colorPrimaryDark"
+                    style="@style/ThemeOverlay.InputText"
                     android:textSize="16sp" />
 
                 <TextView
@@ -131,7 +131,7 @@
                     android:maxLength="25"
                     android:maxLines="1"
                     android:padding="8dp"
-                    android:textColor="@color/colorPrimaryDark"
+                    style="@style/ThemeOverlay.InputText"
                     android:textSize="16sp" />
 
                 <androidx.fragment.app.FragmentContainerView
@@ -233,26 +233,15 @@
                     android:id="@+id/chooseImage3"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_marginTop="16dp"
                     android:background="@color/colorAccent"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
+                    android:layout_marginBottom="100dp"
                     android:text="@string/button_addImage"
                     android:textColor="@color/colorPrimary"
                     android:textSize="16sp" />
 
-                <Button
-                    android:id="@+id/btnProjectAdd"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:background="@color/colorAccent"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:stateListAnimator="@null"
-                    android:text="@string/button_addProject"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="16sp" />
 
 
             </LinearLayout>

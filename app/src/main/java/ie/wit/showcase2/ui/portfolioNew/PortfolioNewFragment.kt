@@ -78,12 +78,6 @@ class PortfolioNewFragment : Fragment() {
                 }
                 }
 
-        //fragBinding.amountPicker.setOnValueChangedListener { _, _, newVal ->
-            //Display the newly selected number to paymentAmount
-        //    fragBinding.paymentAmount.setText("$newVal")
-        //}
-        setButtonListener(fragBinding)
-
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
         }
@@ -103,23 +97,6 @@ class PortfolioNewFragment : Fragment() {
         }
     }
 
-    fun setButtonListener(layout: FragmentPortfolioNewBinding) {
-        layout.btnAdd.setOnClickListener {
-            if (layout.portfolioTitle.text.isEmpty()) {
-                Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
-            } else {
-                if(imageLoad) {
-                    image = FirebaseImageManager.imageUriPortfolio.value.toString()
-                }
-                println(loggedInViewModel.liveFirebaseUser)
-                portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = layout.portfolioTitle.text.toString(), description = layout.description.text.toString(), type = portfolioType,
-                    email = loggedInViewModel.liveFirebaseUser.value?.email!!, profilePic = FirebaseImageManager.imageUri.value.toString(), image = image))
-                println(portfolioType)
-            }
-            findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)
-        }
-    }
-
     // Image picker is setup for choosing portfolio image
     private fun registerImagePickerCallback() {
         imageIntentLauncher =
@@ -130,12 +107,7 @@ class PortfolioNewFragment : Fragment() {
                         if (result.data != null) {
                             Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
                             image = result.data!!.data!!.toString()
-                            // Picasso used to get images, as well as standardising sizes and cropping as necessary
-                            /*Picasso.get()
-                                .load(image)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.portfolioImage)*/
+
                             fragBinding.chooseImage.setText(R.string.button_changeImage)
                             FirebaseImageManager
                                 .updatePortfolioImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
@@ -149,8 +121,6 @@ class PortfolioNewFragment : Fragment() {
                 }
             }
     }
-
-
 
  private fun setupMenu() {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
@@ -169,8 +139,12 @@ class PortfolioNewFragment : Fragment() {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
                             Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
                         } else {
-                            portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType, image = image,
-                                email = loggedInViewModel.liveFirebaseUser.value?.email!!))
+                            if(imageLoad) {
+                                image = FirebaseImageManager.imageUriPortfolio.value.toString()
+                            }
+                            println(loggedInViewModel.liveFirebaseUser)
+                            portfolioViewModel.addPortfolio(loggedInViewModel.liveFirebaseUser, PortfolioModel(title = fragBinding.portfolioTitle.text.toString(), description = fragBinding.description.text.toString(), type = portfolioType,
+                                email = loggedInViewModel.liveFirebaseUser.value?.email!!, profilePic = FirebaseImageManager.imageUri.value.toString(), image = image))
                             println(portfolioType)
                         }
                         findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)

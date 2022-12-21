@@ -121,7 +121,7 @@
         android:text="@string/projectsNotFound"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/color_primary"
+        android:textColor="@color/colorSubTitles"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

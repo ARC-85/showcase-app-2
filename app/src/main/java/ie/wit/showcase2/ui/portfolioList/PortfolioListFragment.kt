@@ -160,6 +160,7 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
     }
 
     private fun render(portfoliosList: ArrayList<PortfolioModel>) {
+
         if (portfolioType != "Show All") {
             list = ArrayList(portfoliosList.filter { p -> p.type == portfolioType })
             println("this is internal list $list")

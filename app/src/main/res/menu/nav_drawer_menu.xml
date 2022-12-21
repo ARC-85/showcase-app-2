@@ -28,6 +28,21 @@
                 android:title="@string/action_favourites" />
         </menu>
     </item>
+    <item android:title="@string/theme_switch">
+        <menu>
+            <item
+                android:id="@+id/lightMode"
+                android:icon="@drawable/ic_light_mode"
+                android:onClick="lightMode"
+                android:title="@string/light_mode" />
+            <item
+                android:id="@+id/darkMode"
+                android:icon="@drawable/ic_dark_mode"
+                android:onClick="darkMode"
+                android:title="@string/dark_mode" />
+        </menu>
+    </item>
+
     <item android:title="Access Control">
         <menu>
             <item

@@ -64,7 +64,7 @@
                 android:maxLength="20"
                 android:maxLines="1"
                 android:padding="8dp"
-                android:textColor="@color/colorPrimaryDark"
+                style="@style/ThemeOverlay.InputText"
                 android:textSize="16sp" />
 
             <TextView
@@ -88,7 +88,7 @@
                 android:maxLength="50"
                 android:maxLines="1"
                 android:padding="8dp"
-                android:textColor="@color/colorPrimaryDark"
+                style="@style/ThemeOverlay.InputText"
                 android:textSize="16sp" />
 
             <TextView
@@ -131,19 +131,6 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:text="@string/button_addImage"
-                android:textColor="@color/colorPrimary"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btnAdd"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:background="#3F736E"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:stateListAnimator="@null"
-                android:text="@string/button_addPortfolio"
                 android:textColor="@color/colorPrimary"
                 android:textSize="16sp" />
 

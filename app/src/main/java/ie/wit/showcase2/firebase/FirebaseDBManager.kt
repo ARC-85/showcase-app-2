@@ -116,6 +116,32 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
+    override fun findUserUserFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>) {
+        database.child("user-favourites").child(userid)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.i("Firebase Favourite error : ${error.message}")
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val localList = ArrayList<Favourite>()
+                    val children = snapshot.children
+                    children.forEach {
+                        val favourite = it.getValue(Favourite::class.java)
+                        if (favourite?.projectFavourite?.projectUserId == userid) {
+                            localList.add(favourite!!)
+                        }
+                    }
+                    database.child("user-favourites").child(userid)
+                        .removeEventListener(this)
+                    println("findUserAllFavourites localList $localList")
+
+                    favouritesList.value = localList
+                }
+            })
+
+    }
+
     // Function for finding all projects on portfolio JSON file
     override fun findProjects(userid: String, portfolioId: String, portfolio: MutableLiveData<PortfolioModel>, projectsList: MutableLiveData<List<NewProject>>) {
         database.child("user-portfolios").child(userid).child(portfolioId)

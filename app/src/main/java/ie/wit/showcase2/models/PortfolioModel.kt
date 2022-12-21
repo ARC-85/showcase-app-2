@@ -50,7 +50,8 @@ data class NewProject(var projectId: String = "",
                       var projectCompletionYear: Int = 1900,
                       var projectBudget: String = "",
                       var projectFavourites: MutableList<String>? = null,
-                      var projectUserId: String = "") : Parcelable
+                      var projectUserId: String = "",
+                      var projectUserEmail: String = "") : Parcelable
 {
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -71,7 +72,8 @@ data class NewProject(var projectId: String = "",
             "projectCompletionYear" to projectCompletionYear,
             "projectBudget" to projectBudget,
             "projectFavourites" to projectFavourites,
-            "projectUserId" to projectUserId
+            "projectUserId" to projectUserId,
+            "projectUserEmail" to projectUserEmail
         )
     }
 }

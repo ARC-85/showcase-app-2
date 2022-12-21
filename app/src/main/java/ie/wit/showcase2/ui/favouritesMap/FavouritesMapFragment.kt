@@ -152,7 +152,7 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         if (project != null) {
             fragBinding.currentTitle.text = project.projectTitle
             fragBinding.currentDescription.text = project.projectDescription
-            fragBinding.currentPortfolio.text = "Portfolio: ${project.projectPortfolioName}"
+            fragBinding.currentEmail.text = project.projectUserEmail
             if (project.projectImage.isNotEmpty()) {
                 Picasso.get().load(project.projectImage).resize(200, 200)
                     .into(fragBinding.currentImage)
@@ -190,10 +190,12 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
                     favouriteProjects.clear()
                     if (isChecked) {
                         favouritesMapViewModel.loadAll()
+                        fragBinding.mapTitle.setText("All Favourites")
 
                     }
                     else {
                         favouritesMapViewModel.load()
+                        fragBinding.mapTitle.setText("My Favourites")
 
                     }
                 }

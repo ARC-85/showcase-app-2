@@ -107,6 +107,7 @@ class PortfolioDetailFragment : Fragment() {
     private fun render(portfolio: PortfolioModel) {
 
         fragBinding.portfoliovm = detailViewModel
+        fragBinding.portfolioName.setText(portfolio.title)
 
         projects = portfolio.projects
         portfolioType = portfolio?.type.toString()
@@ -134,11 +135,13 @@ class PortfolioDetailFragment : Fragment() {
         println("portfolio.image in render ${portfolio?.image}")
         println("image in render $image")
         if (image.isNotEmpty()) {
-        Picasso.get()
-            .load(image)
-            .resize(450, 420)
-            .centerCrop()
-            .into(fragBinding.portfolioImage) }
+            fragBinding.chooseImage.setText(ie.wit.showcase2.R.string.button_changeImage)
+            Picasso.get()
+                .load(image)
+                .resize(450, 420)
+                .centerCrop()
+                .into(fragBinding.portfolioImage) }
+
 
 
     }
@@ -154,6 +157,7 @@ class PortfolioDetailFragment : Fragment() {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
+                (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -163,6 +167,10 @@ class PortfolioDetailFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Validate and handle the selected menu item
                 when (menuItem.itemId) {
+                    ie.wit.showcase2.R.id.item_cancel -> {
+                        findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
+
+                    }
                     ie.wit.showcase2.R.id.item_portfolio_save -> {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
                             Toast.makeText(context, ie.wit.showcase2.R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
