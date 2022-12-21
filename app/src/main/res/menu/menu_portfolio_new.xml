@@ -3,6 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/item_cancel"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:iconTint="@color/colorPrimary"
+        android:iconTintMode="multiply"
+        android:title="@string/menu_cancelPortfolio"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/item_portfolio_save"
         android:icon="@android:drawable/ic_menu_save"
         android:title="@string/portfolio_save"

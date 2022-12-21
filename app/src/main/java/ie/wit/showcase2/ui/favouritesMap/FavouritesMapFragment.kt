@@ -3,6 +3,9 @@ package ie.wit.showcase2.ui.favouritesMap
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.view.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SpinnerAdapter
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.core.view.MenuHost
@@ -37,6 +40,8 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
     private lateinit var favouritesMapViewModel: FavouritesMapViewModel
     var enabler: String = ""
     var enablerSwitch: Boolean = true
+    val portfolioTypes = arrayOf("Show All", "New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
+    var portfolioType = "Show All" // Selected portfolio type for filtering list
 
 
 
@@ -92,6 +97,33 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
                 render(favourites as ArrayList<Favourite>)
             }
         })
+
+        val spinner = fragBinding.projectTypeSpinner
+        val adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
+        spinner.adapter = adapter
+        spinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>,
+                                        view: View?, position: Int, id: Long) {
+                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
+                // The toast message was taken out because it was annoying, but can be reinstated if wanted
+                /*Toast.makeText(this@PortfolioActivity,
+                    getString(R.string.selected_item) + " " +
+                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                println("this is portfolioType: $portfolioType")
+                favouriteProjects.clear()
+                favouritesMapViewModel.observableFavouritesList.observe(viewLifecycleOwner, Observer {
+                        favourites ->
+                    favourites?.let {
+                        render(favourites as ArrayList<Favourite>)
+                    }
+                })
+            }
+            // No problem if nothing selected
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
         return root;
     }
 
@@ -113,7 +145,11 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
 
     private fun render(favouritesList: ArrayList<Favourite>) {
 
-        favouriteList = favouritesList
+        if (portfolioType == "Show All") {
+            favouriteList = favouritesList
+        } else {
+            favouriteList = ArrayList(favouritesList.filter { p -> p.projectFavourite?.projectPortfolioType == portfolioType })
+        }
 
         println("this is favouriteList $favouriteList")
         val mapFragment = childFragmentManager

@@ -135,6 +135,9 @@ class PortfolioNewFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Validate and handle the selected menu item
                 when (menuItem.itemId) {
+                    ie.wit.showcase2.R.id.item_cancel -> {
+                        findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioNewFragment_to_portfolioListFragment)
+                    }
                     R.id.item_portfolio_save -> {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
                             Toast.makeText(context,R.string.enter_portfolio_title, Toast.LENGTH_LONG).show()
