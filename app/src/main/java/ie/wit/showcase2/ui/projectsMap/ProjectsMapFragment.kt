@@ -175,7 +175,13 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
                 Picasso.get().load(project.projectImage).resize(200, 200)
                     .into(fragBinding.currentImage)
             }
+            //user can only access other users' portfolios if they have their own portfolio to begin with
             if (enabler != "") {
+                //enabler is related to portfolio id, if the project belongs to the user then the portfolio id passed is that of the project
+                if (project.projectUserId == loggedInViewModel.liveFirebaseUser.value!!.uid) {
+                    enabler = project.portfolioId
+                }
+                //otherwise, the enabler remains a random portfolio id related to the current user because if it related to another user's portfolio they wouldn't have authorisation
                 fragBinding.cardView.setOnClickListener {
                     val action = ProjectsMapFragmentDirections.actionProjectsMapFragmentToProjectDetailFragment(
                         project,
