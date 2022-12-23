@@ -391,7 +391,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
-                            fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            fragBinding.chooseImage2.setText(R.string.button_changeImage)
                             FirebaseImageManager
                                 .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
                                     readImageUri(result.resultCode, result.data),
@@ -411,7 +411,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
                     AppCompatActivity.RESULT_OK -> {
                         if (result.data != null) {
                             Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
-                            fragBinding.chooseImage.setText(R.string.button_changeImage)
+                            fragBinding.chooseImage3.setText(R.string.button_changeImage)
                             FirebaseImageManager
                                 .updateProjectImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
                                     readImageUri(result.resultCode, result.data),

@@ -30,7 +30,6 @@ import ie.wit.showcase2.utils.*
 
 class PortfolioListFragment : Fragment(), PortfolioClickListener {
 
-    lateinit var app: Showcase2App
     private var _fragBinding: FragmentPortfolioListBinding? = null
     private val fragBinding get() = _fragBinding!!
     val portfolioTypes = arrayOf("Show All", "New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types

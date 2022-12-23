@@ -134,7 +134,7 @@
                     style="@style/ThemeOverlay.InputText"
                     android:textSize="16sp" />
 
-                <androidx.fragment.app.FragmentContainerView
+                <fragment
                     android:id="@+id/mapView3"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="363dp"
