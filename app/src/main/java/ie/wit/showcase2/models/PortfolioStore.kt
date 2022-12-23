@@ -5,12 +5,9 @@ import com.google.firebase.auth.FirebaseUser
 
 interface PortfolioStore {
     fun findUserAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>)
-    fun findPortfolioById2(userid:String, id: String, portfolio: MutableLiveData<PortfolioModel>): PortfolioModel?
     fun create(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel)
     fun update(userid:String, portfolioId: String, portfolio: PortfolioModel)
     fun delete(userid:String, portfolioId: String)
-    fun updateProject(project: NewProject, portfolio: PortfolioModel)
-    fun deleteProject(project: NewProject, portfolio: PortfolioModel)
     fun findProjects(userid: String, portfolioId: String, portfolio: MutableLiveData<PortfolioModel>, projectList: MutableLiveData<List<NewProject>>)
     fun findProject(projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>)
     fun findPortfolioById(userid:String, id: String, portfolio: MutableLiveData<PortfolioModel>)

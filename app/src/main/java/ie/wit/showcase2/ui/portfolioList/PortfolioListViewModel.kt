@@ -29,7 +29,6 @@ class PortfolioListViewModel : ViewModel() {
 
     fun load() {
         try {
-            //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
             readOnly.value = false
             FirebaseDBManager.findUserAll(liveFirebaseUser.value?.uid!!,portfoliosList)
             Timber.i("Report Load Success : ${portfoliosList.value.toString()}")
@@ -52,7 +51,6 @@ class PortfolioListViewModel : ViewModel() {
 
     fun delete(userid: String, id: String) {
         try {
-            //DonationManager.delete(userid,id)
             FirebaseDBManager.delete(userid,id)
             Timber.i("Report Delete Success")
         }
@@ -62,7 +60,6 @@ class PortfolioListViewModel : ViewModel() {
     }
 
     fun removeFavourite(userid: String, projectId: String) {
-
         try {
             FirebaseDBManager.deleteFavourite(userid, projectId)
             Timber.i("Detail delete() Success : $projectId")

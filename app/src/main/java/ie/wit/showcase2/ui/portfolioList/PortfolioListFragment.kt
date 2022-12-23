@@ -53,7 +53,7 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         loader = createLoader(requireActivity())
 
         fragBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
-        //portfolioListViewModel = ViewModelProvider(this).get(PortfolioListViewModel::class.java)
+
         showLoader(loader,"Downloading Portfolios")
         portfolioListViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
                 portfolios ->
@@ -100,17 +100,11 @@ class PortfolioListFragment : Fragment(), PortfolioClickListener {
         val spinner = fragBinding.portfolioTypeSpinner
         val adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
         spinner.adapter = adapter
-        //val spinnerPosition = portfolioTypes.indexOf(portfolioType)
-        //spinner.setSelection(spinnerPosition)
         spinner.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>,
                                         view: View?, position: Int, id: Long) {
-                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
-                // The toast message was taken out because it was annoying, but can be reinstated if wanted
-                /*Toast.makeText(this@PortfolioActivity,
-                    getString(R.string.selected_item) + " " +
-                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                portfolioType = portfolioTypes[position]
                 println("this is portfolioType: $portfolioType")
                 portfolioListViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
                         portfolios ->

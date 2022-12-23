@@ -13,13 +13,9 @@ import ie.wit.showcase2.models.PortfolioModel
 import timber.log.Timber
 
 class ProjectDetailViewModel : ViewModel() {
-    private val project = MutableLiveData<NewProject>()
 
     lateinit var map : GoogleMap
 
-    var observableProject: LiveData<NewProject>
-        get() = project
-        set(value) {project.value = value.value}
 
     private val portfolio = MutableLiveData<PortfolioModel>()
 
@@ -37,18 +33,7 @@ class ProjectDetailViewModel : ViewModel() {
             favourite.value = value.value
         }
 
-    private lateinit var currentPortfolio : PortfolioModel
-
-    private val status = MutableLiveData<Boolean>()
-
-    val observableStatus: LiveData<Boolean>
-        get() = status
-
-
-
     fun getPortfolio(userid: String, id: String) {
-        //var currentPortfolio = FirebaseDBManager.findPortfolioById(userid, id, portfolio)
-        //println("this is currentportfolio $currentPortfolio")
         try {
             FirebaseDBManager.findPortfolioById(userid, id, portfolio)
             Timber.i(
@@ -78,11 +63,9 @@ class ProjectDetailViewModel : ViewModel() {
         } catch (e: Exception) {
             Timber.i("Detail update() Error : $e.message")
         }
-
     }
 
     fun removeFavourite(userid: String, projectId: String) {
-
         try {
             FirebaseDBManager.deleteFavourite(userid, projectId)
             Timber.i("Detail delete() Success : $projectId")
@@ -100,8 +83,5 @@ class ProjectDetailViewModel : ViewModel() {
         } catch (e: Exception) {
             Timber.i("Detail delete() Error : $e.message")
         }
-
     }
-
-
 }

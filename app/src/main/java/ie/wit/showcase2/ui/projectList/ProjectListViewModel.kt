@@ -31,7 +31,6 @@ class ProjectListViewModel : ViewModel() {
 
     fun load(portfolioid: String) {
         try {
-            //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
             FirebaseDBManager.findProjects(liveFirebaseUser.value?.uid!!,portfolioid, portfolio, projectsList)
             Timber.i("Report Load Success : ${projectsList.value.toString()}")
         }
@@ -62,23 +61,6 @@ class ProjectListViewModel : ViewModel() {
             Timber.i("Detail getPortfolio() Error : $e.message")
         }
     }
-
-
-
-    /*init {
-        load(state["portfolioid"]!!)
-    }*/
-
-    /*fun load(portfolioid: String) {
-        try {
-            //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
-            FirebaseDBManager.findProjects(liveFirebaseUser.value?.uid!!,projectsList)
-            Timber.i("Report Load Success : ${projectsList.value.toString()}")
-        }
-        catch (e: Exception) {
-            Timber.i("Report Load Error : $e.message")
-        }
-    }*/
 
     fun delete(userid: String, projectid: String, portfolioid: String) {
         try {

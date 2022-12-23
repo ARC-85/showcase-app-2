@@ -40,8 +40,7 @@ import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
-import ie.wit.showcase2.ui.map.MapProject
-import ie.wit.showcase2.ui.projectList.ProjectListFragmentDirections
+
 
 import ie.wit.showcase2.ui.projectList.ProjectListViewModel
 import ie.wit.showcase2.utils.checkLocationPermissions
@@ -53,7 +52,6 @@ import java.util.*
 class ProjectNewFragment : Fragment(), OnMapReadyCallback {
 
     private var _fragBinding: FragmentProjectNewBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
     private lateinit var projectViewModel: ProjectNewViewModel
     private val args by navArgs<ProjectNewFragmentArgs>()
@@ -86,7 +84,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         val root = fragBinding.root
         setupMenu()
         registerImagePickerCallback()
-        //registerMapCallback()
         projectViewModel = ViewModelProvider(this).get(ProjectNewViewModel::class.java)
         fusedLocationProviderClient = requireActivity().let{LocationServices.getFusedLocationProviderClient(it)}
 
@@ -103,8 +100,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         var test = projectViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
             args.portfolioid)
         println("this is test $test")
-
-        println("this is newnewcurrentPortfolio $currentPortfolio")
 
         val spinner = fragBinding.projectBudgetSpinner
         spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
@@ -157,8 +152,7 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
             dateDay = day
             dateMonth = month
             dateYear = year
-            // Toast is turned off, but can be turned back on
-            //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+
             println ("this is dateDay: $dateDay")
             println ("this is dateMonth: $dateMonth")
             println ("this is dateYear: $dateYear")
@@ -189,6 +183,8 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         fragBinding.chooseImage3.isVisible = false // Initially hidden until previous image set
         fragBinding.projectImage3.isVisible = false // Initially hidden until previous image set
 
+        doPermissionLauncher()
+
         return root;
     }
 
@@ -213,13 +209,12 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
 
                 println("permission is true")
             } else {
-                doPermissionLauncher()
+                locationUpdate(52.245696, -7.139102)
                 println("permission is false")
             }
         } else {
             locationUpdate(args.location.lat, args.location.lng)
         }
-        //locationUpdate(args.location.lat, args.location.lng)
     }
 
     fun locationUpdate(lat: Double, lng: Double) {
@@ -232,15 +227,12 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         val options = MarkerOptions().title(project.projectTitle).position(LatLng(project.lat, project.lng))
         projectViewModel.map.addMarker(options)
         projectViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(project.lat, project.lng), project.zoom))
-        //showProject(project)
     }
 
     @SuppressLint("MissingPermission")
     private fun render(portfolio: PortfolioModel) {
-
         project = args.project
         println("this is the currentProject $project")
-
         fragBinding.projectTitle.setText(project.projectTitle)
         fragBinding.projectDescription.setText(project.projectDescription)
         projectBudget = project.projectBudget
@@ -283,7 +275,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
         // Set up DatePicker
         val datePicker = fragBinding.projectCompletionDatePicker
         // Set initial values if a completion date already exists
-
         dateDay = project.projectCompletionDay
         dateMonth = project.projectCompletionMonth
         dateYear = project.projectCompletionYear
@@ -342,7 +333,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
 
     private fun getCurrentPortfolio(portfolio: PortfolioModel) {
         currentPortfolio = portfolio
-
         println("this is newCurrentPortfolio3 $currentPortfolio")
     }
     @SuppressLint("MissingPermission")
@@ -487,7 +477,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
                                 project.projectImage3 = FirebaseImageManager.imageUriProject3.value.toString()
                             }
 
-
                             val updatedProject = NewProject(projectId = generateRandomId().toString(), projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                                 portfolioId = args.portfolioid, lat = initialLocation.lat, lng = initialLocation.lng, zoom = 15f, projectPortfolioType = currentPortfolio.type,
@@ -535,9 +524,6 @@ class ProjectNewFragment : Fragment(), OnMapReadyCallback {
             registerForActivityResult(ActivityResultContracts.RequestPermission())
             { isGranted: Boolean ->
                 if (isGranted) {
-                    /*locationService?.lastLocation?.addOnSuccessListener {
-                        locationUpdate(it.latitude, it.longitude)
-                    }*/
                     println("permission granted")
                 } else {
                     initialLocation = Location(52.245696, -7.139102, 15f)

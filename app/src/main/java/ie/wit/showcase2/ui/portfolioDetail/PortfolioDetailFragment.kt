@@ -53,7 +53,6 @@ class PortfolioDetailFragment : Fragment() {
     var imageLoad: Boolean = false
     var projects: MutableList<NewProject>? = null
     var testing: Boolean = false
-
     var portfolioType = "" // Current portfolio type
     var image: String = ""
     val portfolioTypes = arrayOf("New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
@@ -66,8 +65,6 @@ class PortfolioDetailFragment : Fragment() {
         registerImagePickerCallback()
 
         detailViewModel = ViewModelProvider(this).get(PortfolioDetailViewModel::class.java)
-        //detailViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer { render() })
-
 
         detailViewModel.observablePortfolio.observe(viewLifecycleOwner, Observer {
                 portfolio ->
@@ -87,7 +84,6 @@ class PortfolioDetailFragment : Fragment() {
 
         setupMenu()
 
-
         fragBinding.btnGoToProjects.setOnClickListener {
             val action = PortfolioDetailFragmentDirections.actionPortfolioDetailFragmentToProjectListFragment(
                 args.portfolioid
@@ -95,20 +91,16 @@ class PortfolioDetailFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
         }
-
 
         return root
     }
 
     private fun render(portfolio: PortfolioModel) {
-
         fragBinding.portfoliovm = detailViewModel
         fragBinding.portfolioName.setText(portfolio.title)
-
         projects = portfolio.projects
         portfolioType = portfolio?.type.toString()
         if (!imageLoad) {
@@ -124,8 +116,6 @@ class PortfolioDetailFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>,
                                         view: View?, position: Int, id: Long) {
                 portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
-                // The toast message was taken out because it was annoying, but can be reinstated if wanted
-
                 println("this is portfolioType: $portfolioType")
             }
             // No problem if nothing selected
@@ -141,17 +131,12 @@ class PortfolioDetailFragment : Fragment() {
                 .resize(450, 420)
                 .centerCrop()
                 .into(fragBinding.portfolioImage) }
-
-
-
     }
 
     private fun getCurrentPortfolio(portfolio: PortfolioModel) {
         currentPortfolio = portfolio
         println("this is currentPortfolio3 $currentPortfolio")
     }
-
-
 
     private fun setupMenu() {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
@@ -169,7 +154,6 @@ class PortfolioDetailFragment : Fragment() {
                 when (menuItem.itemId) {
                     ie.wit.showcase2.R.id.item_cancel -> {
                         findNavController().navigate(ie.wit.showcase2.R.id.action_portfolioDetailFragment_to_portfolioListFragment)
-
                     }
                     ie.wit.showcase2.R.id.item_portfolio_save -> {
                         if (fragBinding.portfolioTitle.text.isEmpty()) {
@@ -221,12 +205,6 @@ class PortfolioDetailFragment : Fragment() {
                             Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
                             image = result.data!!.data!!.toString()
                             println("image in imageLauncher $image")
-                            // Picasso used to get images, as well as standardising sizes and cropping as necessary
-                            /*Picasso.get()
-                                .load(image)
-                                .centerCrop()
-                                .resize(450, 420)
-                                .into(fragBinding.portfolioImage)*/
                             fragBinding.chooseImage.setText(ie.wit.showcase2.R.string.button_changeImage)
                             FirebaseImageManager
                                 .updatePortfolioImage(loggedInViewModel.liveFirebaseUser.value!!.uid,
@@ -235,8 +213,7 @@ class PortfolioDetailFragment : Fragment() {
                                     true)
                             imageLoad = true
                             testing = true
-
-                        } // end of if
+                        }
                     }
                     AppCompatActivity.RESULT_CANCELED -> { } else -> { }
                 }

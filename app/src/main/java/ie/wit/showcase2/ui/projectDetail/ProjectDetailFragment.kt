@@ -41,7 +41,7 @@ import ie.wit.showcase2.models.NewProject
 
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
-import ie.wit.showcase2.ui.map.MapProject
+
 import ie.wit.showcase2.ui.projectList.ProjectListViewModel
 import ie.wit.showcase2.ui.projectNew.ProjectNewFragmentArgs
 import ie.wit.showcase2.ui.projectNew.ProjectNewFragmentDirections
@@ -56,7 +56,6 @@ import java.util.*
 class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
     private var _fragBinding: FragmentProjectDetailBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
     private lateinit var projectViewModel: ProjectDetailViewModel
     private val args by navArgs<ProjectDetailFragmentArgs>()
@@ -140,8 +139,6 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             findNavController().navigate(action)
         }
 
-
-
         setAddFavouriteButtonListener(fragBinding)
         setRemoveFavouriteButtonListener(fragBinding)
 
@@ -160,7 +157,6 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         fragBinding.chooseImage3.setOnClickListener {
             showImagePicker(image3IntentLauncher)
         }
-
 
         return root;
     }
@@ -193,17 +189,12 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         val options = MarkerOptions().title(project.projectTitle).position(LatLng(project.lat, project.lng))
         projectViewModel.map.addMarker(options)
         projectViewModel.map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(project.lat, project.lng), project.zoom))
-        //showProject(project)
     }
 
     private fun render(portfolio: PortfolioModel) {
-        //project = portfolio.projects?.find { p -> p.projectId == args.project.projectId }!!
         project = args.project
         fragBinding.projectName.setText(project.projectTitle)
         println("this is the currentProject $project")
-        /*var test2 = projectViewModel.getPortfolio(project.projectUserId,
-            project.portfolioId)
-        println("this is test2 $test2")*/
 
         fragBinding.projectTitle.setText(project.projectTitle)
         fragBinding.projectDescription.setText(project.projectDescription)
@@ -229,12 +220,10 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         var formattedLongitude = String.format("%.2f", args.location.lng); // Limit the decimal places to two
         fragBinding.projectLongitude.setText("Longitude: $formattedLongitude")
 
-
         val spinner = fragBinding.projectBudgetSpinner
         spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, projectBudgets) } as SpinnerAdapter
         val spinnerPosition = projectBudgets.indexOf(projectBudget)
         spinner.setSelection(spinnerPosition)
-
         spinner.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>,
@@ -305,6 +294,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             fragBinding.chooseImage3.setText(R.string.button_changeImage)
         }
 
+        //setting visibilities depending on whether a project belongs to a user or someone else
         if (args.project.projectUserId != loggedInViewModel.liveFirebaseUser.value!!.uid) {
             fragBinding.projectTitle.isVisible = false
             fragBinding.projectDescription.isVisible = false
@@ -324,7 +314,6 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             fragBinding.dateView.isVisible = false
             fragBinding.projectBudgetLocked.isVisible = false
         }
-
     }
 
     fun setAddFavouriteButtonListener(layout: FragmentProjectDetailBinding) {
@@ -398,8 +387,6 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             fragBinding.favouriteRemoveButton.visibility = View.VISIBLE
         }
     }
-
-
 
     fun setRemoveFavouriteButtonListener(layout: FragmentProjectDetailBinding) {
         fragBinding.favouriteRemoveButton.setOnClickListener {
@@ -478,15 +465,10 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             } else {
                 projectViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.project.projectId)
             }
-
-
             fragBinding.favouriteAddButton.visibility = View.VISIBLE
             fragBinding.favouriteRemoveButton.visibility = View.GONE
-
         }
     }
-
-
 
     // Image picker is setup for choosing project image
     private fun registerImagePickerCallback() {
@@ -650,7 +632,6 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                                 println("this is updated portfolio projects ${currentPortfolio.projects}")
                             }
 
-
                             projectViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
                             projectViewModel.updateFavourite(args.project.projectUserId, updatedProject)
                         }
@@ -704,5 +685,4 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
         super.onResume()
 
     }
-
 }

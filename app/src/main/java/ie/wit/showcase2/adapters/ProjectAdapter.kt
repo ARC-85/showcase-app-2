@@ -22,6 +22,7 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
     RecyclerView.Adapter<ProjectAdapter.MainHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainHolder {
+        //binding project card
         val binding = CardProjectBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
 
@@ -29,6 +30,7 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
     }
 
     override fun onBindViewHolder(holder: MainHolder, position: Int) {
+        //project related to specific adapter position selected
         val project = projects[holder.adapterPosition]
         holder.bind(project, listener)
     }
@@ -53,6 +55,7 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
             if (project.projectImage.isNotEmpty()) {
                 Picasso.get().load(project.projectImage).resize(200,200).into(binding.projectImageIcon)
             }
+            //favourite star only shown if favourite user ID matching with project user ID
             val projectFavouriteId = project.projectFavourites?.find { p -> p == project.projectUserId }
             if (projectFavouriteId == null) {
                 binding.imageFavourite.visibility = View.GONE

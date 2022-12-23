@@ -15,12 +15,6 @@ import java.lang.Exception
 class FavouritesMapViewModel : ViewModel() {
     lateinit var map : GoogleMap
 
-    private val projectsList =
-        MutableLiveData<List<NewProject>>()
-
-    val observableProjectsList: LiveData<List<NewProject>>
-        get() = projectsList
-
     private val favouritesList =
         MutableLiveData<List<Favourite>>()
 
@@ -35,7 +29,7 @@ class FavouritesMapViewModel : ViewModel() {
     val observablePortfoliosList: LiveData<List<PortfolioModel>>
         get() = portfoliosList
 
-
+    //function to load favourites belonging to user
     fun load() {
         try {
             FirebaseDBManager.findUserUserFavourites(liveFirebaseUser.value?.uid!!,favouritesList)
@@ -47,6 +41,7 @@ class FavouritesMapViewModel : ViewModel() {
         }
     }
 
+    //function to load favourites belonging to other users
     fun loadAll() {
         try {
 

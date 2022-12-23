@@ -36,10 +36,8 @@ class PortfolioNewFragment : Fragment() {
 
     //var totalDonated = 0
     private var _fragBinding: FragmentPortfolioNewBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
     private lateinit var portfolioViewModel: PortfoliolNewViewModel
-    private val portfolioListViewModel: PortfolioListViewModel by activityViewModels()
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
     var portfolioType = "" // Current portfolio type
@@ -64,7 +62,6 @@ class PortfolioNewFragment : Fragment() {
 
         val spinner = fragBinding.portfolioTypeSpinner
         spinner.adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
-
             spinner.onItemSelectedListener = object :
                 AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>,
@@ -76,8 +73,7 @@ class PortfolioNewFragment : Fragment() {
                 // No problem if nothing selected
                 override fun onNothingSelected(parent: AdapterView<*>) {
                 }
-                }
-
+            }
         fragBinding.chooseImage.setOnClickListener {
             showImagePicker(imageIntentLauncher)
         }
@@ -89,7 +85,7 @@ class PortfolioNewFragment : Fragment() {
         when (status) {
             true -> {
                 view?.let {
-                    //Uncomment this if you want to immediately return to Report
+                    //Uncomment this if you want to immediately return to Portfolio List
                     //findNavController().navigate(R.id.action_portfolioNewFragment_to_portfolioListFragment)
                 }
             }
@@ -107,7 +103,6 @@ class PortfolioNewFragment : Fragment() {
                         if (result.data != null) {
                             Timber.i("Got Result ${readImageUri(result.resultCode, result.data).toString()}")
                             image = result.data!!.data!!.toString()
-
                             fragBinding.chooseImage.setText(R.string.button_changeImage)
                             FirebaseImageManager
                                 .updatePortfolioImage(loggedInViewModel.liveFirebaseUser.value!!.uid,

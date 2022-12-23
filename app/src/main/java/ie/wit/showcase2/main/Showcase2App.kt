@@ -8,12 +8,9 @@ import timber.log.Timber.i
 
 class Showcase2App : Application() {
 
-    lateinit var portfolios: PortfolioStore
-
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
-        //portfolios = PortfolioJSONStore(applicationContext)
         i("Showcase started")
     }
 }

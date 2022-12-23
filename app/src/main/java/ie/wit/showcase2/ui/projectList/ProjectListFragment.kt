@@ -49,10 +49,8 @@ import kotlin.collections.ArrayList
 
 class ProjectListFragment : Fragment(), ProjectListener {
 
-    //lateinit var app: Showcase2App
     private var _fragBinding: FragmentProjectListBinding? = null
     private val fragBinding get() = _fragBinding!!
-
     lateinit var loader : AlertDialog
     private val projectListViewModel: ProjectListViewModel by activityViewModels()
     private val args by navArgs<ProjectListFragmentArgs>()
@@ -67,13 +65,8 @@ class ProjectListFragment : Fragment(), ProjectListener {
     var dateYear = today.get(Calendar.YEAR)
     var initialLocation = Location(0.0, -7.139102, 15f)
 
-
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -84,11 +77,9 @@ class ProjectListFragment : Fragment(), ProjectListener {
         setupMenu()
         loader = createLoader(requireActivity())
 
-
         fragBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
         projectListViewModel.load(args.portfolioid)
 
-        //showLoader(loader,"Downloading Projects")
         projectListViewModel.observableProjectsList.observe(viewLifecycleOwner, Observer {
                 projects ->
             projects?.let {
@@ -103,18 +94,13 @@ class ProjectListFragment : Fragment(), ProjectListener {
             portfolio?.let {
                 currentPortfolio = portfolio
                 getCurrentPortfolio(portfolio)
-
             }
         })
         var test = projectListViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
             args.portfolioid)
         println("this is test $test")
 
-
-
-
         fragBinding.fab.setOnClickListener {
-
             val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid, initialLocation, NewProject(projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear))
             findNavController().navigate(action)
         }
@@ -126,12 +112,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
                 showLoader(loader,"Deleting Project")
                 val adapter = fragBinding.recyclerView.adapter as ProjectAdapter
-
                 adapter.removeAt(viewHolder.adapterPosition)
-                //var projectId = (viewHolder.itemView.tag as NewProject).projectId
-                //println("this is projectId: $projectId")
-                //projectListViewModel.delete(projectListViewModel.liveFirebaseUser.value?.uid!!,
-                   // (viewHolder.itemView.tag as NewProject).projectId, args.portfolioid)
                 val removedProject = (viewHolder.itemView.tag as NewProject)
                 if (loggedInViewModel.liveFirebaseUser.value?.uid!! == removedProject.projectUserId) {
                 if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
@@ -157,14 +138,9 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
                     println("this is updated portfolio projects ${currentPortfolio.projects}")
                 }
-
-
-
                     projectListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, removedProject.projectId)
-
                     projectListViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
                 }
-
                 hideLoader(loader)
             }
         }
@@ -200,10 +176,6 @@ class ProjectListFragment : Fragment(), ProjectListener {
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
-
-
-
-
         return root
     }
 
@@ -218,8 +190,6 @@ class ProjectListFragment : Fragment(), ProjectListener {
             override fun onPrepareMenu(menu: Menu) {
                 // Handle for example visibility of menu items
                 (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
-                //getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-                //getActivity().getActionBar().setHomeButtonEnabled(false);
             }
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -295,9 +265,6 @@ class ProjectListFragment : Fragment(), ProjectListener {
             fragBinding.projectsNotFound.visibility = View.VISIBLE
         }
             projectListViewModel.load(args.portfolioid)
-
-
-            //projectListViewModel.load(args.portfolioid)
         }
     }
 
@@ -308,20 +275,16 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
     override fun onResume() {
         super.onResume()
-        //showLoader(loader,"Downloading Projects")
         loggedInViewModel.liveFirebaseUser.observe(viewLifecycleOwner, Observer { firebaseUser ->
             if (firebaseUser != null) {
                 projectListViewModel.liveFirebaseUser.value = firebaseUser
                 projectListViewModel.load(args.portfolioid)
             }
         })
-        //hideLoader(loader)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _fragBinding = null
     }
-
-
 }

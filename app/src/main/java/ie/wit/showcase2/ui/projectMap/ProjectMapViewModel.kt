@@ -14,11 +14,4 @@ class ProjectMapViewModel : ViewModel() {
     var location = MutableLiveData<Location>()
     lateinit var map : GoogleMap
 
-    var observableLocation: LiveData<Location>
-        get() = location
-        set(value) {
-            location.value = value.value
-        }
-
-
 }

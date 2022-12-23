@@ -16,12 +16,6 @@ class ProjectsMapViewModel : ViewModel() {
 
     lateinit var map : GoogleMap
 
-    private val projectsList =
-        MutableLiveData<List<NewProject>>()
-
-    val observableProjectsList: LiveData<List<NewProject>>
-        get() = projectsList
-
     private val portfoliosList =
         MutableLiveData<List<PortfolioModel>>()
 
@@ -30,15 +24,8 @@ class ProjectsMapViewModel : ViewModel() {
 
     var liveFirebaseUser = MutableLiveData<FirebaseUser>()
 
-
-
-
-
-
     fun load() {
         try {
-            //DonationManager.findAll(liveFirebaseUser.value?.email!!, donationsList)
-
             FirebaseDBManager.findUserAll(liveFirebaseUser.value?.uid!!,portfoliosList)
             Timber.i("Report Load Success : ${portfoliosList.value.toString()}")
         }
@@ -57,9 +44,4 @@ class ProjectsMapViewModel : ViewModel() {
             Timber.i("Report LoadAll Error : $e.message")
         }
     }
-
-
-
-
-
 }
