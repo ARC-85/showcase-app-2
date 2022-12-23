@@ -5,7 +5,7 @@
 
 After downloading and building the project on Android Studio, it may be necessary to download/update necessary libraries within Gradle (e.g. in build.gradle), ensuring the project is then synced with the Gradle files.
 It will also be necessary to set for incorporating Google maps (see here https://developer.android.com/training/maps/index.html), including establishing a Google maps API key (see here https://developers.google.com/maps/documentation/android-api/start#get-key).
-Be sure to insert the API key (e.g. MAPS_API_KEY= AIzaSXXXXXXXXXXXXXXXXXXXXXXXX) in your local.properties file.
+Be sure to insert the API key (e.g. MAPS_API_KEY= AIzaSXXXXXXXXXXXXXXXXXXXXXXX) in your local.properties file.
 It will also be necessary to set up a Firebase project, including real-time database, authentication, and cloud-storage. The Firebase project can be connected to the app via Android Studio, and approproriate documentation (e.g. google-services.json file) will need to be updated within the app folder. 
 
 ## 1   Overview
