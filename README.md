@@ -100,7 +100,7 @@ Similar to the Projects Map, the Favourites Map can be accessed via the nav draw
    
 ### 2.15	Filtering Functions
 To make it easier to identify Portfolios or Projects of interest, filtering function have been provided in both the Portfolio and Project List views, as well as the Projects and Favourites Map views. 
-In the top lefthand corners of the Portfolio List, Projects Map, and Favourites Map views, the dropdown menue allows the user to filter by Portfolio/Project type. 
+In the top lefthand corners of the Portfolio List, Projects Map, and Favourites Map views, the dropdown menu allows the user to filter by Portfolio/Project type. 
    
 Show All or the correct type will show the associated Portfolios/Projects, while nothing appears for non-related Portfolios/Projects. 
    
