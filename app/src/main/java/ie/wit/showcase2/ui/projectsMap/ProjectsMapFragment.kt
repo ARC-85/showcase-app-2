@@ -50,18 +50,11 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
     var enablerSwitch: Boolean = true
     val portfolioTypes = arrayOf("Show All", "New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
     var portfolioType = "Show All" // Selected portfolio type for filtering list
-
-
-
     var userProjects = ArrayList<NewProject>()
     var portfolioList = ArrayList<PortfolioModel>()
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
-
     private var _fragBinding: FragmentProjectsMapBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
-
-    //lateinit var map : GoogleMap
     var location = Location()
     var project = NewProject()
 
@@ -69,8 +62,6 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         super.onCreate(savedInstanceState)
 
     }
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,7 +79,6 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         var test = projectsMapViewModel.load()
         println("this is test $test")
 
-
         projectsMapViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
                 portfolios ->
             portfolios?.let {
@@ -105,11 +95,7 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>,
                                         view: View?, position: Int, id: Long) {
-                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
-                // The toast message was taken out because it was annoying, but can be reinstated if wanted
-                /*Toast.makeText(this@PortfolioActivity,
-                    getString(R.string.selected_item) + " " +
-                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                portfolioType = portfolioTypes[position]
                 println("this is portfolioType: $portfolioType")
                 userProjects.clear()
                 projectsMapViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
@@ -132,11 +118,8 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
     }
 
     private fun configureEnabler(portfoliosList: ArrayList<PortfolioModel>) {
-
-
         if (portfoliosList.isNotEmpty() && enablerSwitch) {
             val userPortfolios = portfoliosList.filter { p -> p.email == loggedInViewModel.liveFirebaseUser.value!!.email }
-
             val firstPortfolio = userPortfolios[0]
             enabler = firstPortfolio.uid!!
         }
@@ -144,15 +127,12 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         enablerSwitch = false
     }
 
-
     private fun render(portfoliosList: ArrayList<PortfolioModel>) {
-
         if (portfolioType == "Show All") {
             portfolioList = portfoliosList
         } else {
             portfolioList = ArrayList(portfoliosList.filter { p -> p.type == portfolioType })
         }
-
         println("this is portfolioList $portfolioList")
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapView) as SupportMapFragment
@@ -182,7 +162,7 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         }
     }
 
-        override fun onMarkerClick(marker: Marker): Boolean {
+    override fun onMarkerClick(marker: Marker): Boolean {
         val tag =marker.tag as String
         val project = userProjects.find { p -> p.projectId == tag }
         println("this is project: $project")
@@ -252,16 +232,6 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
         _fragBinding = null
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        //fragBinding.mapView.onLowMemory()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        //fragBinding.mapView.onPause()
-    }
-
     override fun onResume() {
         super.onResume()
         //fragBinding.mapView.onResume()
@@ -271,11 +241,6 @@ class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapRe
                 projectsMapViewModel.load()
             }
         })
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        //fragBinding.mapView.onSaveInstanceState(outState)
     }
 }
 

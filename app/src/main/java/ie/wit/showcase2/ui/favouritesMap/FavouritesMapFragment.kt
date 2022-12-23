@@ -42,18 +42,11 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
     var enablerSwitch: Boolean = true
     val portfolioTypes = arrayOf("Show All", "New Builds", "Renovations", "Interiors", "Landscaping", "Commercial", "Other") // Creating array of different portfolio types
     var portfolioType = "Show All" // Selected portfolio type for filtering list
-
-
-
     var favouriteProjects = ArrayList<NewProject>()
     var favouriteList = ArrayList<Favourite>()
     private val loggedInViewModel : LoggedInViewModel by activityViewModels()
-
     private var _fragBinding: FragmentFavouritesMapBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
-
-    //lateinit var map : GoogleMap
     var location = Location()
     var project = NewProject()
 
@@ -62,27 +55,24 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
 
     }
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        //setting bindings with xml
         _fragBinding = FragmentFavouritesMapBinding.inflate(inflater, container, false)
         val root = fragBinding.root
         println("testing testing")
         setupMenu()
 
+        //connecting to view model
         favouritesMapViewModel = ViewModelProvider(this).get(FavouritesMapViewModel::class.java)
-        //projectsMapViewModel.load()
 
+        //needed to initiate engagement with the model
         var test = favouritesMapViewModel.load()
         println("this is test $test")
 
-        var test2 = favouritesMapViewModel.load()
-        println("this is test $test2")
-
+        //call portfolios from model
         favouritesMapViewModel.observablePortfoliosList.observe(viewLifecycleOwner, Observer {
                 portfolios ->
             portfolios?.let {
@@ -90,7 +80,7 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
             }
         })
 
-
+        //call favourites from model
         favouritesMapViewModel.observableFavouritesList.observe(viewLifecycleOwner, Observer {
                 favourites ->
             favourites?.let {
@@ -98,6 +88,7 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
             }
         })
 
+        //setting up spinner for filtering type
         val spinner = fragBinding.projectTypeSpinner
         val adapter = activity?.applicationContext?.let { ArrayAdapter(it, android.R.layout.simple_spinner_item, portfolioTypes) } as SpinnerAdapter
         spinner.adapter = adapter
@@ -105,11 +96,8 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>,
                                         view: View?, position: Int, id: Long) {
-                portfolioType = portfolioTypes[position] // Index of array and spinner position used to select portfolio type
-                // The toast message was taken out because it was annoying, but can be reinstated if wanted
-                /*Toast.makeText(this@PortfolioActivity,
-                    getString(R.string.selected_item) + " " +
-                            "" + portfolioTypes[position], Toast.LENGTH_SHORT).show()*/
+                //setting type variable
+                portfolioType = portfolioTypes[position]
                 println("this is portfolioType: $portfolioType")
                 favouriteProjects.clear()
                 favouritesMapViewModel.observableFavouritesList.observe(viewLifecycleOwner, Observer {
@@ -123,7 +111,6 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
-
         return root;
     }
 
@@ -131,10 +118,11 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         super.onViewCreated(view, savedInstanceState)
     }
 
+    //enabler variable is the portfolio number of a user to allow for them to access other users' projects, i.e. required for accessing ProjectDetailsFragment (in addition to their user ID)
     private fun configureEnabler(portfoliosList: ArrayList<PortfolioModel>) {
+        //only an option to use if the user has their own portfolio already, otherwise they can't access other users' portfolios
         if (portfoliosList.isNotEmpty() && enablerSwitch) {
             val userPortfolios = portfoliosList.filter { p -> p.email == loggedInViewModel.liveFirebaseUser.value!!.email }
-
             val firstPortfolio = userPortfolios[0]
             enabler = firstPortfolio.uid!!
         }
@@ -142,15 +130,13 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         enablerSwitch = false
     }
 
-
     private fun render(favouritesList: ArrayList<Favourite>) {
-
+        //adjust portfolio list based on spinner selection
         if (portfolioType == "Show All") {
             favouriteList = favouritesList
         } else {
             favouriteList = ArrayList(favouritesList.filter { p -> p.projectFavourite?.projectPortfolioType == portfolioType })
         }
-
         println("this is favouriteList $favouriteList")
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapView) as SupportMapFragment
@@ -160,8 +146,10 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
+        //calling map from view model
         favouritesMapViewModel.map = googleMap
         println("test  favouriteList $favouriteList")
+        //rendered favourite list
         favouriteList.forEach {
             val projects = it.projectFavourite
             if (projects != null) {
@@ -172,7 +160,8 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         favouritesMapViewModel.map.uiSettings.setZoomControlsEnabled(true)
         println("this is favouriteProjects: $favouriteProjects")
         favouritesMapViewModel.map.clear()
-        favouriteProjects.forEach { // If show all selected, use function for finding all projects from JSON file
+        //process markers for each favourited project
+        favouriteProjects.forEach {
             val loc = LatLng(it.lat, it.lng)
             val options = MarkerOptions().title(it.projectTitle).position(loc)
             favouritesMapViewModel.map.addMarker(options)?.tag = it.projectId
@@ -184,7 +173,7 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         val tag =marker.tag as String
         val project = favouriteProjects.find { p -> p.projectId == tag }
         println("this is project: $project")
-        // Display information about a project upon clicking on tag, based on project ID
+        // display information about a project upon clicking on tag, based on project ID
         if (project != null) {
             fragBinding.currentTitle.text = project.projectTitle
             fragBinding.currentDescription.text = project.projectDescription
@@ -193,6 +182,7 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
                 Picasso.get().load(project.projectImage).resize(200, 200)
                     .into(fragBinding.currentImage)
             }
+            //user can only access other users' portfolios if they have their own portfolio to begin with
             if (enabler != "") {
                 fragBinding.cardView.setOnClickListener {
                     val action = FavouritesMapFragmentDirections.actionFavouritesMapFragmentToProjectDetailFragment(
@@ -216,7 +206,7 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_projects_map, menu)
-
+                //use of toggle button to switch between favourites belonging to user or all users
                 val item = menu.findItem(R.id.toggleProjects) as MenuItem
                 item.setActionView(R.layout.togglebutton_layout)
                 val toggleProjects: SwitchCompat = item.actionView!!.findViewById(R.id.toggleButton)
@@ -227,7 +217,6 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
                     if (isChecked) {
                         favouritesMapViewModel.loadAll()
                         fragBinding.mapTitle.setText("All Favourites")
-
                     }
                     else {
                         favouritesMapViewModel.load()
@@ -250,19 +239,8 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         _fragBinding = null
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        //fragBinding.mapView.onLowMemory()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        //fragBinding.mapView.onPause()
-    }
-
     override fun onResume() {
         super.onResume()
-        //fragBinding.mapView.onResume()
         loggedInViewModel.liveFirebaseUser.observe(viewLifecycleOwner, Observer { firebaseUser ->
             if (firebaseUser != null) {
                 favouritesMapViewModel.liveFirebaseUser.value = firebaseUser
@@ -271,8 +249,4 @@ class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMap
         })
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        //fragBinding.mapView.onSaveInstanceState(outState)
-    }
 }

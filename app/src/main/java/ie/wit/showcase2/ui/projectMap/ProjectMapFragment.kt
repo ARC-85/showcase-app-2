@@ -33,11 +33,9 @@ import ie.wit.showcase2.ui.projectNew.ProjectNewViewModel
 
 class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener,
     GoogleMap.OnMarkerClickListener {
-
     private lateinit var projectMapViewModel: ProjectMapViewModel
     private val args by navArgs<ProjectDetailFragmentArgs>()
     private var _fragBinding: FragmentProjectMapBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
     private val fragBinding get() = _fragBinding!!
 
     //lateinit var map : GoogleMap
@@ -51,13 +49,10 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                           savedInstanceState: Bundle?): View? {
-
         location = args.location
         _fragBinding = FragmentProjectMapBinding.inflate(inflater, container, false)
         val root = fragBinding.root
         projectMapViewModel = ViewModelProvider(this).get(ProjectMapViewModel::class.java)
-
-
         setButtonListener(fragBinding)
         return root;
     }
@@ -67,7 +62,6 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapView2) as SupportMapFragment
         mapFragment.getMapAsync{
-
             onMapReady(it)
         }
     }
@@ -87,8 +81,6 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
         projectMapViewModel.map.setOnMarkerClickListener(this)
     }
 
-
-
     override fun onMarkerDragStart(marker: Marker) {
 
     }
@@ -96,7 +88,6 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
     override fun onMarkerDrag(marker: Marker)  {
         fragBinding.lat.setText("Lat: " + "%.6f".format(marker.position.latitude))
         fragBinding.lng.setText("Lng: " + "%.6f".format(marker.position.longitude))
-
     }
 
     override fun onMarkerDragEnd(marker: Marker) {
@@ -113,7 +104,6 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
         marker.snippet = "GPS : $loc"
         return false
     }
-
 
     fun setButtonListener(layout: FragmentProjectMapBinding) {
         layout.fab.setOnClickListener {
@@ -134,9 +124,7 @@ class ProjectMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerDra
                     location
                 )
                 findNavController().navigate(action)
-
             }
-
         }
     }
 

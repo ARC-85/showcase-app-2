@@ -23,9 +23,11 @@ class FirebaseAuthManager(application: Application) {
     var googleSignInClient = MutableLiveData<GoogleSignInClient>()
 
     init {
+        //initialising Firebase authorisation for application
         this.application = application
         firebaseAuth = FirebaseAuth.getInstance()
 
+        //if user is authorised, assign them as current user and check if there is an existing profile picture for them
         if (firebaseAuth!!.currentUser != null) {
             liveFirebaseUser.postValue(firebaseAuth!!.currentUser)
             loggedOut.postValue(false)
@@ -36,6 +38,7 @@ class FirebaseAuthManager(application: Application) {
         configureGoogleSignIn()
     }
 
+    //function for configuring Google sign-in
     private fun configureGoogleSignIn() {
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -46,6 +49,7 @@ class FirebaseAuthManager(application: Application) {
         googleSignInClient.value = GoogleSignIn.getClient(application!!.applicationContext,gso)
     }
 
+    //function for using Google authorisation to provide credentials (token) for signing in.
     fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         Timber.i( "Showcase firebaseAuthWithGoogle:" + acct.id!!)
 
@@ -65,6 +69,7 @@ class FirebaseAuthManager(application: Application) {
             }
     }
 
+    //if Google authorisation not used, email password combo can be used for login
     fun login(email: String?, password: String?) {
         firebaseAuth!!.signInWithEmailAndPassword(email!!, password!!)
             .addOnCompleteListener(application!!.mainExecutor, { task ->
@@ -78,6 +83,7 @@ class FirebaseAuthManager(application: Application) {
             })
     }
 
+    //registration of new email password combo for signing in
     fun register(email: String?, password: String?) {
         firebaseAuth!!.createUserWithEmailAndPassword(email!!, password!!)
             .addOnCompleteListener(application!!.mainExecutor, { task ->
@@ -91,6 +97,7 @@ class FirebaseAuthManager(application: Application) {
             })
     }
 
+    //signing out user
     fun logOut() {
         firebaseAuth!!.signOut()
         loggedOut.postValue(true)

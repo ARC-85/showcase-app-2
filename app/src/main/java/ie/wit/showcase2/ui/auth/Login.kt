@@ -35,6 +35,7 @@ class Login : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //setting up bindings
         loginBinding = LoginBinding.inflate(layoutInflater)
         setContentView(loginBinding.root)
 
@@ -54,6 +55,7 @@ class Login : AppCompatActivity() {
     public override fun onStart() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
+        //connecting with view model
         loginRegisterViewModel = ViewModelProvider(this).get(LoginRegisterViewModel::class.java)
         loginRegisterViewModel.liveFirebaseUser.observe(this, Observer
         { firebaseUser -> if (firebaseUser != null)
@@ -65,6 +67,7 @@ class Login : AppCompatActivity() {
         setupGoogleSignInCallback()
     }
 
+    //function for Google signin
     private fun googleSignIn() {
         val signInIntent = loginRegisterViewModel.firebaseAuthManager
             .googleSignInClient.value!!.signInIntent

@@ -18,11 +18,12 @@ class AboutFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        //connecting to view model
         aboutViewModel =
                 ViewModelProvider(this).get(AboutViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_about, container, false)
-        //val textView: TextView = root.findViewById(R.id.text_slideshow)
         aboutViewModel.text.observe(viewLifecycleOwner, Observer {
+            //placeholder for future iterations of app
             //textView.text = it
         })
         return root

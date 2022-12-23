@@ -20,6 +20,7 @@ class PortfolioAdapter constructor(private var portfolios: ArrayList<PortfolioMo
     : RecyclerView.Adapter<PortfolioAdapter.MainHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainHolder {
+        // binding portfolio card
         val binding = CardPortfolioBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
 
@@ -27,6 +28,7 @@ class PortfolioAdapter constructor(private var portfolios: ArrayList<PortfolioMo
     }
 
     override fun onBindViewHolder(holder: MainHolder, position: Int) {
+        //specific portfolio is based on adapter position
         val portfolio = portfolios[holder.adapterPosition]
         holder.bind(portfolio,listener)
     }
@@ -40,9 +42,9 @@ class PortfolioAdapter constructor(private var portfolios: ArrayList<PortfolioMo
 
     inner class MainHolder(val binding : CardPortfolioBinding, private val readOnly: Boolean) :
                             RecyclerView.ViewHolder(binding.root) {
-
+         //read only variable set for when all portfolios are loaded and you don't want user editing others
         val readOnlyRow = readOnly
-
+        //binding different elements within portfolio card
         fun bind(portfolio: PortfolioModel, listener: PortfolioClickListener) {
             binding.root.tag = portfolio
             binding.portfolio = portfolio

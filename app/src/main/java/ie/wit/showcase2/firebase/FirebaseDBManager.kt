@@ -17,11 +17,10 @@ internal fun generateRandomId(): Long {
 
 object FirebaseDBManager : PortfolioStore {
 
+    //initialise Firebase database
     var database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
-    var portfolios = mutableListOf<PortfolioModel>()
-
-
+    //function to find and return all portfolios in database
     override fun findAll(portfoliosList: MutableLiveData<List<PortfolioModel>>) {
         database.child("portfolios")
             .addValueEventListener(object : ValueEventListener {
@@ -45,6 +44,7 @@ object FirebaseDBManager : PortfolioStore {
             })
     }
 
+    //function to find and return all favourites in database. not used in current code but kept for future.
     override fun findAllFavourites(favouritesList: MutableLiveData<List<Favourite>>) {
         database.child("favourites")
             .addValueEventListener(object : ValueEventListener {
@@ -68,6 +68,7 @@ object FirebaseDBManager : PortfolioStore {
             })
     }
 
+    //function to find and return all portfolios belonging to a user
     override fun findUserAll(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>) {
         database.child("user-portfolios").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -92,6 +93,7 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
+    //function to find and return all projects favourited by a user, include their and those of others
     override fun findUserAllFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>) {
         database.child("user-favourites").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -113,9 +115,9 @@ object FirebaseDBManager : PortfolioStore {
                     favouritesList.value = localList
                 }
             })
-
     }
 
+    //function to find and return all projects favourited by a user and belonging to them
     override fun findUserUserFavourites(userid: String, favouritesList: MutableLiveData<List<Favourite>>) {
         database.child("user-favourites").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -142,7 +144,7 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
-    // Function for finding all projects on portfolio JSON file
+    // function to find and return all projects within a particular portfolio belonging to a user
     override fun findProjects(userid: String, portfolioId: String, portfolio: MutableLiveData<PortfolioModel>, projectsList: MutableLiveData<List<NewProject>>) {
         database.child("user-portfolios").child(userid).child(portfolioId)
             .addValueEventListener(object : ValueEventListener {
@@ -162,6 +164,7 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
+    //function to find and return all projects from all portfolios belonging to all users
     override fun findAllProjects(projectsList: MutableLiveData<List<NewProject>>) {
         database.child("portfolios")
             .addValueEventListener(object : ValueEventListener {
@@ -170,7 +173,6 @@ object FirebaseDBManager : PortfolioStore {
                 }
 
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val localList = ArrayList<PortfolioModel>()
                     val localProjectList = mutableListOf<NewProject>()
                     val children = snapshot.children
                     children.forEach {
@@ -188,6 +190,7 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
+    //function to find and return all projects from all portfolios belonging to a user. Not used in code but kept for future
     override fun findUserProjects(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>, projectsList: MutableLiveData<List<NewProject>>) {
         database.child("user-portfolios").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -214,7 +217,7 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
-    // Function for finding individual project on portfolio JSON file, using passed project ID
+    // function for finding and returning individual project belonging to user. Not used in code but kept for future.
     override fun findUserProject(userid: String, portfoliosList: MutableLiveData<List<PortfolioModel>>, projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>) {
         database.child("user-portfolios").child(userid)
             .addValueEventListener(object : ValueEventListener {
@@ -241,7 +244,7 @@ object FirebaseDBManager : PortfolioStore {
             })
     }
 
-    // Function for finding individual project on portfolio JSON file, using passed project ID
+    // function for finding and returning individual project belonging to any user.
     override fun findProject(projectsList: MutableLiveData<List<NewProject>>, projectId: String, project: MutableLiveData<NewProject>) {
         database.child("portfolios")
             .addValueEventListener(object : ValueEventListener {
@@ -270,7 +273,7 @@ object FirebaseDBManager : PortfolioStore {
 
 
 
-    // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
+    // function for finding and returning individual portfolio belonging to a user.
     override fun findPortfolioById(
         userid: String,
         id: String,
@@ -288,34 +291,7 @@ object FirebaseDBManager : PortfolioStore {
 
     }
 
-
-
-    // Function for finding individual portfolio on portfolio JSON file, using passed portfolio
-    override fun findPortfolioById2(
-        userid: String,
-        id: String,
-        portfolio: MutableLiveData<PortfolioModel>
-    ): PortfolioModel? {
-        var currentPortfolio = PortfolioModel()
-            val ref = database.child("user-portfolios").child(userid).child(id.toString())
-        val menuListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                currentPortfolio = dataSnapshot.getValue(PortfolioModel::class.java)!!
-                println("this is the currentPort inside $currentPortfolio")
-
-            }
-            override fun onCancelled(databaseError: DatabaseError) {
-                // handle error
-            }
-        }
-        ref.addListenerForSingleValueEvent(menuListener)
-        println("this is the currentPort outside $currentPortfolio")
-
-        return currentPortfolio
-
-    }
-
-    // Function for creating new portfolio on portfolio JSON file
+    // function for creating new portfolio in Firebase real-time database
     override fun create(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel) {
         Timber.i("Firebase DB Reference : $database")
         //portfolio.id = generateRandomId() // Generation of random id for portfolio
@@ -336,10 +312,9 @@ object FirebaseDBManager : PortfolioStore {
         database.updateChildren(childAdd)
     }
 
+    // function for creating new favourite in Firebase real-time database
     override fun createFavourite(firebaseUser: MutableLiveData<FirebaseUser>, favourite: Favourite) {
         Timber.i("Firebase DB Reference : $database")
-        //portfolio.id = generateRandomId() // Generation of random id for portfolio
-
         val uid = firebaseUser.value!!.uid
         val key = database.child("favourites").push().key
         if (key == null) {
@@ -356,25 +331,19 @@ object FirebaseDBManager : PortfolioStore {
         database.updateChildren(childAdd)
     }
 
-    // Function for updating existing portfolio on portfolio JSON file, using passed portfolio
+    // function for updating existing portfolio in Firebase, using passed portfolio
     override fun update(userid: String, portfolioid: String, portfolio: PortfolioModel) {
 
         val portfolioValues = portfolio.toMap()
-
-        println("this is userid in update $userid")
-        println("this is portfolioid in update $portfolioid")
-        println("this is portfolio in update $portfolio")
-
 
         val childUpdate : MutableMap<String, Any?> = HashMap()
         childUpdate["portfolios/$portfolioid"] = portfolioValues
         childUpdate["user-portfolios/$userid/$portfolioid"] = portfolioValues
 
         database.updateChildren(childUpdate)
-
-
     }
 
+    // function for updating project in existing favourite in Firebase, using passed project
     override fun updateFavourite(userid: String, project: NewProject) {
         database.child("favourites")
             .addValueEventListener(object : ValueEventListener {
@@ -409,13 +378,11 @@ object FirebaseDBManager : PortfolioStore {
 
                 }
             })
-
-
     }
 
 
 
-    // Function for deleting portfolio on portfolio JSON file, using passed portfolio
+    // function for deleting portfolio on Firebase, using passed portfolio and user IDs
     override fun delete(userid: String, portfolioId: String) {
         val childDelete : MutableMap<String, Any?> = HashMap()
         childDelete["/portfolios/$portfolioId"] = null
@@ -424,6 +391,7 @@ object FirebaseDBManager : PortfolioStore {
         database.updateChildren(childDelete)
     }
 
+    // function for deleting favourite on Firebase, using passed portfolio and user IDs
     override fun deleteFavourite(userid: String, projectId: String) {
         database.child("favourites")
             .addValueEventListener(object : ValueEventListener {
@@ -442,6 +410,7 @@ object FirebaseDBManager : PortfolioStore {
                         .removeEventListener(this)
                     println("findAllFavourites localList $localList")
 
+                    //in case there are more than one favourites listed for a particular project, a forEach loop is used
                     localList.forEach {
                         if (it.projectFavourite?.projectId == projectId) {
                             val favouriteId = it?.uid
@@ -452,20 +421,13 @@ object FirebaseDBManager : PortfolioStore {
                             database.updateChildren(childDelete)
                         }
                     }
-
-                    /*val foundFavourite = localList.find { p -> p.projectFavourite?.projectId == projectId }
-                    val favouriteId = foundFavourite?.uid
-                    val childDelete : MutableMap<String, Any?> = HashMap()
-                    childDelete["/favourites/$favouriteId"] = null
-                    childDelete["/user-favourites/$userid/$favouriteId"] = null
-
-                    database.updateChildren(childDelete)*/
                 }
             })
 
 
     }
 
+    //function to update the references in a profile image in case it was already uploaded but Firebase reassigned a reference
     fun updateImageRef(userid: String,imageUri: String, path: String) {
 
         val userPortfolios = database.child("user-portfolios").child(userid)
@@ -486,32 +448,5 @@ object FirebaseDBManager : PortfolioStore {
                 }
             })
     }
-
-
-
-
-
-    // Creation of projects list
-    var projects = mutableListOf<NewProject>()
-
-
-
-
-
-
-
-
-    // Function for updating a project using passed data for project and related portfolio
-    override fun updateProject(project: NewProject, portfolio: PortfolioModel) {
-
-
-    }
-
-    // Function to delete a project based on passed data for project and portfolio
-    override fun deleteProject(project: NewProject, portfolio: PortfolioModel) {
-
-    }
-
-
 
 }

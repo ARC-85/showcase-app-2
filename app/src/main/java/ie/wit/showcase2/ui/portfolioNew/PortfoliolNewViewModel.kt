@@ -19,9 +19,7 @@ class PortfoliolNewViewModel : ViewModel() {
     fun addPortfolio(firebaseUser: MutableLiveData<FirebaseUser>, portfolio: PortfolioModel) {
 
         status.value = try {
-            //portfolio.image = FirebaseImageManager.imageUriPortfolio.value.toString()
             FirebaseDBManager.create(firebaseUser, portfolio)
-
             true
         } catch (e: IllegalArgumentException) {
             false

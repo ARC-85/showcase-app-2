@@ -12,12 +12,7 @@ import timber.log.Timber
 
 class ProjectNewViewModel : ViewModel() {
 
-    private val status = MutableLiveData<Boolean>()
-
     lateinit var map : GoogleMap
-
-    val observableStatus: LiveData<Boolean>
-        get() = status
 
     private val portfolio = MutableLiveData<PortfolioModel>()
 
@@ -27,22 +22,7 @@ class ProjectNewViewModel : ViewModel() {
             portfolio.value = value.value
         }
 
-    fun addProject(userid: String, project: NewProject) {
-
-
-        status.value = try {
-            //DonationManager.create(donation)
-            //FirebaseDBManager.create(firebaseUser, project)
-
-            true
-        } catch (e: IllegalArgumentException) {
-            false
-        }
-    }
-
     fun getPortfolio(userid: String, id: String) {
-        //var currentPortfolio = FirebaseDBManager.findPortfolioById(userid, id, portfolio)
-        //println("this is currentportfolio $currentPortfolio")
         try {
             FirebaseDBManager.findPortfolioById(userid, id, portfolio)
             Timber.i(

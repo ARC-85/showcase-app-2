@@ -47,9 +47,9 @@ Users signing in with a Google account (via Google authorisation) are automatica
  
 ### 2.6	Creating a New Portfolio
 Users can create a new Portfolio, including details on features such as:
-•	Title
-•	Description
-•	Type (New Builds, Renovations, Interiors, Landscaping, Commercial)
+-	Title
+-	Description
+-	Type (New Builds, Renovations, Interiors, Landscaping, Commercial)
 They can also add a representative image. Once saved, the new Portfolio can be viewed in the Portfolio List (accessible via the nav drawer). 
  
 ### 2.7	Updating or Deleting a Portfolio

@@ -21,8 +21,6 @@ class PortfolioDetailViewModel : ViewModel() {
 
 
     fun getPortfolio(userid: String, id: String) {
-        //var currentPortfolio = FirebaseDBManager.findPortfolioById(userid, id, portfolio)
-        //println("this is currentportfolio $currentPortfolio")
         try {
             FirebaseDBManager.findPortfolioById(userid, id, portfolio)
             Timber.i(
@@ -35,34 +33,31 @@ class PortfolioDetailViewModel : ViewModel() {
         }
     }
 
-        fun updatePortfolio(userid: String, id: String, portfolio: PortfolioModel) {
-            try {
-                //portfolio.image = FirebaseImageManager.imageUriPortfolio.value.toString()
-                FirebaseDBManager.update(userid, id, portfolio)
-                Timber.i("Detail update() Success : $portfolio")
-            } catch (e: Exception) {
-                Timber.i("Detail update() Error : $e.message")
-            }
+    fun updatePortfolio(userid: String, id: String, portfolio: PortfolioModel) {
+        try {
+            FirebaseDBManager.update(userid, id, portfolio)
+            Timber.i("Detail update() Success : $portfolio")
+        } catch (e: Exception) {
+            Timber.i("Detail update() Error : $e.message")
         }
+    }
 
-        fun deletePortfolio(userid: String, id: String) {
-            try {
-                FirebaseDBManager.delete(userid, id)
-                Timber.i("Detail delete() Success : $portfolio")
-            } catch (e: Exception) {
-                Timber.i("Detail delete() Error : $e.message")
-            }
+    fun deletePortfolio(userid: String, id: String) {
+        try {
+            FirebaseDBManager.delete(userid, id)
+            Timber.i("Detail delete() Success : $portfolio")
+        } catch (e: Exception) {
+            Timber.i("Detail delete() Error : $e.message")
         }
+    }
 
     fun removeFavourite(userid: String, projectId: String) {
-
         try {
             FirebaseDBManager.deleteFavourite(userid, projectId)
             Timber.i("Detail delete() Success : $projectId")
         } catch (e: Exception) {
             Timber.i("Detail delete() Error : $e.message")
         }
-
     }
 
 }
