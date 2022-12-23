@@ -225,6 +225,7 @@ class ProjectListFragment : Fragment(), ProjectListener {
     }
 
     private fun render(projectsList: ArrayList<NewProject>) {
+        //applying filter for project budget
         if (projectBudget != "Show All") {
             list = ArrayList(projectsList.filter { p -> p.projectBudget == projectBudget })
             println("this is internal list $list")

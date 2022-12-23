@@ -336,7 +336,8 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
-            if (args.project.projectUserId == loggedInViewModel.liveFirebaseUser.value!!.uid) {
+            //making sure any updating of projects only happens if it is from correct user and related to correct portfolio
+            if (args.project.projectUserId == loggedInViewModel.liveFirebaseUser.value!!.uid && args.project.portfolioId == args.portfolioid) {
                 if (fragBinding.projectTitle.text.isEmpty()) {
                     Toast.makeText(context, R.string.enter_project_title, Toast.LENGTH_LONG).show()
                 } else {
@@ -398,7 +399,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                 }
                 println("this is favouriteIdList: $favouriteIdList")
                 val index =
-                    favouriteIdList.indexOf(loggedInViewModel.liveFirebaseUser.value?.uid!!) // Find the index position of the project ID that matches the ID of the project that was passed
+                    favouriteIdList.indexOf(loggedInViewModel.liveFirebaseUser.value?.uid!!) // Find the index position of the favourite project ID that matches the ID of the project that was passed
                 println("this is index: $index")
                 var favouriteProjects1 =
                     projectFavouritesList!! // Create a list of the projects from the passed portfolio
@@ -425,7 +426,8 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
                 projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
-            if (args.project.projectUserId == loggedInViewModel.liveFirebaseUser.value!!.uid) {
+            //making sure any updating of projects only happens if it is from correct user and related to correct portfolio
+            if (args.project.projectUserId == loggedInViewModel.liveFirebaseUser.value!!.uid && args.project.portfolioId == args.portfolioid) {
                 if (fragBinding.projectTitle.text.isEmpty()) {
                     Toast.makeText(context, R.string.enter_project_title, Toast.LENGTH_LONG).show()
                 } else {
@@ -573,7 +575,9 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_project_detail, menu)
-                if (args.project.projectUserId != loggedInViewModel.liveFirebaseUser.value!!.uid) {
+                //preventing users saving if project doesn't belong to them or if it's related to the wrong portfolio.
+                if (args.project.projectUserId != loggedInViewModel.liveFirebaseUser.value!!.uid || args.portfolioid != args.project.portfolioId) {
+                    menu.getItem(1).isVisible = false
                     menu.getItem(2).isVisible = false
                     menu.getItem(3).isVisible = false
                 }
