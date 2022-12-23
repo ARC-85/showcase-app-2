@@ -128,6 +128,19 @@
                         android:layout_height="wrap_content" />
 
                     <TextView
+                        android:id="@+id/projectBudgetLocked"
+                        style="@style/ThemeOverlay.InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_margin="8dp"
+                        android:fontFamily="@font/roboto"
+                        android:hint="@string/hint_projectBudget"
+                        android:maxLength="20"
+                        android:maxLines="1"
+                        android:padding="8dp"
+                        android:textSize="16sp" />
+
+                    <TextView
                         android:id="@+id/projectLocationLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

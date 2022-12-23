@@ -132,7 +132,8 @@ class ProjectListFragment : Fragment(), ProjectListener {
                 //println("this is projectId: $projectId")
                 //projectListViewModel.delete(projectListViewModel.liveFirebaseUser.value?.uid!!,
                    // (viewHolder.itemView.tag as NewProject).projectId, args.portfolioid)
-
+                val removedProject = (viewHolder.itemView.tag as NewProject)
+                if (loggedInViewModel.liveFirebaseUser.value?.uid!! == removedProject.projectUserId) {
                 if (currentPortfolio.projects != null) { // If the portfolio has projects (as expected)
                     var projectIdList =
                         arrayListOf<String>() // Create a arrayList variable for storing project IDs
@@ -157,10 +158,12 @@ class ProjectListFragment : Fragment(), ProjectListener {
                     println("this is updated portfolio projects ${currentPortfolio.projects}")
                 }
 
-                val removedProject = (viewHolder.itemView.tag as NewProject)
-                projectListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, removedProject.projectId)
 
-                projectListViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+
+                    projectListViewModel.removeFavourite(loggedInViewModel.liveFirebaseUser.value?.uid!!, removedProject.projectId)
+
+                    projectListViewModel.updatePortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!, args.portfolioid, currentPortfolio)
+                }
 
                 hideLoader(loader)
             }

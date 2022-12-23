@@ -24,8 +24,8 @@
 
     <string name="action_about">About Us</string>
     <string name="aboutus_title">Homer for President !!</string>
-    <string name="aboutus_message">Hi, I\'m Homer\n\nPlease vote for me.\n\n Please Please Please Please!!</string>
-
+    <string name="aboutus_message">Thanks for Using Showcase\n\nA Better Way To Display Your Portfolios</string>
+    <string name="aboutus_message2">Check Out Our Website!\n\nhttps://little-lackadaisical-carrot.glitch.me/</string>
     <string name="donationsNotFound">No Donations Yet…\nGo Make a Donation!</string>
     <string name="donationError">Error : Couldn\'t Make a Donation…</string>
     <string name="donationDetails">Donation Details</string>
@@ -135,7 +135,7 @@
     <string name="portfolioMessageLoading">Please wait while the portfolios are loading...</string>
     <string name="nav_header_title">Showcase</string>
     <string name="nav_header_subtitle">Promote Your Projects!</string>
-    <string name="action_portfolio_list">Portfolio List</string>
+    <string name="action_portfolio_list">Portfolio List (Home)</string>
     <string name="projectsNotFound">No Projects Entered For This Portfolio Yet…\nEnter a New Project!</string>
     <string name="action_project_list">Project List</string>
     <string name="action_new_portfolio">New Portfolio</string>
@@ -154,5 +154,6 @@
     <string name="light_mode">Light Mode</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="date_view">Completion Date</string>
+    <string name="hint_projectBudget">0-€50K</string>
 
 </resources>
