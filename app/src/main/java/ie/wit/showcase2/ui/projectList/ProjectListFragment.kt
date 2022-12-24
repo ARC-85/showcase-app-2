@@ -1,14 +1,11 @@
 package ie.wit.showcase2.ui.projectList
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SpinnerAdapter
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.MenuHost
@@ -24,26 +21,19 @@ import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import ie.wit.showcase2.R
-import ie.wit.showcase2.adapters.PortfolioAdapter
 import ie.wit.showcase2.adapters.ProjectAdapter
 import ie.wit.showcase2.adapters.ProjectListener
-import ie.wit.showcase2.utils.checkLocationPermissions
 
 
 import ie.wit.showcase2.databinding.FragmentProjectListBinding
-import ie.wit.showcase2.main.Showcase2App
+import ie.wit.showcase2.models.Favourite
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
-import ie.wit.showcase2.ui.portfolioDetail.PortfolioDetailFragmentArgs
 
-import ie.wit.showcase2.ui.portfolioList.PortfolioListViewModel
 import ie.wit.showcase2.utils.*
-import timber.log.Timber.i
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -64,6 +54,8 @@ class ProjectListFragment : Fragment(), ProjectListener {
     var dateMonth = today.get(Calendar.MONTH)
     var dateYear = today.get(Calendar.YEAR)
     var initialLocation = Location(0.0, -7.139102, 15f)
+    var favs = ArrayList<Favourite>()
+    var check = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,9 +88,21 @@ class ProjectListFragment : Fragment(), ProjectListener {
                 getCurrentPortfolio(portfolio)
             }
         })
+
+        projectListViewModel.observableFavouritesList.observe(viewLifecycleOwner, Observer {
+                favourites ->
+            favourites?.let {
+                getCurrentFavourites(ArrayList(favourites))
+            }
+        })
+
         var test = projectListViewModel.getPortfolio(loggedInViewModel.liveFirebaseUser.value?.uid!!,
             args.portfolioid)
         println("this is test $test")
+
+        //needed to initiate engagement with the model
+        var test2 = projectListViewModel.loadAllFavourites()
+        println("this is test2 $test2")
 
         fragBinding.fab.setOnClickListener {
             val action = ProjectListFragmentDirections.actionProjectListFragmentToProjectNewFragment(args.portfolioid, initialLocation, NewProject(projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear))
@@ -185,6 +189,11 @@ class ProjectListFragment : Fragment(), ProjectListener {
         println("this is newCurrentPortfolio3 $currentPortfolio")
     }
 
+    private fun getCurrentFavourites(favouritesList: ArrayList<Favourite>) {
+        favs = favouritesList
+        println("this is favs in getCurrentFavourites $favs")
+    }
+
     private fun setupMenu() {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
             override fun onPrepareMenu(menu: Menu) {
@@ -226,12 +235,34 @@ class ProjectListFragment : Fragment(), ProjectListener {
 
     private fun render(projectsList: ArrayList<NewProject>) {
         //applying filter for project budget
+        var favList = ArrayList<NewProject>()
+
+        println("this is favs in render $favs")
+        println("this is projectsList $projectsList")
+
+        projectsList.forEach { project ->
+            check = false
+            val projID = project.projectId
+            favs.forEach {
+                if (projID == it.projectFavourite?.projectId)  {
+                    val altProject = project.copy(projectFavourites = mutableListOf(loggedInViewModel.liveFirebaseUser.value?.uid!!))
+                    favList.add(altProject)
+                    check = true
+                }
+            }
+            if (!check) {
+                val altProject = project.copy(projectFavourites = null)
+                favList.add(altProject)
+            }
+        }
+
+        println("this is favList  $favList")
         if (projectBudget != "Show All") {
-            list = ArrayList(projectsList.filter { p -> p.projectBudget == projectBudget })
+            list = ArrayList(favList.filter { p -> p.projectBudget == projectBudget })
             println("this is internal list $list")
             fragBinding.recyclerView.adapter = ProjectAdapter(list,this)
         } else {
-            list = projectsList
+            list = favList
         }
         println("this is portfoliosList $projectsList")
         println("this is list $list")

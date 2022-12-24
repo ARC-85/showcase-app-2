@@ -15,17 +15,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import ie.wit.showcase2.R
-import ie.wit.showcase2.databinding.FragmentProjectMapBinding
 import ie.wit.showcase2.databinding.FragmentProjectsMapBinding
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
-import ie.wit.showcase2.ui.projectDetail.ProjectDetailFragmentArgs
-import ie.wit.showcase2.ui.projectMap.ProjectMapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 
 import com.google.android.gms.maps.SupportMapFragment
@@ -33,15 +29,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
-import ie.wit.showcase2.adapters.ProjectAdapter
-import ie.wit.showcase2.databinding.ContentProjectsMapBinding
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
-import ie.wit.showcase2.ui.portfolioNew.PortfoliolNewViewModel
-import ie.wit.showcase2.ui.projectDetail.ProjectDetailFragmentDirections
-import ie.wit.showcase2.ui.projectList.ProjectListFragmentArgs
-import ie.wit.showcase2.ui.projectList.ProjectListViewModel
-import ie.wit.showcase2.utils.hideLoader
 
 class ProjectsMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 

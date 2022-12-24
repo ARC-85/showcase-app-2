@@ -1,7 +1,6 @@
 package ie.wit.showcase2.ui.projectDetail
 
 import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.view.*
@@ -31,9 +30,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
-import ie.wit.showcase2.databinding.FragmentPortfolioDetailBinding
 import ie.wit.showcase2.databinding.FragmentProjectDetailBinding
-import ie.wit.showcase2.databinding.FragmentProjectNewBinding
 import ie.wit.showcase2.firebase.FirebaseImageManager
 import ie.wit.showcase2.models.Favourite
 import ie.wit.showcase2.models.Location
@@ -43,9 +40,6 @@ import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
 
 import ie.wit.showcase2.ui.projectList.ProjectListViewModel
-import ie.wit.showcase2.ui.projectNew.ProjectNewFragmentArgs
-import ie.wit.showcase2.ui.projectNew.ProjectNewFragmentDirections
-import ie.wit.showcase2.ui.projectNew.ProjectNewViewModel
 import ie.wit.showcase2.utils.readImageUri
 import ie.wit.showcase2.utils.showImagePicker
 import timber.log.Timber
@@ -425,7 +419,7 @@ class ProjectDetailFragment : Fragment(), OnMapReadyCallback {
             val updatedProject = NewProject(projectId = args.project.projectId, projectTitle = fragBinding.projectTitle.text.toString(), projectDescription = fragBinding.projectDescription.text.toString(),
                 projectBudget = projectBudget, projectImage = project.projectImage, projectImage2 = project.projectImage2, projectImage3 = project.projectImage3,
                 projectPortfolioName = args.project.projectPortfolioName, portfolioId = args.portfolioid, lat = args.location.lat, lng = args.location.lng,
-                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = projectFavouritesList, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
+                projectCompletionDay = dateDay, projectCompletionMonth = dateMonth, projectCompletionYear = dateYear, projectFavourites = null, projectUserId = args.project.projectUserId, projectUserEmail = args.project.projectUserEmail, projectPortfolioType = currentPortfolio.type)
             //making sure any updating of projects only happens if it is from correct user and related to correct portfolio
             if (args.project.projectUserId == loggedInViewModel.liveFirebaseUser.value!!.uid && args.project.portfolioId == args.portfolioid) {
                 if (fragBinding.projectTitle.text.isEmpty()) {

@@ -56,8 +56,8 @@ class ProjectAdapter constructor(private var projects: ArrayList<NewProject>,
                 Picasso.get().load(project.projectImage).resize(200,200).into(binding.projectImageIcon)
             }
             //favourite star only shown if favourite user ID matching with project user ID
-            val projectFavouriteId = project.projectFavourites?.find { p -> p == project.projectUserId }
-            if (projectFavouriteId == null) {
+            //val projectFavouriteId = project.projectFavourites?.find { p -> p == project.projectUserId }
+            if (project.projectFavourites == null) {
                 binding.imageFavourite.visibility = View.GONE
             } else {
                 binding.imageFavourite.visibility = View.VISIBLE

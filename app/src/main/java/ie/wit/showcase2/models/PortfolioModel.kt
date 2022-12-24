@@ -1,7 +1,6 @@
 package ie.wit.showcase2.models
 
 import android.os.Parcelable
-import android.net.Uri
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 import kotlinx.parcelize.Parcelize

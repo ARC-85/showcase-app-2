@@ -26,14 +26,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
 import ie.wit.showcase2.R
 import ie.wit.showcase2.databinding.FragmentFavouritesMapBinding
-import ie.wit.showcase2.databinding.FragmentProjectsMapBinding
 import ie.wit.showcase2.models.Favourite
 import ie.wit.showcase2.models.Location
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import ie.wit.showcase2.ui.auth.LoggedInViewModel
-import ie.wit.showcase2.ui.projectsMap.ProjectsMapFragmentDirections
-import ie.wit.showcase2.ui.projectsMap.ProjectsMapViewModel
 
 class FavouritesMapFragment : Fragment(), GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 

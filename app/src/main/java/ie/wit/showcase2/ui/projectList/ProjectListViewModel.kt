@@ -8,6 +8,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseUser
 import ie.wit.showcase2.firebase.FirebaseDBManager
+import ie.wit.showcase2.models.Favourite
 import ie.wit.showcase2.models.NewProject
 import ie.wit.showcase2.models.PortfolioModel
 import timber.log.Timber
@@ -28,6 +29,12 @@ class ProjectListViewModel : ViewModel() {
     var observablePortfolio: LiveData<PortfolioModel>
         get() = portfolio
         set(value) {portfolio.value = value.value}
+
+    private val favouritesList =
+        MutableLiveData<List<Favourite>>()
+
+    val observableFavouritesList: LiveData<List<Favourite>>
+        get() = favouritesList
 
     fun load(portfolioid: String) {
         try {
@@ -91,5 +98,26 @@ class ProjectListViewModel : ViewModel() {
             Timber.i("Detail delete() Error : $e.message")
         }
 
+    }
+
+    fun loadFavourites() {
+        try {
+            FirebaseDBManager.findUserUserFavourites(liveFirebaseUser.value?.uid!!,favouritesList)
+            Timber.i("Report Load Success : ${favouritesList.value.toString()}")
+        }
+        catch (e: Exception) {
+            Timber.i("Report Load Error : $e.message")
+        }
+    }
+
+    fun loadAllFavourites() {
+        try {
+
+            FirebaseDBManager.findUserAllFavourites(liveFirebaseUser.value?.uid!!,favouritesList)
+            Timber.i("Report LoadAll Success : ${favouritesList.value.toString()}")
+        }
+        catch (e: Exception) {
+            Timber.i("Report LoadAll Error : $e.message")
+        }
     }
 }

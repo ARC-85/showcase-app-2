@@ -1,9 +1,7 @@
 package ie.wit.showcase2.ui.projectNew
 
 import android.annotation.SuppressLint
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.view.*
